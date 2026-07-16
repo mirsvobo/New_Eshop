@@ -4,6 +4,8 @@ import org.example.dto.CartItemDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class CartTest {
@@ -77,5 +79,31 @@ class CartTest {
         CartItemDto cartItem = cart.getItems().get(0);
         assertEquals(4, cartItem.getQuantity(), "Množství by se mělo sečíst na 4");
         assertTrue(cartItem.isRequiresManufacturing(), "Po navýšení množství v košíku na 4 by položka měla vyžadovat výrobu (sklad 3.0)");
+    }
+    @Test
+    void testCartTaxMode_StandardModeIsDefault() {
+        assertEquals(TaxMode.STANDARD, cart.getTaxMode(), "Výchozí režim košíku musí být STANDARD");
+    }
+
+    @Test
+    void testCartTaxMode_ReducedModeOverridesTaxRate() {
+        // Arrange
+        CartItemDto item = new CartItemDto();
+        item.setProductId(1L);
+        item.setQuantity(1);
+        item.setBasePrice(new BigDecimal("100.00"));
+        item.setTaxRateValue(new BigDecimal("21.00")); // Původní sazba produktu 21 %
+        cart.addItem(item);
+
+        // Act
+        cart.setTaxMode(TaxMode.REDUCED);
+
+        // Assert
+        java.util.Map<BigDecimal, BigDecimal> taxBreakdown = cart.getTaxBreakdown();
+        assertTrue(taxBreakdown.containsKey(new BigDecimal("12.00")), "Rozpad DPH musí obsahovat 12 %");
+        assertFalse(taxBreakdown.containsKey(new BigDecimal("21.00")), "21 % DPH se nesmí aplikovat");
+
+        assertEquals(0, new BigDecimal("12.00").compareTo(taxBreakdown.get(new BigDecimal("12.00"))), "Hodnota DPH musí být 12 Kč");
+        assertEquals(0, new BigDecimal("112.00").compareTo(cart.getTotalPrice()), "Celková cena musí odpovídat 12 % DPH");
     }
 }

@@ -149,4 +149,40 @@ class OrderServiceTest {
         assertTrue(result.getItems().isEmpty());
         assertEquals(0, new BigDecimal("150.00").compareTo(result.getTotalAmount()));
     }
+    @Test
+    void processCheckout_WithReducedTaxMode_SavesOrderAndItemsCorrectly() {
+        // Arrange
+        when(orderStatusRepository.findByName("Nová")).thenReturn(Optional.of(novaStatus));
+
+        CartItemDto item = CartItemDto.builder()
+                .productId(1L)
+                .productName("Test Product")
+                .quantity(1)
+                .price(new BigDecimal("112.00")) // Cena už po slevě DPH v košíku
+                .basePrice(new BigDecimal("100.00"))
+                .taxRateValue(new BigDecimal("21.00")) // Produkt v DB má stále 21 %
+                .build();
+
+        when(cart.getItems()).thenReturn(java.util.Arrays.asList(item));
+        when(cart.getTaxMode()).thenReturn(TaxMode.REDUCED); // Košík je přepnutý na 12 %
+        when(productRepository.findAllById(any())).thenReturn(java.util.Arrays.asList(testProduct));
+
+        // Formulář musí nést informaci o režimu a souhlasu
+        formData.setTaxMode(TaxMode.REDUCED);
+        formData.setAffidavitSigned(true);
+
+        when(orderRepository.save(any(Order.class))).thenAnswer(i -> i.getArgument(0));
+
+        // Act
+        Order result = orderService.processCheckout(null, formData, null);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(TaxMode.REDUCED, result.getTaxMode(), "Objednávka musí mít uložený daňový režim REDUCED");
+        assertTrue(result.isAffidavitSigned(), "Objednávka musí mít příznak podepsaného čestného prohlášení");
+
+        assertFalse(result.getItems().isEmpty());
+        assertEquals(0, new BigDecimal("12.00").compareTo(result.getItems().get(0).getActualTaxRate()),
+                "Položka objednávky si musí pro účetnictví fixně uložit 12 % DPH bez ohledu na produkt v DB");
+    }
 }
