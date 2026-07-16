@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Správa DPH', ~{::section})}">
+<body>
+
+<section class="py-8 sm:py-10 w-full max-w-2xl mx-auto">
+    <div class="mb-10">
+        <a href="/admin/tax-rates"
+           class="text-sm font-black text-gray-400 hover:text-cyan-600 uppercase tracking-widest mb-2 inline-block transition-colors"><i
+                data-lucide="arrow-left" class="w-4 h-4 inline align-text-bottom mr-1"></i> Zpět na sazby DPH</a>
+        <h1 class="text-3xl sm:text-4xl font-black text-gray-900 uppercase tracking-tighter"
+            th:text="${taxRate.id == null ? 'Nová sazba DPH' : 'Upravit sazbu DPH'}">Sazba</h1>
+    </div>
+
+    <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
+        <form th:action="@{/admin/tax-rates/save}" th:object="${taxRate}" method="post" class="space-y-6">
+            <input type="hidden" th:field="*{id}">
+
+            <div>
+                <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Název sazby</label>
+                <input type="text" th:field="*{name}"
+                       class="w-full bg-gray-50 border-0 text-gray-900 text-lg font-bold rounded-2xl focus:ring-4 focus:ring-cyan-500/20 focus:bg-white transition-all p-4"
+                       placeholder="Např. Základní sazba" required>
+            </div>
+
+            <div>
+                <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Výše DPH
+                    (%)</label>
+                <input type="number" step="0.01" min="0" th:field="*{rate}"
+                       class="w-full bg-gray-50 border-0 text-gray-900 text-lg font-bold rounded-2xl focus:ring-4 focus:ring-cyan-500/20 focus:bg-white transition-all p-4"
+                       required>
+            </div>
+
+            <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <input type="checkbox" th:field="*{defaultRate}"
+                       class="w-5 h-5 text-cyan-600 border-gray-300 rounded focus:ring-cyan-500">
+                <label class="text-sm font-bold text-gray-900">Nastavit jako výchozí sazbu pro nové produkty</label>
+            </div>
+
+            <div class="pt-6 border-t border-gray-100 flex justify-end gap-4">
+                <a href="/admin/tax-rates"
+                   class="px-6 py-3 rounded-2xl font-bold text-gray-500 hover:bg-gray-100 transition-colors">Zrušit</a>
+                <button type="submit"
+                        class="bg-cyan-600 text-white px-8 py-3 rounded-2xl font-bold hover:bg-cyan-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                    Uložit sazbu
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+</body>
+</html>

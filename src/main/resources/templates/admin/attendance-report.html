@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{main :: layout('Měsíční výkaz', ~{::section})}">
+<body>
+<section class="py-8">
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight uppercase">Měsíční výkaz hodin</h1>
+            <p class="mt-1 text-sm text-gray-500">Přehled odpracovaného času pro mzdové účely.</p>
+        </div>
+        <a href="/dochazka/admin"
+           class="text-xs font-black text-slate-400 hover:text-slate-900 uppercase tracking-widest flex items-center gap-2">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Zpět na logy
+        </a>
+    </div>
+
+    <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm mb-8">
+        <form method="get" th:action="@{/dochazka/admin/report}"
+              class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+
+            <div sec:authorize="hasRole('ADMIN')">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Zaměstnanec</label>
+                <select name="userId" required
+                        class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold text-sm bg-gray-50">
+                    <option value="" disabled th:selected="${selectedUser == null}">Vyberte...</option>
+                    <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.fullName}"
+                            th:selected="${selectedUser != null && u.id == selectedUser.id}"></option>
+                </select>
+            </div>
+
+            <div th:classappend="${#authorization.expression('hasRole(''ADMIN'')') ? '' : 'md:col-span-2'}">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Měsíc</label>
+                <select name="month" class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold text-sm bg-gray-50">
+                    <option th:each="m : ${#numbers.sequence(1,12)}" th:value="${m}" th:text="${m}"
+                            th:selected="${m == selectedMonth}"></option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Rok</label>
+                <select name="year" class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold text-sm bg-gray-50">
+                    <option th:each="y : ${#numbers.sequence(2024,2026)}" th:value="${y}" th:text="${y}"
+                            th:selected="${y == selectedYear}"></option>
+                </select>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit"
+                        class="flex-1 bg-slate-900 text-white py-3 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-blue-600 transition-all shadow-lg">
+                    Generovat
+                </button>
+                <a th:if="${selectedUser != null}"
+                   th:href="@{/dochazka/admin/report/export(userId=${selectedUser.id}, year=${selectedYear}, month=${selectedMonth})}"
+                   class="flex items-center justify-center p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                   title="Exportovat do Excelu">
+                    <i data-lucide="download" class="w-5 h-5"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div th:if="${report != null}" class="space-y-8 animate-in fade-in duration-500">
+        <div class="bg-slate-900 p-8 rounded-3xl text-white flex flex-col md:flex-row justify-between items-center gap-6 shadow-xl">
+            <div>
+                <span class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Výkaz pro zaměstnance</span>
+                <h2 class="text-2xl font-black tracking-tight" th:text="${selectedUser.fullName}">Jméno</h2>
+            </div>
+            <div class="text-center md:text-right">
+                <span class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Celkem odpracováno</span>
+                <span class="text-3xl font-black text-blue-400" th:text="${totalSummary}">0 hod</span>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Datum
+                    </th>
+                    <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Příchod
+                    </th>
+                    <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Odchod
+                    </th>
+                    <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Pauza
+                    </th>
+                    <th class="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Čistý čas
+                    </th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 bg-white">
+                <tr th:each="day : ${report}" class="hover:bg-gray-50/50 transition-colors">
+                    <td class="px-8 py-5 text-sm font-black text-gray-900"
+                        th:text="${#temporals.format(day.date, 'dd.MM.yyyy (EEE)')}">Datum
+                    </td>
+                    <td class="px-8 py-5 text-sm font-bold text-gray-500"
+                        th:text="${day.clockIn != null ? #temporals.format(day.clockIn, 'HH:mm') : '-'}">08:00
+                    </td>
+                    <td class="px-8 py-5 text-sm font-bold text-gray-500"
+                        th:text="${day.clockOut != null ? #temporals.format(day.clockOut, 'HH:mm') : '-'}">16:30
+                    </td>
+                    <td class="px-8 py-5 text-xs font-bold text-amber-600">
+                        <span th:text="${day.totalBreakTime.toMinutes()} + ' min'">30 min</span>
+                    </td>
+                    <td class="px-8 py-5 text-right text-sm font-black text-slate-900"
+                        th:text="${day.netWorkTime.toHours() + 'h ' + day.netWorkTime.toMinutesPart() + 'm'}">8h 0m
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div th:if="${selectedUser != null && report == null}"
+         class="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+        <i data-lucide="search-x" class="w-12 h-12 text-gray-300 mx-auto mb-4"></i>
+        <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Pro vybrané období nebyly nalezeny žádné
+            záznamy</p>
+    </div>
+</section>
+</body>
+</html>

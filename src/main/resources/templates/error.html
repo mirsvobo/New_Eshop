@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Chyba systému', ~{::section})}"
+      xmlns:sec="http://www.w3.org/1999/xhtml">
+<body>
+
+<section class="flex-grow flex items-center justify-center py-20 px-4">
+    <div class="max-w-md w-full text-center">
+        <div class="mb-8 relative inline-block">
+            <div class="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                <i data-lucide="alert-triangle" class="w-12 h-12 text-red-600"></i>
+            </div>
+            <div class="absolute -top-2 -right-2 bg-white px-3 py-1 rounded-full shadow-sm border border-gray-100 font-black text-red-600 text-sm"
+                 th:text="${status}">500
+            </div>
+        </div>
+
+        <h1 class="text-3xl font-black text-gray-900 uppercase tracking-tighter mb-4">Něco se nepovedlo</h1>
+
+        <p class="text-gray-500 font-medium mb-10 leading-relaxed">
+            Omlouváme se, ale požadovaná stránka není k dispozici nebo došlo k vnitřní chybě serveru. Náš tým truhlářů
+            už na nápravě pracuje.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/"
+               class="inline-flex items-center justify-center px-8 py-4 bg-slate-900 text-white rounded-2xl font-black hover:bg-blue-600 transition-all uppercase tracking-widest text-sm shadow-xl">
+                Zpět na hlavní stranu
+            </a>
+            <button onclick="history.back()"
+                    class="inline-flex items-center justify-center px-8 py-4 bg-white border border-gray-200 text-slate-700 rounded-2xl font-black hover:bg-gray-50 transition-all uppercase tracking-widest text-sm">
+                Vrátit se zpět
+            </button>
+        </div>
+
+        <div class="mt-12 p-4 bg-slate-50 rounded-xl border border-slate-100 text-[10px] font-mono text-slate-400 text-left overflow-auto max-h-32"
+             sec:authorize="hasRole('ADMIN')">
+            <strong>Debug info for Admin:</strong><br>
+            Path: <span th:text="${path}">/unknown</span><br>
+            Message: <span th:text="${message}">No message</span><br>
+            Time: <span th:text="${timestamp}">Now</span>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

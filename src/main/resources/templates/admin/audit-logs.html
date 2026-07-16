@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Audit Logy', ~{::section})}">
+<body>
+
+<section class="py-8 w-full">
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-black text-gray-900 uppercase tracking-tighter">Bezpečnostní logy</h1>
+            <p class="text-gray-500 font-medium uppercase text-xs tracking-widest mt-1">Auditní stopa všech změn v
+                systému</p>
+        </div>
+        <a href="/admin"
+           class="inline-flex items-center text-sm font-black text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-widest gap-2">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Zpět na panel
+        </a>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 mb-8">
+        <form method="get" action="/admin/logs" class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 items-end">
+
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Filtrovat
+                    uživatele</label>
+                <select name="userId"
+                        class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold text-sm bg-gray-50 focus:ring-blue-500">
+                    <option value="">Všichni uživatelé</option>
+                    <option th:each="user : ${users}"
+                            th:value="${user.id}"
+                            th:text="${user.firstName + ' ' + user.lastName + ' (' + user.role + ')'}"
+                            th:selected="${selectedUserId == user.id}"></option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Systémový
+                    Modul</label>
+                <select name="module"
+                        class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold text-sm bg-gray-50 focus:ring-blue-500">
+                    <option value="">Všechny moduly</option>
+                    <option th:each="sysMod : ${modules}"
+                            th:value="${sysMod}"
+                            th:text="${sysMod}"
+                            th:selected="${selectedModule == sysMod}"></option>
+                </select>
+            </div>
+
+            <div class="flex gap-2 lg:col-span-2">
+                <button type="submit"
+                        class="flex-1 bg-slate-900 text-white py-3 px-4 rounded-xl font-black hover:bg-blue-600 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2 shadow-md">
+                    <i data-lucide="filter" class="w-4 h-4"></i> Použít filtr
+                </button>
+                <a href="/admin/logs"
+                   class="flex-none bg-white border border-gray-200 text-gray-500 py-3 px-4 rounded-xl font-black hover:bg-gray-50 transition-all uppercase tracking-widest text-xs flex items-center justify-center shadow-sm"
+                   title="Zrušit filtry">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50/50">
+                <tr>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Datum
+                        a čas
+                    </th>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Modul
+                    </th>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Uživatel
+                    </th>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Akce
+                    </th>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Detaily
+                    </th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                <tr th:each="log : ${logs}" class="hover:bg-gray-50/30 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-[11px] font-bold text-slate-500"
+                        th:text="${#temporals.format(log.timestamp, 'dd.MM.yyyy HH:mm:ss')}"></td>
+
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-xs font-black text-blue-600 uppercase tracking-widest"
+                              th:text="${log.module}"></span>
+                    </td>
+
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div th:if="${log.user != null}" class="flex items-center gap-2">
+                            <div class="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center text-[10px] font-black text-slate-500"
+                                 th:text="${#strings.substring(log.user.firstName,0,1) + #strings.substring(log.user.lastName,0,1)}"></div>
+                            <span class="text-xs font-black text-slate-900" th:text="${log.user.email}"></span>
+                        </div>
+                        <span th:unless="${log.user != null}"
+                              class="text-xs font-bold text-gray-300 italic uppercase tracking-tighter">Systém / Host</span>
+                    </td>
+
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-0.5 bg-slate-900 text-white text-[9px] font-black rounded uppercase tracking-tighter"
+                              th:text="${log.action}">AKCE</span>
+                    </td>
+
+                    <td class="px-6 py-4 text-sm text-gray-600 font-medium leading-relaxed"
+                        th:text="${log.details}"></td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(logs)}">
+                    <td colspan="5" class="px-6 py-12 text-center text-gray-400 font-medium">Pro tento filtr nebyly
+                        nalezeny žádné záznamy.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Správa uživatelů', ~{::section})}">
+<body>
+
+<section class="py-8">
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight uppercase">Správa uživatelů</h1>
+            <p class="mt-1 text-sm text-gray-500">Přehled zaměstnanců, administrátorů a zákazníků.</p>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="/admin"
+               class="inline-flex items-center text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-widest gap-2 mr-4">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Zpět
+            </a>
+            <a href="/admin/uzivatele/novy"
+               class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-black rounded-xl shadow-lg text-white bg-slate-900 hover:bg-blue-600 transition-all uppercase tracking-widest gap-2">
+                <i data-lucide="plus" class="w-4 h-4"></i> Nový uživatel
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${success}"
+         class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-xl flex items-center gap-3">
+        <i data-lucide="check-circle" class="text-green-600 w-5 h-5"></i>
+        <p class="text-sm text-green-800 font-bold" th:text="${success}"></p>
+    </div>
+    <div th:if="${error}" class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl flex items-center gap-3">
+        <i data-lucide="alert-circle" class="text-red-600 w-5 h-5"></i>
+        <p class="text-sm text-red-800 font-bold" th:text="${error}"></p>
+    </div>
+
+    <div class="mb-6 flex flex-wrap gap-2">
+        <a th:href="@{/admin/uzivatele}"
+           th:class="'px-4 py-2 text-xs font-black rounded-xl uppercase tracking-widest transition-all ' +
+                     (${currentFilter == null} ? 'bg-slate-900 text-white shadow-md' : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-200')">
+            Všichni
+        </a>
+        <a th:each="role : ${roles}"
+           th:href="@{/admin/uzivatele(roleFilter=${role.name()})}"
+           th:text="${role.displayName}"
+           th:class="'px-4 py-2 text-xs font-black rounded-xl uppercase tracking-widest transition-all ' +
+                     (${currentFilter == role} ? 'bg-slate-900 text-white shadow-md' : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-200')">
+        </a>
+    </div>
+
+    <div class="bg-white shadow-sm rounded-3xl border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Uživatel
+                    </th>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Role
+                    </th>
+                    <th class="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Stav
+                    </th>
+                    <th class="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Akce
+                    </th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-50">
+                <tr th:each="user : ${users}" class="hover:bg-gray-50/50 transition-colors group">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <a th:href="@{/admin/uzivatele/edit/{id}(id=${user.id})}" class="block cursor-pointer">
+                            <div class="text-sm font-black text-gray-900 group-hover:text-blue-600 transition-colors"
+                                 th:text="${user.getFullName()}">Jan Novák
+                            </div>
+                            <div class="text-xs text-gray-500" th:text="${user.email}">jan@email.cz</div>
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span th:class="'px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full uppercase tracking-widest ' +
+                            (${user.role.name() == 'ROLE_ADMIN'} ? 'bg-indigo-100 text-indigo-800' :
+                            (${user.role.name() == 'ROLE_EMPLOYEE'} ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'))"
+                              th:text="${user.role.displayName}">
+                            Zaměstnanec
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span th:if="${user.active}"
+                              class="text-[9px] font-black uppercase text-green-500 tracking-widest">Aktivní</span>
+                        <span th:unless="${user.active}"
+                              class="text-[9px] font-black uppercase text-red-500 tracking-widest">Blokován</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex items-center justify-end gap-3">
+
+                        <form th:action="@{/admin/uzivatele/zmenit-stav/{id}(id=${user.id})}" method="post"
+                              class="inline">
+                            <button type="submit"
+                                    th:title="${user.active ? 'Zablokovat uživatele' : 'Odblokovat uživatele'}"
+                                    class="p-2 rounded-xl transition-all"
+                                    th:classappend="${user.active ? 'text-amber-500 hover:bg-amber-50' : 'text-green-500 hover:bg-green-50'}">
+                                <i data-lucide="power" class="w-4 h-4"></i>
+                            </button>
+                        </form>
+
+                        <a th:href="@{/admin/uzivatele/edit/{id}(id=${user.id})}"
+                           class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all">
+                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(users)}">
+                    <td colspan="4"
+                        class="px-6 py-16 text-center text-gray-400 font-bold uppercase tracking-widest text-sm">
+                        Nenalezeni žádní uživatelé
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

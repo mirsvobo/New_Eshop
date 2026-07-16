@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{main :: layout(${user.id == null ? 'Nový uživatel' : 'Detail uživatele'}, ~{::section})}">
+<body>
+
+<section class="py-8 max-w-6xl mx-auto">
+    <a href="/admin/uzivatele"
+       class="inline-flex items-center text-sm font-bold text-slate-400 hover:text-slate-900 mb-6 transition-colors uppercase tracking-widest gap-2">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Zpět na seznam
+    </a>
+
+    <div th:if="${user.id != null}" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+            <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Celková útrata</span>
+            <span class="text-3xl font-black text-blue-600"
+                  th:text="${#numbers.formatDecimal(totalSpent, 1, 'WHITESPACE', 0, 'POINT')} + ' Kč'">0 Kč</span>
+        </div>
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+            <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Počet objednávek</span>
+            <span class="text-3xl font-black text-gray-900" th:text="${#lists.size(orders)}">0</span>
+        </div>
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+            <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Status účtu</span>
+            <span th:if="${user.active}"
+                  class="text-green-500 font-black uppercase text-sm tracking-widest">Aktivní</span>
+            <span th:unless="${user.active}"
+                  class="text-red-500 font-black uppercase text-sm tracking-widest">Blokován</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <div class="lg:col-span-2">
+            <form th:action="@{/admin/uzivatele/ulozit}" th:object="${user}" method="post"
+                  class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                <input type="hidden" th:field="*{id}"/>
+                <input type="hidden" th:field="*{active}"/>
+
+                <input th:if="${user.role != null && user.role.name() == 'ROLE_CUSTOMER'}" type="hidden"
+                       th:field="*{role}"/>
+
+                <h2 class="text-lg font-black text-gray-900 mb-6 uppercase tracking-widest border-b pb-4">Osobní
+                    údaje</h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Křestní
+                            jméno</label>
+                        <input type="text" th:field="*{firstName}"
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500"
+                               required>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Příjmení</label>
+                        <input type="text" th:field="*{lastName}"
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500"
+                               required>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">E-mail
+                            (Login)</label>
+                        <input type="email" th:field="*{email}"
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500"
+                               required>
+                    </div>
+
+                    <div th:classappend="${user.role != null && user.role.name() == 'ROLE_CUSTOMER'} ? 'sm:col-span-2' : ''">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Telefon</label>
+                        <input type="text" th:field="*{phone}"
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500">
+                    </div>
+
+                    <div th:unless="${user.role != null && user.role.name() == 'ROLE_CUSTOMER'}">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">PIN
+                            (Docházka)</label>
+                        <input type="text" th:field="*{pin}"
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <h2 class="text-lg font-black text-gray-900 mb-6 mt-10 uppercase tracking-widest border-b pb-4">
+                    Fakturační údaje</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                    <div class="sm:col-span-2">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Název
+                            firmy (volitelné)</label>
+                        <input type="text" th:field="*{companyName}"
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">IČO</label>
+                        <input type="text" th:field="*{ico}"
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">DIČ</label>
+                        <input type="text" th:field="*{dic}"
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Fakturační
+                            adresa</label>
+                        <textarea th:field="*{billingAddress}" rows="3"
+                                  class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Dodací
+                            adresa</label>
+                        <textarea th:field="*{deliveryAddress}" rows="3"
+                                  class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500"></textarea>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-100 pt-6 mb-6">
+                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Zabezpečení</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div th:unless="${user.role != null && user.role.name() == 'ROLE_CUSTOMER'}">
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Role
+                                v systému</label>
+                            <select th:field="*{role}"
+                                    class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500">
+                                <option th:each="r : ${roles}" th:value="${r}" th:text="${r.displayName}"></option>
+                            </select>
+                        </div>
+                        <div th:classappend="${user.role != null && user.role.name() == 'ROLE_CUSTOMER'} ? 'sm:col-span-2' : ''">
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Heslo</label>
+                            <input type="password" name="rawPassword"
+                                   class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500"
+                                   th:placeholder="${user.id == null ? 'Zadejte heslo' : 'Změnit heslo (ponechte prázdné)'}"
+                                   th:required="${user.id == null}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-100">
+                    <button type="submit"
+                            class="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg hover:bg-blue-600 transition-all">
+                        Uložit změny
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="lg:col-span-1">
+            <div th:if="${user.id != null}"
+                 class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden sticky top-8">
+                <div class="p-6 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+                    <h3 class="text-sm font-black text-gray-900 uppercase tracking-widest">Historie objednávek</h3>
+                </div>
+                <div class="divide-y divide-gray-50 max-h-[700px] overflow-y-auto">
+                    <div th:each="order : ${orders}" class="p-5 hover:bg-gray-50 transition-colors group">
+
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <a th:href="@{/admin/objednavky/{id}(id=${order.id})}"
+                                   class="text-sm font-black text-blue-600 group-hover:underline block mb-1.5"
+                                   th:text="${order.orderNumber}">ORD-XXX</a>
+                                <span th:class="${order.status.getBadgeClass()}"
+                                      th:text="${order.status.name}">STAV</span>
+                            </div>
+                            <div class="text-[10px] text-gray-400 font-bold shrink-0 pt-0.5">
+                                <i data-lucide="calendar" class="w-3 h-3 inline mr-1"></i>
+                                <span th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy')}"></span>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-3 mt-2 border-t border-gray-50">
+                            <a th:href="@{/invoices/FAKTURA-{num}.html(num=${order.orderNumber})}" target="_blank"
+                               class="text-[9px] font-black text-blue-500 uppercase tracking-widest hover:text-blue-700 flex items-center gap-1">
+                                <i data-lucide="file-text" class="w-3 h-3"></i> Faktura
+                            </a>
+                            <div class="text-sm font-black text-gray-900"
+                                 th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'WHITESPACE', 0, 'POINT')} + ' Kč'"></div>
+                        </div>
+
+                    </div>
+                    <div th:if="${#lists.isEmpty(orders)}"
+                         class="p-10 text-center text-gray-400 uppercase text-[10px] font-black tracking-widest">
+                        Zatím žádné objednávky
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${user.id == null}" class="bg-blue-50 p-8 rounded-3xl border border-blue-100 text-center">
+                <i data-lucide="info" class="w-12 h-12 text-blue-400 mx-auto mb-4"></i>
+                <p class="text-sm font-bold text-blue-800 uppercase tracking-tight">Historie objednávek bude dostupná po
+                    vytvoření účtu.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

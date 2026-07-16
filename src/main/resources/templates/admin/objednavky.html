@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Správa objednávek', ~{::section})}">
+<body>
+
+<section class="py-8 sm:py-10 w-full max-w-7xl mx-auto">
+    <div class="mb-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tighter uppercase">Správa objednávek</h1>
+            <p class="text-sm font-bold text-gray-500 mt-1">Přehled a vyřizování zákaznických objednávek.</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="/admin/objednavky/export-excel"
+               class="inline-flex items-center justify-center px-6 py-3 bg-white border border-green-200 text-green-700 rounded-xl hover:bg-green-50 transition-all font-black text-xs uppercase tracking-widest gap-2 shadow-sm">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Hromadný export (Excel)
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50/30">
+                <tr>
+                    <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Číslo
+                        obj.
+                    </th>
+                    <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Datum
+                        vytvoření
+                    </th>
+                    <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Zákazník
+                    </th>
+                    <th class="px-8 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Stav
+                    </th>
+                    <th class="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Hodnota
+                    </th>
+                    <th class="px-8 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Akce
+                    </th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                <tr th:each="order : ${orders}" class="hover:bg-gray-50/50 transition-colors group">
+                    <td class="px-8 py-5 whitespace-nowrap">
+                        <a th:href="@{/admin/objednavky/{id}(id=${order.id})}"
+                           class="text-sm font-black text-blue-600 hover:text-blue-800 transition-colors"
+                           th:text="${order.orderNumber}">ORD-XXX</a>
+                    </td>
+                    <td class="px-8 py-5 whitespace-nowrap text-sm font-bold text-gray-500"
+                        th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}">
+                        Datum
+                    </td>
+                    <td class="px-8 py-5 whitespace-nowrap">
+                        <div class="text-sm font-bold text-gray-900" th:text="${order.getCustomerFullName()}">Jméno
+                        </div>
+                        <div th:if="${order.customer == null}"
+                             class="text-[9px] font-black text-slate-400 uppercase tracking-tighter mt-0.5">Nákup bez
+                            registrace
+                        </div>
+                    </td>
+                    <td class="px-8 py-5 whitespace-nowrap text-center">
+                        <span th:if="${order.status != null}" th:class="${order.status.getBadgeClass() + ' shadow-sm'}"
+                              th:text="${order.status.name}">STAV</span>
+                        <span th:if="${order.status == null}"
+                              class="px-3 py-1.5 inline-flex text-[10px] font-black rounded-full bg-slate-100 text-slate-400 uppercase tracking-widest shadow-sm">Nepřiřazen</span>
+                    </td>
+                    <td class="px-8 py-5 whitespace-nowrap text-right">
+                        <span class="text-sm font-black text-gray-900"
+                              th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'WHITESPACE', 0, 'POINT')} + ' Kč'"></span>
+                    </td>
+                    <td class="px-8 py-5 whitespace-nowrap text-center">
+                        <a th:href="@{/admin/objednavky/{id}(id=${order.id})}"
+                           class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gray-50 text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(orders)}">
+                    <td colspan="6" class="px-8 py-20 text-center">
+                        <i data-lucide="inbox" class="w-12 h-12 mx-auto text-gray-300 mb-4"></i>
+                        <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Zatím nebyly přijaty žádné
+                            objednávky.</p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Pokladna', ~{::section})}">
+<body>
+<section class="py-8 w-full">
+    <h1 class="text-3xl font-black text-gray-900 uppercase mb-8">Pokladna</h1>
+
+    <form th:action="@{/kosik/objednat}" th:object="${checkoutForm}" method="post"
+          class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-6">
+
+            <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest border-b pb-3 mb-6">1. Osobní
+                    údaje</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input type="text" th:field="*{firstName}" placeholder="Jméno"
+                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50" required>
+                    <input type="text" th:field="*{lastName}" placeholder="Příjmení"
+                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50" required>
+                    <input type="email" th:field="*{email}" placeholder="E-mail"
+                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50" required>
+                    <input type="tel" th:field="*{phone}" placeholder="Telefon"
+                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50" required>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest border-b pb-3 mb-6">2. Fakturační
+                    údaje</h3>
+                <div class="space-y-4">
+                    <input type="text" th:field="*{companyName}" placeholder="Název firmy (volitelně)"
+                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <input type="text" th:field="*{ico}" placeholder="IČO (8 číslic)"
+                                   class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50">
+                            <p th:if="${#fields.hasErrors('ico')}" th:errors="*{ico}"
+                               class="text-red-500 text-[10px] mt-1 uppercase font-bold"></p>
+                        </div>
+                        <div>
+                            <input type="text" th:field="*{dic}" placeholder="DIČ (CZ12345678)"
+                                   class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50">
+                            <p th:if="${#fields.hasErrors('dic')}" th:errors="*{dic}"
+                               class="text-red-500 text-[10px] mt-1 uppercase font-bold"></p>
+                        </div>
+                    </div>
+                    <input type="text" th:field="*{billingStreet}" placeholder="Ulice a č.p."
+                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50" required>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" th:field="*{billingCity}" placeholder="Město"
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50" required>
+                        <input type="text" th:field="*{billingZipCode}" placeholder="PSČ"
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50" required>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-gray-50">
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                        <input type="checkbox" id="toggle-delivery" th:field="*{shipToDifferentAddress}"
+                               class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm font-black text-gray-700 uppercase tracking-widest group-hover:text-blue-600 transition-colors">Doručit na jinou adresu / jinému příjemci</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="shippingSection"
+                 class="hidden bg-white p-6 rounded-3xl border border-gray-100 shadow-sm transition-all duration-300">
+                <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest border-b pb-3 mb-6">3. Údaje pro
+                    doručení</h3>
+                <div class="space-y-4">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <input type="text" th:field="*{shippingFirstName}" placeholder="Jméno příjemce"
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50">
+                        <input type="text" th:field="*{shippingLastName}" placeholder="Příjmení příjemce"
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50">
+                    </div>
+                    <input type="tel" th:field="*{shippingPhone}" placeholder="Telefon na příjemce"
+                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50">
+
+                    <input type="text" th:field="*{shippingStreet}" placeholder="Doručovací ulice a č.p."
+                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 mt-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" th:field="*{shippingCity}" placeholder="Město"
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50">
+                        <input type="text" th:field="*{shippingZipCode}" placeholder="PSČ"
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black hover:bg-blue-600 transition-all uppercase tracking-widest shadow-xl">
+                Dokončit a zaplatit
+            </button>
+        </div>
+
+        <div class="lg:col-span-1">
+            <div class="bg-gray-50 rounded-3xl p-8 border border-gray-200 sticky top-24 shadow-sm">
+                <h3 class="text-sm font-black text-gray-900 uppercase mb-6">Rekapitulace</h3>
+                <div class="space-y-4 mb-6">
+                    <div th:each="item : ${cartItems}" class="flex justify-between text-sm">
+                        <span th:text="${item.quantity + 'x ' + item.productName}" class="text-gray-500"></span>
+                        <span th:text="${#numbers.formatDecimal(item.price * item.quantity, 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč'"
+                              class="font-bold text-gray-900"></span>
+                    </div>
+                </div>
+                <div class="pt-6 border-t border-gray-200 space-y-2">
+                    <div class="flex justify-between text-xs font-bold text-gray-400 uppercase">
+                        <span>Základ daně</span>
+                        <span th:text="${#numbers.formatDecimal(@cart.getTotalBasePrice(), 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč'"></span>
+                    </div>
+                    <div th:each="entry : ${@cart.getTaxBreakdown()}"
+                         class="flex justify-between text-xs font-bold text-gray-400 uppercase">
+                        <span th:text="'DPH ' + ${#numbers.formatDecimal(entry.key, 1, 0)} + '%'"></span>
+                        <span th:text="${#numbers.formatDecimal(entry.value, 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč'"></span>
+                    </div>
+                    <div class="flex justify-between text-xs font-bold text-gray-400 uppercase">
+                        <span>Doprava</span>
+                        <span>150 Kč</span>
+                    </div>
+                    <div class="flex justify-between text-2xl font-black text-blue-600 pt-4 mt-2 border-t border-gray-100">
+                        <span class="text-gray-900 uppercase">Celkem</span>
+                        <span th:text="${#numbers.formatDecimal(cartTotal + 150, 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč'"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggle = document.getElementById('toggle-delivery');
+            const section = document.getElementById('shippingSection');
+
+            if (toggle && section) {
+                const updateVisibility = () => {
+                    if (toggle.checked) {
+                        section.classList.remove('hidden');
+                    } else {
+                        section.classList.add('hidden');
+                    }
+                };
+
+                toggle.addEventListener('change', updateVisibility);
+                updateVisibility();
+            }
+        });
+    </script>
+
+</section>
+</body>
+</html>

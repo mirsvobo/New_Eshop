@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{main :: layout('Převod administrátorských práv', ~{::section})}">
+<body>
+
+<section class="py-12 sm:py-20 flex items-center justify-center min-h-[70vh]">
+
+    <div class="bg-white max-w-xl w-full rounded-[2rem] shadow-2xl border border-red-100 overflow-hidden relative">
+        <div class="bg-red-500 p-8 text-center relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+            <i data-lucide="alert-triangle" class="w-16 h-16 text-white mx-auto mb-4 relative z-10"></i>
+            <h2 class="text-2xl font-black text-white uppercase tracking-widest relative z-10">Pozor: Poslední
+                administrátor</h2>
+        </div>
+
+        <div class="p-8 sm:p-10">
+            <p class="text-slate-600 font-medium leading-relaxed mb-8 text-center">
+                Snažíte se zablokovat nebo odebrat práva <strong>poslednímu aktivnímu administrátorovi</strong>.
+                Tím byste nenávratně ztratili kontrolu nad systémem. Než tuto akci provedete, musíte delegovat plná
+                práva na někoho jiného.
+            </p>
+
+            <form th:action="@{/admin/uzivatele/prevod-prav}" method="post">
+                <div class="mb-8 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Vyberte nového
+                        administrátora z řad zaměstnanců:</label>
+
+                    <div th:if="${not #lists.isEmpty(candidates)}">
+                        <select name="newAdminId"
+                                class="w-full border-slate-200 rounded-xl py-3.5 px-4 font-bold text-slate-800 bg-white focus:ring-blue-500 outline-none cursor-pointer shadow-sm">
+                            <option th:each="candidate : ${candidates}" th:value="${candidate.id}"
+                                    th:text="${candidate.fullName + ' (' + candidate.email + ')'}"></option>
+                        </select>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(candidates)}"
+                         class="text-sm font-bold text-amber-600 bg-amber-50 p-4 rounded-xl flex items-start gap-3">
+                        <i data-lucide="info" class="w-5 h-5 shrink-0"></i>
+                        V systému aktuálně neexistují žádní další aktivní zaměstnanci, kterým by bylo možné práva
+                        předat. Musíte nejprve vytvořit nový účet.
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="/admin/uzivatele"
+                       class="flex-1 px-6 py-4 border border-slate-200 text-slate-600 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-slate-50 transition-colors text-center">
+                        Zrušit akci
+                    </a>
+                    <button type="submit" th:disabled="${#lists.isEmpty(candidates)}"
+                            class="flex-1 px-6 py-4 bg-red-600 text-white rounded-xl font-black text-sm uppercase tracking-widest shadow-lg shadow-red-600/20 hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                        Předat práva
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-8 pt-6 border-t border-slate-100 text-center">
+                <span class="text-xs font-bold text-slate-400">Nebo můžete rovnou</span>
+                <a href="/admin/uzivatele/novy"
+                   class="inline-flex items-center gap-1.5 text-xs font-black text-blue-600 hover:text-blue-800 uppercase tracking-widest mt-1">
+                    vytvořit nového uživatele <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+</body>
+</html>

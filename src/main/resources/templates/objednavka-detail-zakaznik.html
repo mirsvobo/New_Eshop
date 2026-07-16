@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Detail objednávky', ~{::section})}">
+<body>
+
+<section class="py-12 sm:py-20 w-full max-w-5xl mx-auto px-4">
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <a href="/muj-ucet"
+           class="inline-flex items-center text-sm font-black text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-widest gap-2">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Zpět na můj účet
+        </a>
+        <a th:href="@{/invoices/FAKTURA-{num}.html(num=${order.orderNumber})}" target="_blank"
+           class="inline-flex items-center justify-center text-sm font-black text-blue-600 hover:text-blue-800 transition-colors uppercase tracking-widest gap-2 bg-blue-50 px-6 py-3 rounded-xl shadow-sm border border-blue-100">
+            <i data-lucide="file-text" class="w-4 h-4"></i> Zobrazit fakturu
+        </a>
+    </div>
+
+    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden mb-8">
+        <div class="p-8 sm:p-10 border-b border-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-6 bg-slate-50/50">
+            <div>
+                <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter uppercase mb-2"
+                    th:text="${order.orderNumber}">ORD-XXX</h1>
+                <div class="text-sm font-bold text-slate-500 flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-4 h-4"></i> Vytvořeno: <span
+                        th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy v HH:mm')}"></span>
+                </div>
+            </div>
+            <div class="text-left sm:text-right">
+                <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Aktuální stav</span>
+                <span th:class="${order.status.getBadgeClass() + ' shadow-sm'}"
+                      th:text="${order.status.name}">STAV</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+
+            <div class="p-8 sm:p-10 md:col-span-1 bg-slate-50/30">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8 flex items-center gap-2">
+                    <i data-lucide="activity" class="w-4 h-4"></i> Průběh vyřízení
+                </h3>
+
+                <div class="relative border-l-2 border-slate-200 ml-3 pl-6 space-y-8">
+                    <div th:each="history, iterStat : ${order.statusHistory}" class="relative">
+                        <div class="absolute w-3.5 h-3.5 rounded-full -left-[31px] top-0.5 ring-4 ring-slate-50"
+                             th:classappend="${iterStat.first ? 'bg-blue-500' : 'bg-slate-300'}"></div>
+
+                        <div class="text-sm font-black text-slate-900 mb-1" th:text="${history.status.name}">Stav</div>
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"
+                             th:text="${#temporals.format(history.createdAt, 'dd.MM.yyyy HH:mm')}">Datum
+                        </div>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(order.statusHistory)}" class="text-xs text-slate-400 font-bold italic">
+                        Informace o průběhu zatím nejsou k dispozici.
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-8 sm:p-10 md:col-span-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-10 pb-10 border-b border-slate-100">
+                    <div>
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <i data-lucide="truck" class="w-3.5 h-3.5"></i> Doručovací adresa</h3>
+                        <p class="text-sm font-bold text-slate-800 leading-relaxed"
+                           th:text="${order.deliveryAddress}"></p>
+                    </div>
+                    <div>
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Fakturační údaje</h3>
+                        <p class="text-sm font-bold text-slate-800 leading-relaxed"
+                           th:text="${order.billingAddress}"></p>
+                        <div th:if="${order.ico != null}" class="text-xs font-bold text-slate-500 mt-2">IČO: <span
+                                th:text="${order.ico}"></span></div>
+                        <div th:if="${order.dic != null}" class="text-xs font-bold text-slate-500 mt-1">DIČ: <span
+                                th:text="${order.dic}"></span></div>
+                    </div>
+                </div>
+
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Objednané položky</h3>
+                <div class="space-y-4 mb-8">
+                    <div th:each="item : ${order.items}"
+                         class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center font-black text-slate-500 text-xs border border-slate-100"
+                                 th:text="${item.quantity}"></div>
+                            <div class="text-sm font-black text-slate-800" th:text="${item.product.name}"></div>
+                        </div>
+                        <div class="text-sm font-black text-slate-900"
+                             th:text="${#numbers.formatDecimal(item.unitPrice * item.quantity, 1, 'WHITESPACE', 0, 'POINT')} + ' Kč'"></div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 p-6 sm:p-8 rounded-3xl text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xl shadow-slate-900/10">
+                    <div>
+                        <span class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Doprava: <span
+                                class="text-white"
+                                th:text="${#numbers.formatDecimal(order.shippingCost, 1, 'WHITESPACE', 0, 'POINT')} + ' Kč'"></span></span>
+                        <span class="block text-[10px] font-black text-slate-500 uppercase tracking-widest">Konečná částka (vč. DPH)</span>
+                    </div>
+                    <div class="text-3xl sm:text-4xl font-black tracking-tighter text-blue-400"
+                         th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'WHITESPACE', 0, 'POINT')} + ' Kč'"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

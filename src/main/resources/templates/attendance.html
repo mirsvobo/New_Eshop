@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Terminál docházky', ~{::section})}">
+<body>
+
+<section class="flex-grow flex items-center justify-center py-12 px-4 bg-gray-50/50">
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const csrfToken = /*[[${_csrf != null ? _csrf.token : ''}]]*/ '';
+        const csrfHeader = /*[[${_csrf != null ? _csrf.headerName : 'X-CSRF-TOKEN'}]]*/ 'X-CSRF-TOKEN';
+        /*]]>*/
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('terminalApp', () => ({
+                currentTime: '',
+                pin: '',
+                worker: null,
+                notification: null,
+                loading: false,
+                actionLoading: false,
+                successAction: null,
+                isResetting: false,
+
+                init() {
+                    this.updateTime();
+                    setInterval(() => this.updateTime(), 1000);
+                    // Překreslení ikon Lucide při změně stavu UI
+                    this.$watch('worker', () => setTimeout(() => lucide.createIcons(), 50));
+                    this.$watch('successAction', () => setTimeout(() => lucide.createIcons(), 50));
+                },
+
+                updateTime() {
+                    this.currentTime = new Date().toLocaleTimeString('cs-CZ') + ' | ' + new Date().toLocaleDateString('cs-CZ');
+                },
+
+                appendPin(n) {
+                    if (this.pin.length < 4) this.pin += n;
+                },
+                removePin() {
+                    this.pin = this.pin.slice(0, -1);
+                },
+                clearPin() {
+                    this.pin = '';
+                },
+
+                async verify() {
+                    if (this.pin.length !== 4) return;
+                    this.loading = true;
+                    this.notification = null;
+                    try {
+                        const res = await fetch('/dochazka/api/verify', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                [csrfHeader]: csrfToken
+                            },
+                            body: JSON.stringify({pin: this.pin})
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.success) {
+                            this.worker = data.worker;
+                        } else {
+                            this.showNotification('error', data.message || 'Neplatný PIN');
+                            this.pin = '';
+                        }
+                    } catch (e) {
+                        this.showNotification('error', 'Chyba připojení k serveru');
+                        this.pin = '';
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async sendAction(act) {
+
+                    this.actionLoading = true;
+                    this.notification = null;
+
+
+                    const startTime = Date.now();
+
+                    try {
+                        const res = await fetch('/dochazka/api/action', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                [csrfHeader]: csrfToken
+                            },
+                            body: JSON.stringify({pin: this.pin, action: act})
+                        });
+                        const data = await res.json();
+
+
+                        const elapsedTime = Date.now() - startTime;
+                        if (elapsedTime < 1000) {
+                            await new Promise(resolve => setTimeout(resolve, 1000 - elapsedTime));
+                        }
+
+                        if (res.ok && data.success) {
+                            this.actionLoading = false;
+
+                            const labels = {
+                                'clock_in': 'PŘÍCHOD ZAZNAMENÁN',
+                                'break_start': 'ZAČALA PŘESTÁVKA',
+                                'break_end': 'KONEC PŘESTÁVKY',
+                                'clock_out': 'ODCHOD ZAZNAMENÁN'
+                            };
+                            this.successAction = labels[act] || 'ZÁZNAM ULOŽEN';
+
+                            setTimeout(() => this.reset(), 2500);
+                        } else {
+                            this.showNotification('error', data.message || 'Chyba serveru');
+                            this.actionLoading = false;
+                        }
+                    } catch (e) {
+                        const elapsedTime = Date.now() - startTime;
+                        if (elapsedTime < 1000) {
+                            await new Promise(resolve => setTimeout(resolve, 1000 - elapsedTime));
+                        }
+                        this.showNotification('error', 'Chyba při komunikaci');
+                        this.actionLoading = false;
+                    }
+                },
+
+                reset() {
+                    this.isResetting = true;
+
+                    setTimeout(() => {
+                        this.worker = null;
+                        this.pin = '';
+                        this.notification = null;
+                        this.loading = false;
+                        this.actionLoading = false;
+                        this.successAction = null;
+
+                        setTimeout(() => {
+                            this.isResetting = false;
+                            setTimeout(() => lucide.createIcons(), 50);
+                        }, 150);
+                    }, 400);
+                },
+
+                showNotification(type, msg) {
+                    this.notification = {type, msg};
+                    setTimeout(() => {
+                        if (this.notification && this.notification.msg === msg) {
+                            this.notification = null;
+                        }
+                    }, 4000);
+                }
+            }));
+        });
+    </script>
+
+    <div x-data="terminalApp"
+         class="w-full max-w-md bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 relative transition-all duration-400 ease-in-out transform"
+         :class="isResetting ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100 blur-0'">
+
+        <div class="bg-slate-900 p-8 text-white text-center relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-white opacity-5 rounded-full blur-2xl"></div>
+            <div class="relative z-10">
+                <div class="bg-blue-500/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                    <i data-lucide="fingerprint" class="w-8 h-8 text-blue-400"></i>
+                </div>
+                <h1 class="text-2xl font-black tracking-tighter uppercase">Terminál</h1>
+                <p class="text-blue-300 font-mono mt-1 text-sm bg-slate-800/50 inline-block px-3 py-1 rounded-lg"
+                   x-text="currentTime"></p>
+            </div>
+        </div>
+
+        <div x-show="notification" x-transition.opacity
+             class="absolute top-0 left-0 right-0 p-4 text-center font-bold text-xs uppercase tracking-widest z-50 backdrop-blur-md"
+             :class="notification?.type === 'success' ? 'bg-green-500/90 text-white' : 'bg-red-500/90 text-white'"
+             x-text="notification?.msg" style="display: none;">
+        </div>
+
+        <div x-show="!worker && !successAction" class="p-8 sm:p-10">
+            <p class="text-center text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Zadejte svůj PIN</p>
+
+            <div class="flex justify-center gap-4 mb-10">
+                <template x-for="i in [1,2,3,4]">
+                    <div class="w-4 h-4 rounded-full border-2 transition-all duration-300"
+                         :class="pin.length >= i ? 'bg-slate-900 border-slate-900 scale-125 shadow-md' : 'bg-slate-50 border-slate-200'"></div>
+                </template>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-8">
+                <template x-for="num in [1,2,3,4,5,6,7,8,9]">
+                    <button @click="appendPin(num)" :disabled="loading"
+                            class="h-16 rounded-2xl bg-slate-50 font-black text-2xl text-slate-800 hover:bg-slate-100 hover:shadow-md transition-all active:scale-95 disabled:opacity-50"
+                            x-text="num"></button>
+                </template>
+                <button @click="clearPin()" :disabled="loading"
+                        class="h-16 rounded-2xl font-black text-xs text-slate-400 uppercase tracking-widest hover:text-red-500 hover:bg-red-50 transition-all active:scale-95 disabled:opacity-50">
+                    Smazat
+                </button>
+                <button @click="appendPin(0)" :disabled="loading"
+                        class="h-16 rounded-2xl bg-slate-50 font-black text-2xl text-slate-800 hover:bg-slate-100 hover:shadow-md transition-all active:scale-95 disabled:opacity-50">
+                    0
+                </button>
+                <button @click="removePin()" :disabled="loading"
+                        class="h-16 rounded-2xl flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all active:scale-95 disabled:opacity-50">
+                    <i data-lucide="delete" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <button @click="verify()" :disabled="pin.length < 4 || loading"
+                    class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black transition-all uppercase tracking-widest shadow-xl shadow-slate-200 hover:bg-blue-600 disabled:opacity-50 disabled:shadow-none disabled:hover:bg-slate-900 flex items-center justify-center gap-3">
+                <span x-show="!loading">Ověřit identitu</span>
+                <span x-show="loading" class="flex items-center gap-2">
+                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                         viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                     stroke-width="4"></circle><path class="opacity-75"
+                                                                                     fill="currentColor"
+                                                                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    Ověřuji...
+                </span>
+            </button>
+        </div>
+
+        <div x-show="worker && !actionLoading && !successAction" class="p-8 sm:p-10" style="display: none;">
+            <div class="flex items-center justify-between mb-8 pb-6 border-b border-slate-100">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight" x-text="worker?.name"></h2>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="w-2 h-2 rounded-full"
+                              :class="worker?.status === 'working' ? 'bg-green-500' : (worker?.status === 'break' ? 'bg-yellow-500' : 'bg-slate-300')"></span>
+                        <span class="text-xs font-bold uppercase text-slate-400 tracking-widest"
+                              x-text="'Stav: ' + worker?.status"></span>
+                    </div>
+                </div>
+                <button @click="reset()"
+                        class="bg-slate-50 text-slate-400 hover:text-slate-900 p-3 rounded-xl hover:bg-slate-100 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+
+            <div class="space-y-4">
+                <button x-show="worker?.status === 'offline'" @click="sendAction('clock_in')"
+                        class="w-full py-5 bg-green-600 text-white rounded-2xl font-black hover:bg-green-500 shadow-lg shadow-green-200 transition-all active:scale-95 flex items-center justify-center gap-3">
+                    <i data-lucide="log-in" class="w-5 h-5"></i> PŘÍCHOD DO PRÁCE
+                </button>
+
+                <button x-show="worker?.status === 'working'" @click="sendAction('break_start')"
+                        class="w-full py-5 bg-yellow-500 text-white rounded-2xl font-black hover:bg-yellow-400 shadow-lg shadow-yellow-200 transition-all active:scale-95 flex items-center justify-center gap-3">
+                    <i data-lucide="coffee" class="w-5 h-5"></i> ZAČÁTEK PŘESTÁVKY
+                </button>
+
+                <button x-show="worker?.status === 'break'" @click="sendAction('break_end')"
+                        class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-500 shadow-lg shadow-blue-200 transition-all active:scale-95 flex items-center justify-center gap-3">
+                    <i data-lucide="play-circle" class="w-5 h-5"></i> KONEC PŘESTÁVKY
+                </button>
+
+                <button x-show="worker?.status === 'working'" @click="sendAction('clock_out')"
+                        class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black hover:bg-slate-800 shadow-lg shadow-slate-200 transition-all active:scale-95 mt-8 flex items-center justify-center gap-3 border border-slate-700">
+                    <i data-lucide="log-out" class="w-5 h-5 text-slate-400"></i> ODCHOD DOMŮ
+                </button>
+            </div>
+        </div>
+
+        <div x-show="actionLoading" class="p-16 flex flex-col items-center justify-center min-h-[300px]"
+             style="display: none;">
+            <div class="relative w-20 h-20 mb-6">
+                <div class="absolute inset-0 rounded-full border-4 border-slate-100"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-blue-600 border-t-transparent animate-spin"></div>
+            </div>
+            <h3 class="text-lg font-black text-slate-900 uppercase tracking-widest animate-pulse">Zpracovávám...</h3>
+        </div>
+
+        <div x-show="successAction" class="p-16 flex flex-col items-center justify-center bg-green-50/20 min-h-[300px]"
+             style="display: none;">
+            <div class="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center text-white mb-6 shadow-xl shadow-green-200">
+                <i data-lucide="check" class="w-12 h-12"></i>
+            </div>
+            <h3 class="text-2xl font-black text-green-700 uppercase tracking-widest text-center leading-tight"
+                x-text="successAction"></h3>
+        </div>
+
+    </div>
+</section>
+
+</body>
+</html>

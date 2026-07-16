@@ -1,0 +1,21 @@
+# Maven (Zkompilované soubory a build)
+target/
+*.jar
+*.war
+*.ear
+
+# IntelliJ IDEA (Nastavení IDE)
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Aplikace (Specifické pro tvůj projekt)
+# Ignorujeme složku, kam se generují faktury a obrázky
+local-storage/
+
+# Logy a systémové soubory
+*.log
+.DS_Store
+Thumbs.db

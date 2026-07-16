@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Správa kupónu', ~{::section})}">
+<body>
+
+<section class="py-8 sm:py-10 w-full max-w-3xl mx-auto">
+    <div class="mb-10">
+        <a href="/admin/coupons"
+           class="text-sm font-black text-gray-400 hover:text-pink-600 uppercase tracking-widest mb-2 inline-block transition-colors"><i
+                data-lucide="arrow-left" class="w-4 h-4 inline align-text-bottom mr-1"></i> Zpět na kupóny</a>
+        <h1 class="text-3xl sm:text-4xl font-black text-gray-900 uppercase tracking-tighter"
+            th:text="${coupon.id == null ? 'Nový kupón' : 'Upravit kupón'}">Kupón</h1>
+    </div>
+
+    <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
+        <form th:action="@{/admin/coupons/save}" th:object="${coupon}" method="post" class="space-y-6">
+            <input type="hidden" th:field="*{id}">
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Kód
+                        kupónu</label>
+                    <input type="text" th:field="*{code}"
+                           class="w-full bg-gray-50 border-0 text-gray-900 text-lg font-bold rounded-2xl focus:ring-4 focus:ring-pink-500/20 focus:bg-white transition-all p-4"
+                           placeholder="NAPŘ. LÉTO2026" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Typ
+                        slevy</label>
+                    <select th:field="*{type}"
+                            class="w-full bg-gray-50 border-0 text-gray-900 text-lg font-bold rounded-2xl focus:ring-4 focus:ring-pink-500/20 focus:bg-white transition-all p-4"
+                            required>
+                        <option th:each="t : ${discountTypes}" th:value="${t}"
+                                th:text="${t == T(org.example.model.DiscountType).PERCENTAGE ? 'Procentuální (%)' : 'Pevná částka (Kč)'}"></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Hodnota
+                        slevy</label>
+                    <input type="number" step="0.01" th:field="*{discountValue}"
+                           class="w-full bg-gray-50 border-0 text-gray-900 text-lg font-bold rounded-2xl focus:ring-4 focus:ring-pink-500/20 focus:bg-white transition-all p-4"
+                           required>
+                </div>
+                <div>
+                    <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Stav</label>
+                    <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100 h-[60px]">
+                        <input type="checkbox" th:field="*{active}"
+                               class="w-5 h-5 text-pink-600 border-gray-300 rounded focus:ring-pink-500">
+                        <label class="text-sm font-bold text-gray-900">Aktivní</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Platnost
+                        od</label>
+                    <input type="datetime-local" th:field="*{validFrom}"
+                           class="w-full bg-gray-50 border-0 text-gray-900 text-sm font-bold rounded-2xl focus:ring-4 focus:ring-pink-500/20 focus:bg-white transition-all p-4">
+                </div>
+                <div>
+                    <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Platnost
+                        do</label>
+                    <input type="datetime-local" th:field="*{validUntil}"
+                           class="w-full bg-gray-50 border-0 text-gray-900 text-sm font-bold rounded-2xl focus:ring-4 focus:ring-pink-500/20 focus:bg-white transition-all p-4">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Aplikovat pouze na
+                    vybrané produkty (ponechte prázdné pro celý košík)</label>
+                <select th:field="*{applicableProducts}" multiple
+                        class="w-full bg-gray-50 border-0 text-gray-900 text-sm font-bold rounded-2xl focus:ring-4 focus:ring-pink-500/20 focus:bg-white transition-all p-4 h-48">
+                    <option th:each="p : ${products}" th:value="${p.id}" th:text="${p.name}"></option>
+                </select>
+                <p class="text-[10px] text-gray-400 mt-2 uppercase font-bold tracking-widest">Tip: Přidržte CTRL pro
+                    výběr více produktů</p>
+            </div>
+
+            <div class="pt-6 border-t border-gray-100 flex justify-end gap-4">
+                <a href="/admin/coupons"
+                   class="px-6 py-3 rounded-2xl font-bold text-gray-500 hover:bg-gray-100 transition-colors">Zrušit</a>
+                <button type="submit"
+                        class="bg-pink-600 text-white px-8 py-3 rounded-2xl font-bold hover:bg-pink-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                    Uložit kupón
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+</body>
+</html>

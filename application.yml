@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: erp-eshop
+
+  # Konfigurace cachování (JCache + Ehcache 3)
+  cache:
+    jcache:
+      config: classpath:ehcache.xml
+
+  # Database configuration (Local PostgreSQL)
+  datasource:
+    url: jdbc:postgresql://localhost:5432/eshop
+    username: postgres
+    password: admin # Změň si podle lokální databáze
+    driver-class-name: org.postgresql.Driver
+
+  # JPA & Hibernate configuration
+  jpa:
+    hibernate:
+      # create-drop: vytvoří tabulky při startu a smaže je při ukončení aplikace
+      ddl-auto: create-drop
+    show-sql: true # Výborné pro dev, uvidíme přesné SQL dotazy
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # Thymeleaf configuration
+  thymeleaf:
+    cache: false # Vypnuto pro dev, aby se změny v HTML projevovaly ihned
+    mode: HTML
+    encoding: UTF-8
+    prefix: classpath:/templates/
+    suffix: .html
+
+  # File upload limits
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# Custom application properties
+app:
+  storage:
+    # Složka, kam budeme lokálně ukládat soubory (nahrazuje Google Cloud Storage)
+    local-dir: ./local-storage/

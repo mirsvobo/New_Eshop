@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Skladové zásoby', ~{::section})}">
+<body>
+<section class="py-8">
+    <div class="mb-10 flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight uppercase">Skladové pohyby</h1>
+            <p class="text-gray-500 mt-1">Komplexní správa zásob, výroby a historie pohybů.</p>
+        </div>
+        <a href="/admin"
+           class="text-xs font-black text-slate-400 hover:text-slate-900 uppercase tracking-widest flex items-center gap-2">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Zpět na dashboard
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col">
+            <h2 class="text-sm font-black text-gray-900 uppercase tracking-widest mb-5 flex items-center gap-2">
+                <i data-lucide="edit-3" class="w-5 h-5 text-blue-600"></i> Manuální úprava
+            </h2>
+            <form th:action="@{/admin/sklad/pridat}" method="post" class="space-y-4 flex flex-col flex-1">
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Položka skladu</label>
+                    <select name="productId" required class="w-full border-gray-200 rounded-xl py-2.5 px-3 font-bold text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="" disabled selected>Vyberte položku...</option>
+                        <optgroup label="Suroviny a materiál">
+                            <option th:each="p : ${materials}" th:value="${p.id}" th:text="${p.name} + ' (' + ${#numbers.formatDecimal(p.stockQuantity, 1, 2)} + ' ' + ${p.unit} + ')'"></option>
+                        </optgroup>
+                        <optgroup label="Hotové výrobky">
+                            <option th:each="p : ${finalProducts}" th:value="${p.id}" th:text="${p.name} + ' (' + ${#numbers.formatDecimal(p.stockQuantity, 1, 2)} + ' ' + ${p.unit} + ')'"></option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Množství</label>
+                        <input type="number" step="any" name="quantity" required class="w-full border-gray-200 rounded-xl py-2.5 px-3 font-bold text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" placeholder="0">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Typ operace</label>
+                        <select name="type" required class="w-full border-gray-200 rounded-xl py-2.5 px-3 font-bold text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option th:each="t : ${manualTypes}" th:value="${t}" th:text="${t.displayName}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Poznámka / Důvod</label>
+                    <input type="text" name="note" class="w-full border-gray-200 rounded-xl py-2.5 px-3 font-bold text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Např. zjištěné manko, úprava...">
+                </div>
+                <div class="mt-auto pt-4">
+                    <button type="submit" class="w-full bg-slate-900 text-white py-3 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-blue-600 transition-all shadow-lg shadow-slate-900/20">
+                        Zaevidovat úpravu
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl border border-amber-100 shadow-sm flex flex-col relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-amber-50 rounded-bl-full -z-10"></div>
+            <h2 class="text-sm font-black text-gray-900 uppercase tracking-widest mb-5 flex items-center gap-2">
+                <i data-lucide="hammer" class="w-5 h-5 text-amber-500"></i> Zadat do výroby
+            </h2>
+            <form th:action="@{/admin/sklad/vyroba}" method="post" class="space-y-4 flex flex-col flex-1">
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Hotový výrobek (Produkt)</label>
+                    <select name="productId" required class="w-full border-amber-200 rounded-xl py-2.5 px-3 font-bold text-sm bg-amber-50/50 focus:bg-white focus:ring-2 focus:ring-amber-500 outline-none">
+                        <option value="" disabled selected>Vyberte produkt k výrobě...</option>
+                        <option th:each="p : ${finalProducts}" th:value="${p.id}" th:text="${p.name} + ' (' + ${#numbers.formatDecimal(p.stockQuantity, 1, 2)} + ' ' + ${p.unit} + ')'"></option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Množství k výrobě</label>
+                    <input type="number" step="any" name="quantity" required class="w-full border-amber-200 rounded-xl py-2.5 px-3 font-bold text-sm bg-amber-50/50 focus:bg-white focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Např. 10">
+                </div>
+
+                <div class="bg-amber-50 p-3 rounded-xl border border-amber-100">
+                    <p class="text-[9px] font-black text-amber-800 uppercase tracking-widest leading-relaxed">
+                        <i data-lucide="info" class="w-3 h-3 inline-block mr-1 mb-0.5"></i>
+                        Navýší stav produktu a automaticky odečte potřebné suroviny z přiřazeného kusovníku.
+                    </p>
+                </div>
+
+                <div class="mt-auto pt-4">
+                    <button type="submit" class="w-full bg-amber-500 text-white py-3 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20">
+                        Vyrobit produkt
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="lg:col-span-1 space-y-4 flex flex-col">
+            <div th:if="${success}" class="bg-green-50 border-l-4 border-green-500 p-6 rounded-r-3xl flex items-start gap-4 shadow-sm">
+                <i data-lucide="check-circle" class="text-green-600 w-6 h-6 shrink-0"></i>
+                <div>
+                    <h3 class="text-sm font-black text-green-900 uppercase">Úspěch</h3>
+                    <p class="text-xs text-green-700 font-bold mt-1" th:text="${success}"></p>
+                </div>
+            </div>
+            <div th:if="${error}" class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-3xl flex items-start gap-4 shadow-sm">
+                <i data-lucide="alert-triangle" class="text-red-600 w-6 h-6 shrink-0"></i>
+                <div>
+                    <h3 class="text-sm font-black text-red-900 uppercase">Chyba</h3>
+                    <p class="text-xs text-red-700 font-bold mt-1" th:text="${error}"></p>
+                </div>
+            </div>
+            <div th:unless="${success != null or error != null}" class="bg-blue-50 p-6 rounded-3xl border border-blue-100 text-center flex flex-col items-center justify-center h-full shadow-sm">
+                <div class="bg-white p-3 rounded-full mb-3 shadow-sm text-blue-500">
+                    <i data-lucide="boxes" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-xs font-black text-blue-900 uppercase tracking-widest mb-2">Správa skladu</h3>
+                <p class="text-[10px] font-bold text-blue-800 uppercase tracking-widest leading-relaxed opacity-80">
+                    Každá akce se okamžitě zaznamená do logu pohybů níže. Výroba navíc generuje automatické odpočtové pohyby.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 mb-8">
+        <form method="get" th:action="@{/admin/sklad}"
+              class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Filtr:
+                    Položka</label>
+                <select name="productId"
+                        class="w-full border-slate-200 rounded-xl py-2.5 px-4 font-bold text-xs bg-white">
+                    <option value="">Všechny položky</option>
+                    <optgroup label="Suroviny a materiál">
+                        <option th:each="p : ${materials}" th:value="${p.id}" th:text="${p.name}"
+                                th:selected="${p.id == selectedProduct}"></option>
+                    </optgroup>
+                    <optgroup label="Hotové výrobky">
+                        <option th:each="p : ${finalProducts}" th:value="${p.id}" th:text="${p.name}"
+                                th:selected="${p.id == selectedProduct}"></option>
+                    </optgroup>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Filtr:
+                    Osoba</label>
+                <select name="userId" class="w-full border-slate-200 rounded-xl py-2.5 px-4 font-bold text-xs bg-white">
+                    <option value="">Všichni pracovníci</option>
+                    <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.getFullName()}"
+                            th:selected="${u.id == selectedUser}"></option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Filtr:
+                    Typ</label>
+                <select name="direction"
+                        class="w-full border-slate-200 rounded-xl py-2.5 px-4 font-bold text-xs bg-white">
+                    <option value="">Jakákoliv změna</option>
+                    <option value="positive" th:selected="${selectedDirection == 'positive'}">Jen přírůstky (+)</option>
+                    <option value="negative" th:selected="${selectedDirection == 'negative'}">Jen úbytky (-)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Filtr:
+                    Období</label>
+                <select name="dateRange"
+                        class="w-full border-slate-200 rounded-xl py-2.5 px-4 font-bold text-xs bg-white">
+                    <option value="">Celá historie</option>
+                    <option value="today" th:selected="${selectedDate == 'today'}">Dnes</option>
+                    <option value="week" th:selected="${selectedDate == 'week'}">Tento týden</option>
+                    <option value="month" th:selected="${selectedDate == 'month'}">Tento měsíc</option>
+                </select>
+            </div>
+            <div class="lg:col-span-1 flex gap-2">
+                <div class="flex-1">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Min
+                        Množství</label>
+                    <input type="number" name="minQty" th:value="${minQty}"
+                           class="w-full border-slate-200 rounded-xl py-2.5 px-4 font-bold text-xs bg-white"
+                           placeholder="0">
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit"
+                        class="flex-1 bg-slate-400 text-white py-2.5 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-900 transition-all">
+                    Filtrovat
+                </button>
+                <a th:href="@{/admin/sklad}"
+                   class="p-2.5 bg-white border border-slate-200 text-slate-400 rounded-xl hover:text-gray-900 transition-colors flex items-center justify-center">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-100">
+            <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase">Datum a čas</th>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase">Položka</th>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase">Typ</th>
+                <th class="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase">Množství</th>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase">Provedl</th>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase">Poznámka</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+            <tr th:each="m : ${movements}" class="hover:bg-gray-50/50 transition-colors group">
+                <td class="px-6 py-4 text-xs font-bold text-gray-400"
+                    th:text="${#temporals.format(m.timestamp, 'dd.MM.yyyy HH:mm')}"></td>
+                <td class="px-6 py-4">
+                    <div class="text-sm font-black text-gray-900" th:text="${m.product.name}">Produkt</div>
+                    <div class="text-[9px] font-black text-slate-300 uppercase" th:text="${m.product.type}">TYP</div>
+                </td>
+                <td class="px-6 py-4">
+                    <span th:class="'px-2 py-1 rounded-lg text-[9px] font-black uppercase ' +
+                        (${m.type.name() == 'RECEIPT' or m.type.name() == 'ADJUSTMENT_PLUS' or m.type.name() == 'PRODUCTION_IN'} ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700')"
+                          th:text="${m.type.displayName}">TYP</span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                    <span th:class="'text-sm font-black ' +
+                        (${m.type.name() == 'RECEIPT' or m.type.name() == 'ADJUSTMENT_PLUS' or m.type.name() == 'PRODUCTION_IN'} ? 'text-green-600' : 'text-red-600')"
+                          th:text="(${m.type.name() == 'RECEIPT' or m.type.name() == 'ADJUSTMENT_PLUS' or m.type.name() == 'PRODUCTION_IN'} ? '+' : '-') + ${#numbers.formatDecimal(m.quantity, 1, 2)} + ' ' + ${m.product.unit}">
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-xs font-bold text-gray-600"
+                    th:text="${m.performedBy != null ? m.performedBy.getFullName() : 'Systém'}">Admin
+                </td>
+                <td class="px-6 py-4 text-xs text-gray-400 italic" th:text="${m.note}">Poznámka</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(movements)}">
+                <td colspan="6"
+                    class="px-6 py-20 text-center text-gray-400 uppercase text-xs font-black tracking-widest">
+                    Historie pohybů je prázdná nebo neodpovídá filtrům
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{main :: layout('Správa docházky', ~{::section})}">
+<body>
+<section class="py-8">
+    <div class="sm:flex sm:items-center sm:justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight uppercase">Historie docházky</h1>
+            <p class="mt-1 text-sm text-gray-500">Analýza a správa docházkových událostí.</p>
+        </div>
+        <div class="mt-4 sm:mt-0 flex gap-3">
+            <a href="/dochazka/admin/report"
+               class="inline-flex items-center px-5 py-3 border rounded-xl text-blue-600 bg-white hover:bg-blue-50 transition-all gap-2 font-black text-sm uppercase tracking-widest"><i
+                    data-lucide="file-text" class="w-4 h-4"></i> Měsíční výkaz</a>
+
+            <a sec:authorize="hasRole('ADMIN')" href="/dochazka/admin/novy"
+               class="inline-flex items-center px-5 py-3 border border-transparent rounded-xl shadow-lg text-white bg-slate-900 hover:bg-blue-600 transition-all gap-2 font-black text-sm uppercase tracking-widest"><i
+                    data-lucide="plus-circle" class="w-4 h-4"></i> Manuální vstup</a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+            <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Odpracováno čistého času</span>
+            <span class="text-2xl font-black text-blue-600" th:text="${summary.totalHours}">0 hod</span>
+        </div>
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+            <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Průměr na směnu</span>
+            <span class="text-2xl font-black text-gray-900" th:text="${summary.avgHours}">0 hod</span>
+        </div>
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+            <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Počet příchodů</span>
+            <span class="text-2xl font-black text-green-600" th:text="${summary.clockInCount}">0</span>
+        </div>
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+            <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Celkem záznamů</span>
+            <span class="text-2xl font-black text-gray-400" th:text="${summary.entryCount}">0</span>
+        </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm mb-8">
+        <form method="get" th:action="@{/dochazka/admin}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div sec:authorize="hasRole('ADMIN')">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Zaměstnanec</label>
+                <select name="employeeId"
+                        class="w-full border-gray-200 rounded-xl py-2.5 px-4 font-bold text-xs bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option value="">Všichni pracovníci</option>
+                    <option th:each="e : ${employees}" th:value="${e.id}" th:text="${e.fullName}"
+                            th:selected="${e.id == selectedEmployee}"></option>
+                </select>
+            </div>
+
+            <div th:classappend="${#authorization.expression('hasRole(''ADMIN'')') ? '' : 'md:col-span-2'}">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Typ
+                    akce</label>
+                <select name="type"
+                        class="w-full border-gray-200 rounded-xl py-2.5 px-4 font-bold text-xs bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option value="">Všechny události</option>
+                    <option th:each="t : ${types}" th:value="${t}" th:text="${t}"
+                            th:selected="${t == selectedType}"></option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Období</label>
+                <select name="dateRange"
+                        class="w-full border-gray-200 rounded-xl py-2.5 px-4 font-bold text-xs bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option value="">Celá historie</option>
+                    <option value="today" th:selected="${selectedDate == 'today'}">Dnes</option>
+                    <option value="wtd" th:selected="${selectedDate == 'wtd'}">Tento týden (WTD)</option>
+                    <option value="mtd" th:selected="${selectedDate == 'mtd'}">Tento měsíc (MTD)</option>
+                    <option value="ytd" th:selected="${selectedDate == 'ytd'}">Tento rok (YTD)</option>
+                </select>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit"
+                        class="flex-1 bg-slate-900 text-white py-2.5 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-600 transition-all shadow-lg">
+                    Filtrovat
+                </button>
+                <a href="/dochazka/admin"
+                   class="p-2.5 bg-gray-100 text-gray-400 rounded-xl hover:text-gray-900 transition-colors"
+                   title="Zrušit filtry">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-white shadow-sm rounded-3xl border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Datum
+                        a čas
+                    </th>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Zaměstnanec
+                    </th>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Akce
+                    </th>
+                    <th sec:authorize="hasRole('ADMIN')"
+                        class="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Nástroje
+                    </th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 bg-white">
+                <tr th:each="record : ${records}" class="hover:bg-gray-50/50 transition-colors group">
+                    <td class="px-6 py-4 text-sm font-bold text-gray-900">
+                        <span th:text="${#temporals.format(record.timestamp, 'dd.MM.yyyy')}"></span>
+                        <span class="text-gray-400 ml-1 font-normal"
+                              th:text="${#temporals.format(record.timestamp, 'HH:mm:ss')}"></span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-black text-gray-900" th:text="${record.employee.fullName}"></div>
+                        <div class="text-[9px] font-black text-slate-300 uppercase tracking-tighter"
+                             th:text="${record.employee.email}"></div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest"
+                              th:classappend="${record.type.name() == 'CLOCK_IN' ? 'bg-green-100 text-green-700' :
+                                               (record.type.name() == 'CLOCK_OUT' ? 'bg-red-100 text-red-800' :
+                                               'bg-amber-100 text-amber-700')}"
+                              th:text="${record.type}"></span>
+                    </td>
+
+                    <td sec:authorize="hasRole('ADMIN')" class="px-6 py-4 text-right">
+                        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <a th:href="@{/dochazka/admin/edit/{id}(id=${record.id})}"
+                               class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"><i
+                                    data-lucide="edit-3" class="w-4 h-4"></i></a>
+                            <form th:action="@{/dochazka/admin/delete/{id}(id=${record.id})}" method="post"
+                                  onsubmit="return confirm('Opravdu smazat tento záznam?')">
+                                <button type="submit"
+                                        class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(records)}">
+                    <td colspan="4"
+                        class="px-6 py-20 text-center text-gray-400 uppercase text-xs font-black tracking-widest">Nebyly
+                        nalezeny žádné záznamy odpovídající filtrům
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+</html>

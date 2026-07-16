@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Evidence docházky', ~{::section})}">
+<body>
+
+<section class="py-8 max-w-2xl mx-auto">
+    <div class="mb-8">
+        <a href="/dochazka/admin"
+           class="text-sm font-bold text-slate-400 hover:text-slate-900 flex items-center gap-2 uppercase">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Zpět na seznam
+        </a>
+        <h1 class="text-3xl font-black text-gray-900 mt-4 uppercase tracking-tighter"
+            th:text="${record.id == null ? 'Manuální zápis' : 'Oprava záznamu'}"></h1>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+        <form th:action="@{/dochazka/admin/save}" th:object="${record}" method="post" class="space-y-6">
+            <input type="hidden" th:field="*{id}">
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Zaměstnanec</label>
+                <select th:field="*{employee}" required
+                        class="w-full border-gray-200 rounded-xl py-3 px-4 focus:ring-blue-500 font-bold">
+                    <option th:each="user : ${users}" th:value="${user.id}"
+                            th:text="${user.firstName + ' ' + user.lastName}"></option>
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Typ události</label>
+                    <select th:field="*{type}" required
+                            class="w-full border-gray-200 rounded-xl py-3 px-4 focus:ring-blue-500 font-bold">
+                        <option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Datum a čas</label>
+                    <input type="datetime-local" th:field="*{timestamp}" required
+                           class="w-full border-gray-200 rounded-xl py-3 px-4 focus:ring-blue-500 font-bold">
+                </div>
+            </div>
+            <div class="pt-6">
+                <button type="submit"
+                        class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black hover:bg-slate-800 transition-all uppercase">
+                    Uložit do evidence
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout(${product.name}, ~{::section})}">
+<body>
+<section class="py-8 sm:py-12 w-full max-w-6xl mx-auto px-4">
+    <nav class="flex mb-8 text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-400 overflow-x-auto whitespace-nowrap">
+        <a href="/" class="hover:text-slate-900 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-3 h-3"></i> Domů</a>
+        <span class="mx-3">/</span>
+        <a href="/produkty" class="hover:text-slate-900 transition-colors">Katalog výrobků</a>
+        <span class="mx-3">/</span>
+        <span class="text-blue-600" th:text="${product.name}"></span>
+    </nav>
+
+    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12">
+
+            <!-- FOTOGRAFIE (Přizpůsobená pro různé poměry stran) -->
+            <div class="lg:col-span-5 bg-slate-50 aspect-square lg:aspect-auto flex items-center justify-center relative border-b lg:border-b-0 lg:border-r border-slate-100 min-h-[400px] lg:min-h-[500px]">
+                <img th:src="${product.displayImageUrl}"
+                     th:alt="${product.name}"
+                     class="w-full h-full object-contain p-8 lg:p-12 mix-blend-multiply drop-shadow-2xl">
+
+                <div class="absolute top-6 left-6 flex flex-col gap-2">
+                    <span th:if="${product.type.name() == 'PRODUCT'}"
+                          class="bg-slate-900 text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1.5">
+                        <i data-lucide="award" class="w-3 h-3"></i> Prémiová kvalita
+                    </span>
+
+                    <span th:if="${product.type.name() == 'MATERIAL'}"
+                          class="bg-slate-900 text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
+                        Materiál
+                    </span>
+
+                    <span th:if="${product.isOnSale()}"
+                          class="bg-pink-600 text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
+                          Akční nabídka
+                    </span>
+                </div>
+            </div>
+
+            <!-- DETAIL PRODUKTU -->
+            <div class="lg:col-span-7 p-8 lg:p-12 flex flex-col justify-center">
+
+                <h1 class="text-3xl sm:text-4xl font-black text-slate-900 leading-tight tracking-tighter mb-4"
+                    th:text="${product.name}">Název</h1>
+
+                <div class="prose prose-sm text-slate-500 font-medium leading-relaxed mb-8"
+                     th:text="${product.description != null ? product.description : 'Ručíme za prvotřídní kvalitu a poctivé zpracování v naší truhlářské dílně.'}"></div>
+
+                <!-- NÁKUPNÍ ZÓNA -->
+                <div class="bg-slate-50/50 rounded-[1.5rem] p-6 sm:p-8">
+
+                    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-6">
+
+                        <!-- Cena -->
+                        <div>
+                            <div th:if="${product.isOnSale()}" class="text-lg font-bold text-slate-400 line-through mb-1"
+                                 th:text="${#numbers.formatInteger(product.getRegularPriceWithTax(), 1, 'WHITESPACE')} + ' Kč'"></div>
+
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-4xl sm:text-5xl font-black text-blue-600 tracking-tighter"
+                                      th:text="${#numbers.formatInteger(product.getPriceWithTax(), 1, 'WHITESPACE')} + ' Kč'"></span>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">vč. DPH</span>
+                            </div>
+
+                            <div class="mt-2 flex items-center gap-2">
+                                <span class="text-sm font-bold text-slate-500"
+                                      th:text="${#numbers.formatInteger(product.getActiveBasePrice(), 1, 'WHITESPACE')} + ' Kč'"></span>
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">bez DPH</span>
+                            </div>
+                        </div>
+
+                        <!-- Sklad -->
+                        <div class="shrink-0 mb-1">
+                            <span th:if="${product.stockQuantity > 0}"
+                                  class="inline-flex items-center gap-1.5 text-xs font-black text-green-700 bg-green-100/50 px-3 py-2 rounded-xl uppercase tracking-widest">
+                                <i data-lucide="check-circle-2" class="w-4 h-4"></i> Skladem (<span th:text="${#numbers.formatDecimal(product.stockQuantity, 1, 0)}"></span> <span th:text="${product.unit}"></span>)
+                            </span>
+                            <span th:unless="${product.stockQuantity > 0}"
+                                  class="inline-flex items-center gap-1.5 text-xs font-black text-amber-700 bg-amber-100/50 px-3 py-2 rounded-xl uppercase tracking-widest">
+                                <i data-lucide="hammer" class="w-4 h-4"></i> Na zakázku
+                            </span>
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-200/60 mb-6">
+
+                    <!-- Formulář a tlačítko -->
+                    <form th:action="@{/kosik/pridat}" method="post">
+                        <input type="hidden" name="productId" th:value="${product.id}">
+                        <div class="flex flex-col sm:flex-row items-stretch gap-4">
+
+                            <!-- Množství -->
+                            <div class="w-full sm:w-28 relative shrink-0">
+                                <label class="absolute -top-2.5 left-3 bg-slate-50 px-1 text-[9px] font-black text-slate-400 uppercase tracking-widest z-10 transition-colors" id="qtyLabel">Množství</label>
+                                <input type="number" id="quantityInput" name="quantity" value="1" min="1"
+                                       class="w-full h-14 text-center border-2 border-slate-200 rounded-xl font-black text-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all bg-white">
+                            </div>
+
+                            <!-- Tlačítko -->
+                            <button type="submit"
+                                    class="w-full flex-1 h-14 bg-slate-900 hover:bg-blue-600 text-white rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 transition-all shadow-xl hover:shadow-2xl active:scale-[0.98]">
+                                <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                                <span>Vložit do košíku</span>
+                            </button>
+                        </div>
+
+                        <!-- Dynamické varování o výrobě -->
+                        <div id="manufacturingWarning" class="hidden mt-5 bg-amber-50 border border-amber-200 text-amber-700 p-5 rounded-xl flex items-start gap-4 shadow-sm">
+                            <i data-lucide="hammer" class="w-5 h-5 shrink-0 text-amber-600 mt-0.5"></i>
+                            <div class="flex flex-col">
+                                <span class="text-xs font-black uppercase tracking-widest text-amber-800">Zakázková ruční výroba</span>
+                                <span class="text-xs font-bold opacity-90 mt-1.5 leading-relaxed" th:if="${product.stockQuantity > 0}">
+                                    Skladem máme pouze <span th:text="${#numbers.formatDecimal(product.stockQuantity, 1, 0)}"></span> ks. Zbývající kousky pro vás obratem s maximální pečlivostí vyrobíme v naší truhlářské dílně!
+                                </span>
+                                <span class="text-xs font-bold opacity-90 mt-1.5 leading-relaxed" th:unless="${product.stockQuantity > 0}">
+                                    Získáte naprosto jedinečný originál vytvořený speciálně pro vás. Vyrobíme jej pro vás zcela od nuly – od pečlivého výběru dřeva přes precizní frézování až po finální ruční voskování.
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BENEFITY VÝROBCE -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 flex items-center gap-4 shadow-sm">
+            <i data-lucide="truck" class="w-6 h-6 text-blue-500"></i>
+            <div>
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Doprava</div>
+                <div class="text-sm font-bold text-slate-900">Rychlé dodání PPL</div>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 flex items-center gap-4 shadow-sm">
+            <i data-lucide="shield-check" class="w-6 h-6 text-green-500"></i>
+            <div>
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Záruka</div>
+                <div class="text-sm font-bold text-slate-900">Prodloužená na 3 roky</div>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 flex items-center gap-4 shadow-sm">
+            <i data-lucide="leaf" class="w-6 h-6 text-emerald-500"></i>
+            <div>
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Materiál</div>
+                <div class="text-sm font-bold text-slate-900">100% poctivé dřevo</div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const qtyInput = document.getElementById('quantityInput');
+            const warningDiv = document.getElementById('manufacturingWarning');
+            const qtyLabel = document.getElementById('qtyLabel');
+            const stockQty = /*[[${product.stockQuantity}]]*/ 0;
+
+            function checkManufacturing() {
+                const val = parseInt(qtyInput.value) || 0;
+                if (val > stockQty) {
+                    warningDiv.classList.remove('hidden');
+                } else {
+                    warningDiv.classList.add('hidden');
+                }
+            }
+
+            qtyInput.addEventListener('focus', () => qtyLabel.classList.replace('bg-slate-50', 'bg-white'));
+            qtyInput.addEventListener('blur', () => qtyLabel.classList.replace('bg-white', 'bg-slate-50'));
+
+            qtyInput.addEventListener('input', checkManufacturing);
+            checkManufacturing();
+        });
+    </script>
+</section>
+</body>
+</html>

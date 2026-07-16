@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Úvod', ~{::div.content-wrapper})}">
+<body>
+<div class="content-wrapper w-full flex flex-col gap-16 sm:gap-24 py-6 sm:py-8">
+
+    <section class="relative bg-slate-900 text-white overflow-hidden rounded-[2rem] shadow-2xl">
+        <div class="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1611486212557-88be5ff6f941?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/80 to-transparent"></div>
+        <div class="relative z-10 px-8 py-20 sm:px-14 sm:py-28 md:py-32">
+            <div class="max-w-3xl">
+                <span class="text-blue-400 font-black tracking-widest uppercase text-xs sm:text-sm mb-4 block">Poctivé řemeslo & Digitální přesnost</span>
+                <h1 class="text-4xl sm:text-5xl md:text-6xl font-black leading-tight mb-6">Prémiový dřevěný nábytek z
+                    české dílny</h1>
+                <p class="text-lg text-slate-300 mb-10 max-w-2xl leading-relaxed font-medium">
+                    Spojujeme tradiční umění našich truhlářů s přesností moderního softwaru. Ať už hledáte originální
+                    kousek do obýváku, nebo spolehlivého dodavatele pro váš projekt. Co svítí skladem, to opravdu máme.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a th:href="@{/produkty}"
+                       class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-8 rounded-xl text-center transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2">
+                        <i data-lucide="shopping-bag" class="w-5 h-5"></i> E-shop
+                    </a>
+                    <a th:href="@{/o-nas}"
+                       class="bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 text-white font-bold py-3.5 px-8 rounded-xl text-center transition-all">
+                        Příběh naší dílny
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm text-center hover:-translate-y-1 transition-transform duration-300">
+            <div class="w-14 h-14 mx-auto bg-slate-50 text-slate-800 rounded-2xl flex items-center justify-center mb-6">
+                <i data-lucide="hammer" class="w-7 h-7"></i></div>
+            <h3 class="text-lg font-black text-slate-900 mb-3 uppercase tracking-wide">Lokální výroba</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">Každý kus projde rukama našich truhlářů přímo v naší
+                dílně. Žádná pásová výroba, jen poctivá práce.</p>
+        </div>
+        <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm text-center hover:-translate-y-1 transition-transform duration-300">
+            <div class="w-14 h-14 mx-auto bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6"><i
+                    data-lucide="truck" class="w-7 h-7"></i></div>
+            <h3 class="text-lg font-black text-slate-900 mb-3 uppercase tracking-wide">Blesková expedice</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">Díky ERP systému vždy vidíte reálnou dostupnost. Co je
+                skladem, odesíláme obratem.</p>
+        </div>
+        <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm text-center hover:-translate-y-1 transition-transform duration-300">
+            <div class="w-14 h-14 mx-auto bg-slate-50 text-slate-800 rounded-2xl flex items-center justify-center mb-6">
+                <i data-lucide="shield-check" class="w-7 h-7"></i></div>
+            <h3 class="text-lg font-black text-slate-900 mb-3 uppercase tracking-wide">Prémiový materiál</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">Vybíráme jen to nejlepší dříví. Naše produkty jsou stavěné
+                tak, aby vydržely generace.</p>
+        </div>
+    </section>
+
+    <section>
+        <div class="text-center max-w-2xl mx-auto mb-12">
+            <h2 class="text-3xl sm:text-4xl font-black text-slate-900 mb-4 tracking-tight">Co u nás v dílně vzniká?</h2>
+            <p class="text-slate-500 text-lg">Náš záběr je široký, ale kvalita zůstává nekompromisní.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-auto md:h-[400px]">
+            <a th:href="@{/produkty}" class="group relative rounded-3xl overflow-hidden block h-64 md:h-full flex-1">
+                <img src="https://images.unsplash.com/photo-1584916201218-f4242ceb4809?q=80&w=2000&auto=format&fit=crop"
+                     alt="Doplňky"
+                     class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
+                <div class="absolute inset-x-0 bottom-0 p-8">
+                    <h3 class="text-2xl font-black text-white mb-2">Doplňky skladem</h3>
+                    <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-blue-400 group-hover:text-blue-300 transition-colors">Do e-shopu <i
+                            data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                </div>
+            </a>
+            <a th:href="@{/produkty}" class="group relative rounded-3xl overflow-hidden block h-64 md:h-full flex-1">
+                <img src="https://images.unsplash.com/photo-1592078615290-033ee584e267?q=80&w=1964&auto=format&fit=crop"
+                     alt="Nábytek"
+                     class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
+                <div class="absolute inset-x-0 bottom-0 p-8">
+                    <h3 class="text-2xl font-black text-white mb-2">Masivní nábytek</h3>
+                    <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-blue-400 group-hover:text-blue-300 transition-colors">Prohlédnout <i
+                            data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                </div>
+            </a>
+            <a th:href="@{/kontakt}" class="group relative rounded-3xl overflow-hidden block h-64 md:h-full flex-1">
+                <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=2047&auto=format&fit=crop"
+                     alt="B2B"
+                     class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
+                <div class="absolute inset-x-0 bottom-0 p-8">
+                    <h3 class="text-2xl font-black text-white mb-2">B2B & Zakázky</h3>
+                    <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-blue-400 group-hover:text-blue-300 transition-colors">Poptat řešení <i
+                            data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <section>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 border-b border-green-100 pb-6">
+            <div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md">Blesková expedice</span>
+                </div>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">Ihned k odběru</h2>
+                <p class="text-slate-500 mt-1">To nejlepší z naší dílny připravené k okamžitému odeslání. Bez zbytečného čekání.</p>
+            </div>
+            <a th:href="@{/produkty}"
+               class="mt-4 sm:mt-0 flex items-center gap-2 font-bold text-sm uppercase tracking-widest text-slate-900 hover:text-blue-600 transition-colors bg-white border border-slate-200 px-5 py-2.5 rounded-xl hover:border-blue-200 hover:shadow-sm">
+                Zobrazit e-shop <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+            <div th:each="product : ${featuredProducts}" th:if="${product.stockQuantity > 0}" class="group flex flex-col">
+                <a th:href="@{/produkty/{id}(id=${product.id})}"
+                   class="block relative aspect-[4/5] bg-slate-50 rounded-2xl overflow-hidden mb-4 border border-slate-100">
+
+                    <img th:src="${product.displayImageUrl}"
+                         th:alt="${product.name}"
+                         class="w-full h-full object-contain p-4 mix-blend-multiply group-hover:scale-105 transition-transform duration-700 ease-in-out"/>
+
+                    <div th:if="${product.isOnSale()}"
+                         class="absolute top-4 right-4 bg-rose-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl shadow-sm z-10">
+                        Akce
+                    </div>
+
+                    <div class="absolute top-4 left-4 bg-emerald-50/90 backdrop-blur-md border border-emerald-200 text-emerald-800 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl shadow-sm flex items-center gap-1.5 z-10">
+                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Skladem
+                    </div>
+
+                    <div class="absolute inset-x-4 bottom-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10 hidden lg:block">
+                        <form th:action="@{/kosik/pridat}" method="post">
+                            <input type="hidden" name="productId" th:value="${product.id}"/>
+                            <input type="hidden" name="quantity" value="1"/>
+                            <button type="submit"
+                                    class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm uppercase tracking-widest hover:bg-blue-600 transition-colors">
+                                <i data-lucide="shopping-cart" class="w-4 h-4"></i> Koupit hned
+                            </button>
+                        </form>
+                    </div>
+                </a>
+
+                <div class="flex flex-col flex-grow px-1">
+                    <a th:href="@{/produkty/{id}(id=${product.id})}"
+                       class="text-lg font-bold text-slate-900 mb-1 hover:text-blue-600 transition-colors line-clamp-1"
+                       th:text="${product.name}">Název</a>
+                    <p class="text-sm text-slate-500 mb-4 line-clamp-2" th:text="${product.description}"></p>
+                    <div class="mt-auto flex flex-col gap-3">
+                        <div class="flex items-center text-xs font-bold">
+                            <span class="text-emerald-600 flex items-center gap-1.5">
+                                <i data-lucide="check-circle-2" class="w-4 h-4"></i> Skladem <span
+                                    th:text="${#numbers.formatInteger(product.stockQuantity, 0) + ' ' + product.unit}"></span>
+                            </span>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <div class="flex flex-col">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xl font-black text-slate-900"
+                                          th:text="${#numbers.formatInteger(product.getPriceWithTax(), 1, 'WHITESPACE')} + ' Kč'"></span>
+                                    <span th:if="${product.isOnSale()}"
+                                          class="text-sm font-bold text-slate-400 line-through"
+                                          th:text="${#numbers.formatInteger(product.getRegularPriceWithTax(), 1, 'WHITESPACE')} + ' Kč'"></span>
+                                </div>
+                                <span class="text-xs text-slate-400"
+                                      th:text="'bez DPH ' + ${#numbers.formatInteger(product.getActiveBasePrice(), 1, 'WHITESPACE')} + ' Kč'"></span>
+                            </div>
+                            <form th:action="@{/kosik/pridat}" method="post" class="lg:hidden">
+                                <input type="hidden" name="productId" th:value="${product.id}"/>
+                                <input type="hidden" name="quantity" value="1"/>
+                                <button type="submit"
+                                        class="bg-slate-100 text-slate-600 hover:bg-blue-600 hover:text-white rounded-xl p-2.5 transition-colors">
+                                    <i data-lucide="plus" class="w-5 h-5"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 border-b border-amber-100 pb-6">
+            <div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="bg-amber-50 text-amber-800 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md">Poctivá ruční tesařina</span>
+                </div>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">Na zakázku s dodáním do 5 týdnů</h2>
+                <p class="text-slate-500 mt-1">Zakázkové dřevníky, které pro vás vyrobíme zcela od nuly. Kvalita, na kterou se vyplatí počkat.</p>
+            </div>
+            <a th:href="@{/kontakt}"
+               class="mt-4 sm:mt-0 flex items-center gap-2 font-bold text-sm uppercase tracking-widest text-slate-900 hover:text-amber-600 transition-colors bg-white border border-slate-200 px-5 py-2.5 rounded-xl hover:border-amber-200 hover:shadow-sm">
+                Napište nám <i data-lucide="mail" class="w-4 h-4"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+            <div th:each="product : ${featuredProducts}" th:unless="${product.stockQuantity > 0}" class="group flex flex-col">
+                <a th:href="@{/produkty/{id}(id=${product.id})}"
+                   class="block relative aspect-[4/5] bg-slate-50 rounded-2xl overflow-hidden mb-4 border border-slate-100">
+
+                    <img th:src="${product.displayImageUrl}"
+                         th:alt="${product.name}"
+                         class="w-full h-full object-contain p-4 mix-blend-multiply group-hover:scale-105 transition-transform duration-700 ease-in-out"/>
+
+                    <div th:if="${product.isOnSale()}"
+                         class="absolute top-4 right-4 bg-rose-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl shadow-sm z-10">
+                        Akce
+                    </div>
+
+                    <div class="absolute top-4 left-4 bg-amber-50/90 backdrop-blur-md border border-amber-200 text-amber-800 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl shadow-sm flex items-center gap-1.5 z-10">
+                        <i data-lucide="hammer" class="w-3.5 h-3.5"></i> Na zakázku
+                    </div>
+
+                    <div class="absolute inset-x-4 bottom-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10 hidden lg:block">
+                        <form th:action="@{/kosik/pridat}" method="post">
+                            <input type="hidden" name="productId" th:value="${product.id}"/>
+                            <input type="hidden" name="quantity" value="1"/>
+                            <button type="submit"
+                                    class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm uppercase tracking-widest hover:bg-amber-500 transition-colors">
+                                <i data-lucide="hammer" class="w-4 h-4"></i> Zadat do výroby
+                            </button>
+                        </form>
+                    </div>
+                </a>
+
+                <div class="flex flex-col flex-grow px-1">
+                    <a th:href="@{/produkty/{id}(id=${product.id})}"
+                       class="text-lg font-bold text-slate-900 mb-1 hover:text-blue-600 transition-colors line-clamp-1"
+                       th:text="${product.name}">Název</a>
+                    <p class="text-sm text-slate-500 mb-4 line-clamp-2" th:text="${product.description}"></p>
+                    <div class="mt-auto flex flex-col gap-3">
+                        <div class="flex items-center text-xs font-bold">
+                            <span class="text-amber-600 flex items-center gap-1.5">
+                                <i data-lucide="hammer" class="w-4 h-4"></i> Výroba (cca 5 týdnů)
+                            </span>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <div class="flex flex-col">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xl font-black text-slate-900"
+                                          th:text="${#numbers.formatInteger(product.getPriceWithTax(), 1, 'WHITESPACE')} + ' Kč'"></span>
+                                    <span th:if="${product.isOnSale()}"
+                                          class="text-sm font-bold text-slate-400 line-through"
+                                          th:text="${#numbers.formatInteger(product.getRegularPriceWithTax(), 1, 'WHITESPACE')} + ' Kč'"></span>
+                                </div>
+                                <span class="text-xs text-slate-400"
+                                      th:text="'bez DPH ' + ${#numbers.formatInteger(product.getActiveBasePrice(), 1, 'WHITESPACE')} + ' Kč'"></span>
+                            </div>
+                            <form th:action="@{/kosik/pridat}" method="post" class="lg:hidden">
+                                <input type="hidden" name="productId" th:value="${product.id}"/>
+                                <input type="hidden" name="quantity" value="1"/>
+                                <button type="submit"
+                                        class="bg-slate-100 text-slate-600 hover:bg-amber-500 hover:text-white rounded-xl p-2.5 transition-colors">
+                                    <i data-lucide="plus" class="w-5 h-5"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-slate-50 py-16 px-8 sm:px-14 rounded-[2rem] border border-slate-100">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+            <h2 class="text-3xl font-black text-slate-900 mb-4 tracking-tight">Co o nás říkají zákazníci</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                <div class="flex items-center gap-1 text-amber-400 mb-4"><i data-lucide="star"
+                                                                            class="fill-current w-4 h-4"></i><i
+                        data-lucide="star" class="fill-current w-4 h-4"></i><i data-lucide="star"
+                                                                               class="fill-current w-4 h-4"></i><i
+                        data-lucide="star" class="fill-current w-4 h-4"></i><i data-lucide="star"
+                                                                               class="fill-current w-4 h-4"></i></div>
+                <p class="text-slate-600 italic mb-6">"Naprosto precizní práce, skvělá komunikace a dodržení
+                    termínu."</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-sm">
+                        MK
+                    </div>
+                    <div><p class="font-bold text-slate-900 text-sm">Martin K.</p>
+                        <p class="text-xs text-slate-400">B2B Klient</p></div>
+                </div>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 relative md:-top-4">
+                <div class="flex items-center gap-1 text-amber-400 mb-4"><i data-lucide="star"
+                                                                            class="fill-current w-4 h-4"></i><i
+                        data-lucide="star" class="fill-current w-4 h-4"></i><i data-lucide="star"
+                                                                               class="fill-current w-4 h-4"></i><i
+                        data-lucide="star" class="fill-current w-4 h-4"></i><i data-lucide="star"
+                                                                               class="fill-current w-4 h-4"></i></div>
+                <p class="text-slate-600 italic mb-6">"Objednaný dubový stolek je naprosto úžasný. Krásně voní
+                    dřevem."</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center font-bold text-sm">
+                        JS
+                    </div>
+                    <div><p class="font-bold text-slate-900 text-sm">Jana S.</p>
+                        <p class="text-xs text-slate-400">Ověřený nákup</p></div>
+                </div>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                <div class="flex items-center gap-1 text-amber-400 mb-4"><i data-lucide="star"
+                                                                            class="fill-current w-4 h-4"></i><i
+                        data-lucide="star" class="fill-current w-4 h-4"></i><i data-lucide="star"
+                                                                               class="fill-current w-4 h-4"></i><i
+                        data-lucide="star" class="fill-current w-4 h-4"></i><i data-lucide="star"
+                                                                               class="fill-current w-4 h-4"></i></div>
+                <p class="text-slate-600 italic mb-6">"Překvapilo mě, jak rychle dorazila informace o expedici. Sklad
+                    sedí."</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-slate-200 text-slate-700 rounded-full flex items-center justify-center font-bold text-sm">
+                        PN
+                    </div>
+                    <div><p class="font-bold text-slate-900 text-sm">Petr N.</p>
+                        <p class="text-xs text-slate-400">Ověřený nákup</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-12 sm:gap-16 items-center px-4 sm:px-8">
+        <div class="order-2 md:order-1 flex flex-col gap-6">
+            <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest w-fit">
+                <i data-lucide="cpu" class="w-4 h-4"></i> Digitalizace výroby
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-slate-900">Děláme dřevo, ne papírování.</h2>
+            <div class="prose prose-slate text-slate-600 leading-relaxed font-medium">
+                <p>Díky vlastnímu ERP systému se naši tesaři plně soustředí na dláto a vy dostáváte zakázky s
+                    přesností švýcarských hodinek.</p>
+            </div>
+            <a th:href="@{/o-nas}"
+               class="inline-flex items-center gap-2 font-bold text-sm uppercase tracking-widest text-blue-600 hover:text-blue-800 mt-2">Přečíst
+                si příběh <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+        </div>
+        <div class="order-1 md:order-2">
+            <div class="relative rounded-3xl overflow-hidden shadow-xl aspect-square md:aspect-[4/3]"><img
+                    src="https://images.unsplash.com/photo-1540638349517-3abd5afc5847?q=80&w=2070&auto=format&fit=crop"
+                    class="absolute inset-0 w-full h-full object-cover"></div>
+        </div>
+    </section>
+
+    <section
+            class="relative rounded-[2rem] overflow-hidden shadow-2xl flex items-center text-center justify-center min-h-[400px] mt-8">
+        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1611078516086-632008779929?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center"></div>
+        <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-[2px]"></div>
+        <div class="relative z-10 p-8 sm:p-16 max-w-3xl flex flex-col items-center">
+            <h2 class="text-3xl sm:text-5xl font-black text-white mb-6">Máte projekt na míru?</h2>
+            <p class="text-slate-300 text-lg mb-10 max-w-2xl">Ať už zařizujete novou kavárnu, nebo hledáte jedinečný
+                stůl, naše dílna je připravena.</p>
+            <a th:href="@{/kontakt}"
+               class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-10 rounded-xl transition-all shadow-xl text-sm uppercase tracking-widest flex items-center gap-2"><i
+                    data-lucide="mail" class="w-5 h-5"></i> Spojit se s dílnou</a>
+        </div>
+    </section>
+</div>
+</body>
+</html>

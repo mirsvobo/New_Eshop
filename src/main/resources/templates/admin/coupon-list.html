@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Slevové kupóny', ~{::section})}">
+<body>
+
+<section class="py-8 sm:py-10 w-full max-w-5xl mx-auto">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
+        <div>
+            <a href="/admin"
+               class="text-sm font-black text-gray-400 hover:text-blue-600 uppercase tracking-widest mb-2 inline-block transition-colors"><i
+                    data-lucide="arrow-left" class="w-4 h-4 inline align-text-bottom mr-1"></i> Zpět na panel</a>
+            <h1 class="text-3xl sm:text-4xl font-black text-gray-900 uppercase tracking-tighter">Slevové kupóny</h1>
+        </div>
+        <a href="/admin/coupons/create"
+           class="bg-pink-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-pink-700 hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2">
+            <i data-lucide="plus" class="w-5 h-5"></i> Nový kupón
+        </a>
+    </div>
+
+    <div th:if="${successMessage}"
+         class="mb-6 p-4 bg-green-50 text-green-700 rounded-2xl border border-green-200 font-medium flex items-center gap-3">
+        <i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+
+    <div th:if="${errorMessage}"
+         class="mb-6 p-4 bg-red-50 text-red-700 rounded-2xl border border-red-200 font-medium flex items-center gap-3">
+        <i data-lucide="alert-circle" class="w-5 h-5 text-red-500"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50/30">
+                <tr>
+                    <th class="px-8 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Kód
+                        kupónu
+                    </th>
+                    <th class="px-8 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Hodnota slevy
+                    </th>
+                    <th class="px-8 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Platnost do
+                    </th>
+                    <th class="px-8 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Stav
+                    </th>
+                    <th class="px-8 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Akce
+                    </th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                <tr th:each="coupon : ${coupons}" class="hover:bg-gray-50/50 transition-colors group">
+                    <td class="px-8 py-5 whitespace-nowrap">
+                        <span class="text-lg font-black text-pink-600 tracking-wider bg-pink-50 px-3 py-1 rounded-lg"
+                              th:text="${coupon.code}">KOD</span>
+                    </td>
+                    <td class="px-8 py-5 whitespace-nowrap text-sm font-bold text-gray-900">
+                        <span th:if="${coupon.type.name() == 'PERCENTAGE'}"
+                              th:text="${coupon.discountValue + ' %'}"></span>
+                        <span th:if="${coupon.type.name() == 'FIXED'}" th:text="${coupon.discountValue + ' Kč'}"></span>
+                    </td>
+                    <td class="px-8 py-5 whitespace-nowrap text-sm text-gray-600"
+                        th:text="${coupon.validUntil != null ? #temporals.format(coupon.validUntil, 'dd.MM.yyyy HH:mm') : 'Bez omezení'}">
+                        Bez omezení
+                    </td>
+                    <td class="px-8 py-5 whitespace-nowrap text-center">
+                        <span th:if="${coupon.active}"
+                              class="px-3 py-1 inline-flex text-[10px] font-black rounded-full bg-green-100 text-green-700 uppercase tracking-widest">Aktivní</span>
+                        <span th:unless="${coupon.active}"
+                              class="px-3 py-1 inline-flex text-[10px] font-black rounded-full bg-slate-100 text-slate-500 uppercase tracking-widest">Neaktivní</span>
+                    </td>
+                    <td class="px-8 py-5 whitespace-nowrap text-right">
+                        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <a th:href="@{'/admin/coupons/edit/' + ${coupon.id}}"
+                               class="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors" title="Upravit">
+                                <i data-lucide="edit-2" class="w-5 h-5"></i>
+                            </a>
+                            <a th:href="@{'/admin/coupons/delete/' + ${coupon.id}}"
+                               class="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                               onclick="return confirm('Opravdu chcete smazat tento kupón?');" title="Smazat">
+                                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(coupons)}">
+                    <td colspan="5" class="px-8 py-20 text-center">
+                        <i data-lucide="ticket" class="w-12 h-12 mx-auto text-slate-200 mb-4"></i>
+                        <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Zatím nebyly vytvořeny
+                            žádné kupóny</p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

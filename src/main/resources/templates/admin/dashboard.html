@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{main :: layout('Administrace', ~{::section})}">
+<body>
+
+<section class="py-8 sm:py-10 w-full">
+    <div class="mb-10">
+        <h1 class="text-3xl sm:text-4xl font-black text-gray-900 uppercase tracking-tighter">Řídící panel</h1>
+        <p class="text-gray-500 font-medium mt-1">Vítejte v centrální správě systému FajnDřevo.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-12">
+        <a href="/admin/objednavky"
+           class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:border-blue-500 hover:shadow-xl hover:-translate-y-1 transition-all group">
+            <div class="flex items-center gap-5">
+                <div class="bg-blue-50 p-4 rounded-2xl group-hover:bg-blue-600 transition-colors">
+                    <i data-lucide="shopping-bag" class="w-6 h-6 text-blue-600 group-hover:text-white"></i>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Objednávky</span>
+                    <span class="text-2xl font-black text-gray-900" th:text="${totalOrders}">0</span>
+                </div>
+            </div>
+        </a>
+        <a href="/admin/produkty"
+           class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:border-green-500 hover:shadow-xl hover:-translate-y-1 transition-all group">
+            <div class="flex items-center gap-5">
+                <div class="bg-green-50 p-4 rounded-2xl group-hover:bg-green-600 transition-colors">
+                    <i data-lucide="package" class="w-6 h-6 text-green-600 group-hover:text-white"></i>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Katalog</span>
+                    <span class="text-2xl font-black text-gray-900" th:text="${totalProducts}">0</span>
+                </div>
+            </div>
+        </a>
+        <a href="/admin/sklad"
+           class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:border-yellow-500 hover:shadow-xl hover:-translate-y-1 transition-all group">
+            <div class="flex items-center gap-5">
+                <div class="bg-yellow-50 p-4 rounded-2xl group-hover:bg-yellow-600 transition-colors">
+                    <i data-lucide="boxes" class="w-6 h-6 text-yellow-600 group-hover:text-white"></i>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Sklad</span>
+                    <span class="block text-xs font-black text-yellow-600 uppercase mt-1">Pohyby zboží</span>
+                </div>
+            </div>
+        </a>
+        <a href="/dochazka/admin"
+           class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:border-purple-500 hover:shadow-xl hover:-translate-y-1 transition-all group">
+            <div class="flex items-center gap-5">
+                <div class="bg-purple-50 p-4 rounded-2xl group-hover:bg-purple-600 transition-colors">
+                    <i data-lucide="users" class="w-6 h-6 text-purple-600 group-hover:text-white"></i>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Personál</span>
+                    <span class="block text-xs font-black text-purple-600 uppercase mt-1">Docházka</span>
+                </div>
+            </div>
+        </a>
+
+        <a sec:authorize="hasRole('ADMIN')" href="/admin/nastaveni/stavy"
+           class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:border-slate-500 hover:shadow-xl hover:-translate-y-1 transition-all group">
+            <div class="flex items-center gap-5">
+                <div class="bg-slate-50 p-4 rounded-2xl group-hover:bg-slate-600 transition-colors">
+                    <i data-lucide="settings" class="w-6 h-6 text-slate-600 group-hover:text-white"></i>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Nastavení</span>
+                    <span class="block text-xs font-black text-slate-600 uppercase mt-1">Stavy objednávek</span>
+                </div>
+            </div>
+        </a>
+
+        <a sec:authorize="hasRole('ADMIN')" href="/admin/tax-rates"
+           class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:border-cyan-500 hover:shadow-xl hover:-translate-y-1 transition-all group">
+            <div class="flex items-center gap-5">
+                <div class="bg-cyan-50 p-4 rounded-2xl group-hover:bg-cyan-600 transition-colors">
+                    <i data-lucide="percent" class="w-6 h-6 text-cyan-600 group-hover:text-white"></i>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Daně</span>
+                    <span class="block text-xs font-black text-cyan-600 uppercase mt-1"
+                          th:text="${taxRatesCount} + ' sazeb DPH'">0 sazeb DPH</span>
+                </div>
+            </div>
+        </a>
+
+        <a sec:authorize="hasRole('ADMIN')" href="/admin/coupons"
+           class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:border-pink-500 hover:shadow-xl hover:-translate-y-1 transition-all group">
+            <div class="flex items-center gap-5">
+                <div class="bg-pink-50 p-4 rounded-2xl group-hover:bg-pink-600 transition-colors">
+                    <i data-lucide="ticket" class="w-6 h-6 text-pink-600 group-hover:text-white"></i>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Slevy</span>
+                    <span class="block text-xs font-black text-pink-600 uppercase mt-1"
+                          th:text="${activeCouponsCount} + ' aktivních'">0 aktivních</span>
+                </div>
+            </div>
+        </a>
+
+        <a sec:authorize="hasRole('ADMIN')" href="/admin/uzivatele"
+           class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:border-indigo-500 hover:shadow-xl hover:-translate-y-1 transition-all group">
+            <div class="flex items-center gap-5">
+                <div class="bg-indigo-50 p-4 rounded-2xl group-hover:bg-indigo-600 transition-colors">
+                    <i data-lucide="user-cog" class="w-6 h-6 text-indigo-600 group-hover:text-white"></i>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Správa</span>
+                    <span class="block text-xs font-black text-indigo-600 uppercase mt-1">Uživatelé</span>
+                </div>
+            </div>
+        </a>
+        <a sec:authorize="hasRole('ADMIN')" href="/admin/logs"
+           class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:border-red-500 hover:shadow-xl hover:-translate-y-1 transition-all group">
+            <div class="flex items-center gap-5">
+                <div class="bg-red-50 p-4 rounded-2xl group-hover:bg-red-600 transition-colors">
+                    <i data-lucide="shield-check" class="w-6 h-6 text-red-600 group-hover:text-white"></i>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Bezpečnost</span>
+                    <span class="block text-xs font-black text-red-600 uppercase mt-1">Audit log</span>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <h3 class="text-sm font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
+                <i data-lucide="clock" class="w-4 h-4 text-slate-400"></i> Nejnovější objednávky
+            </h3>
+            <a href="/admin/objednavky"
+               class="text-xs font-black text-blue-600 hover:text-blue-800 uppercase tracking-widest transition-colors">Zobrazit
+                vše</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-100">
+                <thead class="bg-gray-50/30">
+                <tr>
+                    <th class="px-8 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Číslo
+                    </th>
+                    <th class="px-8 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Zákazník
+                    </th>
+                    <th class="px-8 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Stav
+                    </th>
+                    <th class="px-8 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Hodnota
+                    </th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                <tr th:each="order : ${recentOrders}" class="hover:bg-gray-50/50 transition-colors group">
+                    <td class="px-8 py-5 whitespace-nowrap">
+                        <a th:href="@{/admin/objednavky/{id}(id=${order.id})}"
+                           class="text-sm font-black text-blue-600 hover:underline" th:text="${order.orderNumber}">ORD-XXX</a>
+                    </td>
+                    <td class="px-8 py-5 whitespace-nowrap">
+                        <div class="text-sm font-bold text-gray-900" th:text="${order.getCustomerFullName()}">Jméno
+                        </div>
+                        <div th:if="${order.customer == null}"
+                             class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Nákup bez
+                            registrace
+                        </div>
+                    </td>
+                    <td class="px-8 py-5 whitespace-nowrap text-center">
+                        <span th:if="${order.status != null}" th:class="${order.status.getBadgeClass()}"
+                              th:text="${order.status.name}">STAV</span>
+                        <span th:if="${order.status == null}"
+                              class="px-3 py-1 inline-flex text-[10px] font-black rounded-full bg-slate-100 text-slate-400 uppercase tracking-widest">Nepřiřazen</span>
+                    </td>
+                    <td class="px-8 py-5 whitespace-nowrap text-right">
+                        <span class="text-sm font-black text-gray-900"
+                              th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč'"></span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(recentOrders)}">
+                    <td colspan="4" class="px-8 py-20 text-center">
+                        <i data-lucide="inbox" class="w-12 h-12 mx-auto text-slate-200 mb-4"></i>
+                        <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Zatím nebyly přijaty žádné
+                            objednávky</p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

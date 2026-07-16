@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{main :: layout('Správa stavů objednávek', ~{::section})}">
+<body>
+<section class="py-8">
+    <div class="mb-10 flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight uppercase">Stavy objednávek</h1>
+            <p class="text-gray-500 mt-1">Definujte workflow a barvy pro přehledy v systému.</p>
+        </div>
+        <a href="/admin"
+           class="text-xs font-black text-slate-400 hover:text-slate-900 uppercase tracking-widest flex items-center gap-2">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Zpět
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-1">
+            <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm sticky top-24">
+                <h3 class="text-sm font-black text-gray-900 uppercase mb-6 tracking-widest">Přidat / Upravit stav</h3>
+                <form th:action="@{/admin/nastaveni/stavy/ulozit}" th:object="${newStatus}" method="post"
+                      class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Název
+                            stavu</label>
+                        <input type="text" name="name"
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50"
+                               placeholder="Např. Připraveno k expedici" required>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Tailwind
+                            barva (Badge)</label>
+                        <input type="text" name="colorClass"
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50"
+                               placeholder="bg-blue-100 text-blue-800" required>
+                        <p class="text-[9px] text-gray-400 mt-2 italic">Používejte formát: bg-[barva]-100
+                            text-[barva]-800</p>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Pořadí</label>
+                        <input type="number" name="displayOrder"
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50" value="0">
+                    </div>
+                    <button type="submit"
+                            class="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-blue-600 transition-all shadow-lg shadow-slate-900/10">
+                        Uložit nastavení
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-100">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase">Pořadí</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase">Název a Náhled
+                        </th>
+                        <th class="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase">Stav</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase">Akce</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                    <tr th:each="s : ${statuses}" class="hover:bg-gray-50/50">
+                        <td class="px-6 py-4 font-black text-gray-300" th:text="${s.displayOrder}">1</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-4">
+                                <span th:class="${s.getBadgeClass()}" th:text="${s.name}">NÁHLED</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span th:if="${s.active}"
+                                  class="text-[9px] font-black uppercase text-green-500">Aktivní</span>
+                            <span th:unless="${s.active}"
+                                  class="text-[9px] font-black uppercase text-red-400">Neaktivní</span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <form th:action="@{/admin/nastaveni/stavy/smazat/{id}(id=${s.id})}" method="post"
+                                  class="inline">
+                                <button type="submit" class="p-2 text-gray-400 hover:text-red-600 transition-colors">
+                                    <i data-lucide="power" class="w-4 h-4"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
