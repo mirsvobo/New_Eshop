@@ -36,25 +36,18 @@ class OrderServiceTest {
 
     @Mock
     private OrderRepository orderRepository;
-
     @Mock
     private ProductRepository productRepository;
-
     @Mock
     private OrderStatusRepository orderStatusRepository;
-
     @Mock
     private InventoryService inventoryService;
-
     @Mock
     private LocalInvoiceService invoiceService;
-
     @Mock
     private CouponRepository couponRepository;
-
     @Mock
     private Cart cart;
-
     @Mock
     private AuditService auditService;
 
@@ -98,7 +91,6 @@ class OrderServiceTest {
 
         when(cart.getItems()).thenReturn(Arrays.asList(item));
         when(productRepository.findAllById(any())).thenReturn(Arrays.asList(testProduct));
-
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
             Order order = invocation.getArgument(0);
             order.setId(100L);
@@ -120,7 +112,6 @@ class OrderServiceTest {
         when(orderStatusRepository.findByName("Nová")).thenReturn(Optional.of(novaStatus));
 
         User registeredUser = User.builder().id(1L).email("user@test.cz").firstName("Registered").lastName("User").build();
-
         CartItemDto item = CartItemDto.builder()
                 .productId(1L)
                 .productName("Test Product")
@@ -134,7 +125,6 @@ class OrderServiceTest {
 
         when(cart.getItems()).thenReturn(Arrays.asList(item));
         when(productRepository.findAllById(any())).thenReturn(Arrays.asList(testProduct));
-
         when(orderRepository.save(any(Order.class))).thenAnswer(i -> i.getArgument(0));
 
         Order result = orderService.processCheckout(registeredUser, formData, null);
@@ -147,6 +137,7 @@ class OrderServiceTest {
     @Test
     void processCheckout_EmptyCart_ReturnsOrderWithShippingCostOnly() {
         when(orderStatusRepository.findByName("Nová")).thenReturn(Optional.of(novaStatus));
+
         when(cart.getItems()).thenReturn(Collections.emptyList());
         when(orderRepository.save(any(Order.class))).thenAnswer(i -> i.getArgument(0));
 
@@ -172,10 +163,8 @@ class OrderServiceTest {
 
         when(cart.getItems()).thenReturn(Arrays.asList(item));
         when(productRepository.findAllById(any())).thenReturn(Arrays.asList(testProduct));
-
         formData.setTaxMode(TaxMode.REDUCED);
         formData.setAffidavitSigned(true);
-
         when(orderRepository.save(any(Order.class))).thenAnswer(i -> i.getArgument(0));
 
         Order result = orderService.processCheckout(null, formData, null);
@@ -203,10 +192,8 @@ class OrderServiceTest {
 
         when(cart.getItems()).thenReturn(Arrays.asList(item));
         when(productRepository.findAllById(any())).thenReturn(Arrays.asList(testProduct));
-
         formData.setTaxMode(TaxMode.STANDARD);
         formData.setAffidavitSigned(false);
-
         when(orderRepository.save(any(Order.class))).thenAnswer(i -> i.getArgument(0));
 
         Order result = orderService.processCheckout(null, formData, null);
@@ -217,5 +204,35 @@ class OrderServiceTest {
         assertFalse(result.getItems().isEmpty());
         assertEquals(0, new BigDecimal("21.00").compareTo(result.getItems().get(0).getActualTaxRate()),
                 "Položka objednávky si musí uložit originální 21 % DPH");
+    }
+
+    @Test
+    void processCheckout_WithProductVariants_SavesOrderItemsCorrectly() {
+        when(orderStatusRepository.findByName("Nová")).thenReturn(Optional.of(novaStatus));
+
+        CartItemDto item = CartItemDto.builder()
+                .productId(1L)
+                .productName("Test Product Variants")
+                .quantity(1)
+                .price(new BigDecimal("121.00"))
+                .basePrice(new BigDecimal("100.00"))
+                .taxRateValue(new BigDecimal("21.00"))
+                .selectedLazure("Ořech")
+                .selectedRoofColor("Černá")
+                .selectedDesign("Klasik")
+                .build();
+
+        when(cart.getItems()).thenReturn(Arrays.asList(item));
+        when(productRepository.findAllById(any())).thenReturn(Arrays.asList(testProduct));
+        formData.setTaxMode(TaxMode.STANDARD);
+        when(orderRepository.save(any(Order.class))).thenAnswer(i -> i.getArgument(0));
+
+        Order result = orderService.processCheckout(null, formData, null);
+
+        assertNotNull(result);
+        assertFalse(result.getItems().isEmpty());
+        assertEquals("Ořech", result.getItems().get(0).getSelectedLazure(), "Lazura se musí správně překopírovat do OrderItem");
+        assertEquals("Černá", result.getItems().get(0).getSelectedRoofColor(), "Barva střechy se musí správně překopírovat do OrderItem");
+        assertEquals("Klasik", result.getItems().get(0).getSelectedDesign(), "Design se musí správně překopírovat do OrderItem");
     }
 }

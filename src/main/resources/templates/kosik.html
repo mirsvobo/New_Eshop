@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Nákupní košík', ~{::section})}">
 <body>
-
 <section class="py-8 sm:py-12 w-full">
     <h1 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tighter uppercase mb-6 sm:mb-8">Nákupní košík</h1>
 
@@ -42,12 +41,19 @@
                             <td class="px-6 py-5">
                                 <div class="text-sm font-bold text-gray-900" th:text="${item.productName}"></div>
 
+                                <!-- Vybrané varianty v košíku -->
+                                <div class="mt-1.5 flex flex-wrap gap-1.5" th:if="${item.selectedLazure != null or item.selectedRoofColor != null or item.selectedDesign != null}">
+                                    <span th:if="${item.selectedLazure != null and !item.selectedLazure.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">Lazura: <span th:text="${item.selectedLazure}" class="text-slate-700"></span></span>
+                                    <span th:if="${item.selectedRoofColor != null and !item.selectedRoofColor.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">Střecha: <span th:text="${item.selectedRoofColor}" class="text-slate-700"></span></span>
+                                    <span th:if="${item.selectedDesign != null and !item.selectedDesign.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">Design: <span th:text="${item.selectedDesign}" class="text-slate-700"></span></span>
+                                </div>
+
                                 <!-- Dynamická cena za kus podle vybraného daňového režimu -->
-                                <div th:if="${@cart.taxMode.name() == 'REDUCED'}" class="mt-1.5 flex flex-col">
+                                <div th:if="${@cart.taxMode.name() == 'REDUCED'}" class="mt-2 flex flex-col">
                                     <span class="text-sm font-black text-blue-600" th:text="${#numbers.formatDecimal(item.basePrice * 1.12, 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč / ks'"></span>
                                     <span class="text-[9px] font-bold text-blue-400 uppercase tracking-widest mt-0.5">Pro bydlení (12 % DPH)</span>
                                 </div>
-                                <div th:unless="${@cart.taxMode.name() == 'REDUCED'}" class="mt-1.5 flex flex-col">
+                                <div th:unless="${@cart.taxMode.name() == 'REDUCED'}" class="mt-2 flex flex-col">
                                     <span class="text-sm font-black text-gray-900" th:text="${#numbers.formatDecimal(item.price, 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč / ks'"></span>
                                     <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5" th:text="'Firma / rekreace (' + ${#numbers.formatDecimal(item.taxRateValue, 1, 0)} + ' % DPH)'"></span>
                                 </div>
@@ -70,7 +76,6 @@
                                            class="w-16 text-center text-xs sm:text-sm font-black text-slate-700 bg-slate-50 px-2 py-1.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm">
                                 </form>
                             </td>
-
                             <!-- Dynamická celková cena za položku (množství * cena) -->
                             <td class="px-6 py-5 text-right text-sm font-black whitespace-nowrap align-top pt-6"
                                 th:classappend="${@cart.taxMode.name() == 'REDUCED'} ? 'text-blue-600' : 'text-gray-900'">
@@ -79,7 +84,6 @@
                                 <span th:unless="${@cart.taxMode.name() == 'REDUCED'}"
                                       th:text="${#numbers.formatDecimal(item.price * item.quantity, 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč'"></span>
                             </td>
-
                             <td class="px-6 py-5 text-right align-top pt-5">
                                 <form th:action="@{/kosik/odstranit}" method="post" class="inline mt-1">
                                     <input type="hidden" name="productId" th:value="${item.productId}">
@@ -110,7 +114,7 @@
                 <h3 class="text-xs sm:text-sm font-black text-gray-900 uppercase tracking-widest mb-6">Shrnutí
                     objednávky</h3>
 
-                <!-- PŘEPÍNAČ DAŇOVÉHO REŽIMU -->
+                <!-- VÝBĚR DAŇOVÉHO REŽIMU -->
                 <div class="bg-white rounded-2xl p-5 border border-slate-200 mb-6 shadow-sm">
                     <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Způsob dodání (DPH)</h4>
                     <form th:action="@{/kosik/rezim}" method="post">
@@ -183,7 +187,6 @@
                           th:classappend="${@cart.taxMode.name() == 'REDUCED'} ? 'text-blue-600' : 'text-slate-900'"
                           th:text="${#numbers.formatDecimal(cartTotal, 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč'"></span>
                 </div>
-
                 <a href="/kosik/pokladna"
                    class="block text-center w-full bg-slate-900 text-white py-4 rounded-2xl font-black hover:bg-blue-600 transition-all uppercase tracking-widest shadow-xl text-sm">
                     Přejít k pokladně
@@ -192,6 +195,5 @@
         </div>
     </div>
 </section>
-
 </body>
 </html>

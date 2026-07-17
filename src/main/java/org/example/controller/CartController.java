@@ -34,14 +34,17 @@ public class CartController {
     }
 
     @PostMapping("/pridat")
-    public String addToCart(@RequestParam Long productId, @RequestParam Integer quantity) {
+    public String addToCart(@RequestParam Long productId,
+                            @RequestParam Integer quantity,
+                            @RequestParam(required = false) String selectedLazure,
+                            @RequestParam(required = false) String selectedRoofColor,
+                            @RequestParam(required = false) String selectedDesign) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Produkt nenalezen."));
 
         BigDecimal taxMultiplier = (product.getTaxRate() != null)
                 ? product.getTaxRate().getRate().divide(new BigDecimal("100")).add(BigDecimal.ONE)
                 : BigDecimal.ONE;
-
         BigDecimal originalPriceWithTax = product.getPrice().multiply(taxMultiplier);
 
         cart.addItem(CartItemDto.builder()
@@ -53,6 +56,9 @@ public class CartController {
                 .originalPrice(originalPriceWithTax)
                 .taxRateValue(product.getTaxRate() != null ? product.getTaxRate().getRate() : BigDecimal.ZERO)
                 .stockQuantity(product.getStockQuantity())
+                .selectedLazure(selectedLazure)
+                .selectedRoofColor(selectedRoofColor)
+                .selectedDesign(selectedDesign)
                 .build());
 
         return "redirect:/kosik";

@@ -11,7 +11,6 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CartTest {
-
     private Cart cart;
 
     @BeforeEach
@@ -24,7 +23,6 @@ class CartTest {
         CartItemDto item = new CartItemDto();
         item.setProductId(1L);
         item.setQuantity(1);
-
         cart.addItem(item);
 
         assertFalse(cart.getItems().isEmpty(), "Košík by neměl být po přidání položky prázdný.");
@@ -32,11 +30,28 @@ class CartTest {
     }
 
     @Test
+    void testAddItem_WithProductConfigurations() {
+        CartItemDto item = new CartItemDto();
+        item.setProductId(1L);
+        item.setQuantity(1);
+        item.setSelectedLazure("Dub");
+        item.setSelectedRoofColor("Červená");
+        item.setSelectedDesign("Modern");
+
+        cart.addItem(item);
+
+        assertFalse(cart.getItems().isEmpty(), "Košík by neměl být po přidání položky prázdný.");
+        CartItemDto cartItem = cart.getItems().get(0);
+        assertEquals("Dub", cartItem.getSelectedLazure(), "Vybraná lazura se musí uložit do košíku.");
+        assertEquals("Červená", cartItem.getSelectedRoofColor(), "Vybraná barva střechy se musí uložit do košíku.");
+        assertEquals("Modern", cartItem.getSelectedDesign(), "Vybraný design se musí uložit do košíku.");
+    }
+
+    @Test
     void testClear() {
         CartItemDto item = new CartItemDto();
         item.setProductId(1L);
         item.setQuantity(1);
-
         cart.addItem(item);
         cart.clear();
 
@@ -92,10 +107,9 @@ class CartTest {
         item.setQuantity(1);
         item.setBasePrice(new BigDecimal("100.00"));
         item.setTaxRateValue(new BigDecimal("21.00"));
-
         cart.addItem(item);
-        cart.setTaxMode(TaxMode.REDUCED);
 
+        cart.setTaxMode(TaxMode.REDUCED);
         Map<BigDecimal, BigDecimal> taxBreakdown = cart.getTaxBreakdown();
 
         assertTrue(taxBreakdown.containsKey(new BigDecimal("12.00")), "Rozpad DPH musí obsahovat 12 %");
@@ -111,10 +125,9 @@ class CartTest {
         item.setQuantity(1);
         item.setBasePrice(new BigDecimal("100.00"));
         item.setTaxRateValue(new BigDecimal("21.00"));
-
         cart.addItem(item);
-        cart.setTaxMode(TaxMode.STANDARD);
 
+        cart.setTaxMode(TaxMode.STANDARD);
         Map<BigDecimal, BigDecimal> taxBreakdown = cart.getTaxBreakdown();
 
         assertTrue(taxBreakdown.containsKey(new BigDecimal("21.00")), "Rozpad DPH musí obsahovat 21 %");

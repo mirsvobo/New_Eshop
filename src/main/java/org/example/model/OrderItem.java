@@ -34,4 +34,13 @@ public class OrderItem {
 
     @Column(name = "actual_tax_rate", precision = 5, scale = 2, nullable = false)
     private BigDecimal actualTaxRate;
+
+    @Column(name = "selected_lazure")
+    private String selectedLazure;
+
+    @Column(name = "selected_roof_color")
+    private String selectedRoofColor;
+
+    @Column(name = "selected_design")
+    private String selectedDesign;
 }

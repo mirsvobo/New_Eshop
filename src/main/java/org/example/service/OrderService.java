@@ -44,9 +44,10 @@ public class OrderService {
         buildOrderAddresses(order, formData);
 
         order.setShippingCost(defaultShippingCost);
-        BigDecimal itemsTotal = processCartItemsAndInventory(order, customer);
 
+        BigDecimal itemsTotal = processCartItemsAndInventory(order, customer);
         BigDecimal discount = applyCouponIfValid(order, itemsTotal, couponCode);
+
         order.setDiscountAmount(discount);
 
         BigDecimal finalTotal = itemsTotal.subtract(discount).add(order.getShippingCost());
@@ -58,6 +59,7 @@ public class OrderService {
         initializeOrderStatus(order, customer);
 
         Order savedOrder = orderRepository.save(order);
+
         invoiceService.generateHtmlInvoice(savedOrder);
         cart.clear();
 
@@ -103,7 +105,6 @@ public class OrderService {
     private BigDecimal processCartItemsAndInventory(Order order, User customer) {
         BigDecimal total = BigDecimal.ZERO;
         List<Long> productIds = cart.getItems().stream().map(CartItemDto::getProductId).toList();
-
         Map<Long, Product> productCache = productRepository.findAllById(productIds).stream()
                 .collect(Collectors.toMap(Product::getId, p -> p));
 
@@ -124,7 +125,7 @@ public class OrderService {
                     customer
             );
 
-            // Zjištění reálné sazby a výpočet dynamické prodejní ceny
+            // Zjištění sazby a výpočet dynamické prodejní ceny
             BigDecimal itemTaxRate = (activeTaxRate != null) ? activeTaxRate : item.getTaxRateValue();
             if (itemTaxRate == null) {
                 itemTaxRate = BigDecimal.ZERO;
@@ -139,6 +140,9 @@ public class OrderService {
                     .quantity(item.getQuantity())
                     .unitPrice(dynamicUnitPrice)
                     .actualTaxRate(itemTaxRate)
+                    .selectedLazure(item.getSelectedLazure())
+                    .selectedRoofColor(item.getSelectedRoofColor())
+                    .selectedDesign(item.getSelectedDesign())
                     .build();
 
             order.getItems().add(oi);
@@ -150,7 +154,6 @@ public class OrderService {
     private void initializeOrderStatus(Order order, User customer) {
         OrderStatus defaultStatus = orderStatusRepository.findByName("Nová")
                 .orElseThrow(() -> new IllegalStateException("Výchozí stav 'Nová' nenalezen."));
-
         order.setStatus(defaultStatus);
 
         OrderStatusHistory initialHistory = OrderStatusHistory.builder()
@@ -160,7 +163,6 @@ public class OrderService {
                 .createdAt(LocalDateTime.now())
                 .changedBy(customer)
                 .build();
-
         order.getStatusHistory().add(initialHistory);
     }
 

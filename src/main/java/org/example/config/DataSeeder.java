@@ -35,6 +35,7 @@ public class DataSeeder implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         log.info("Zahajuji deterministické seedování dat pro systém FajnDřevo s.r.o...");
+
         clearDatabase();
 
         Map<String, OrderStatus> statuses = seedOrderStatuses();
@@ -124,16 +125,33 @@ public class DataSeeder implements CommandLineRunner {
 
     private Map<String, Product> seedFinishedProducts(TaxRate vat) {
         Map<String, Product> map = new HashMap<>();
-        map.put("stul", productRepository.save(createItem("Jídelní stůl 'FajnDub' - Masiv", 34500, "ks", Product.ProductType.PRODUCT, vat, 3)));
-        map.put("stolek", productRepository.save(createItem("Konferenční stolek 'Industriál'", 14200, "ks", Product.ProductType.PRODUCT, vat, 5)));
+
+        Product stul = createItem("Jídelní stůl 'FajnDub' - Masiv", 34500, "ks", Product.ProductType.PRODUCT, vat, 3);
+        stul.setAvailableLazures("Bezbarvý lak, Olejovaný dub, Tmavý ořech");
+        stul.setAvailableDesigns("Rovná hrana, Přírodní hrana (Live Edge)");
+        map.put("stul", productRepository.save(stul));
+
+        Product stolek = createItem("Konferenční stolek 'Industriál'", 14200, "ks", Product.ProductType.PRODUCT, vat, 5);
+        stolek.setAvailableLazures("Olejovaný dub, Mahagon");
+        map.put("stolek", productRepository.save(stolek));
+
         map.put("prkenko", productRepository.save(createItem("Dubové prkénko PRO", 1650, "ks", Product.ProductType.PRODUCT, vat, 15)));
         map.put("police", productRepository.save(createItem("Nástěnná police 'Minimalist'", 2400, "ks", Product.ProductType.PRODUCT, vat, 10)));
         map.put("podtacky", productRepository.save(createItem("Sada dřevěných podtácků (6ks)", 550, "sada", Product.ProductType.PRODUCT, vat, 20)));
+
         return map;
     }
 
     private Product createItem(String name, double price, String unit, Product.ProductType type, TaxRate vat, int qty) {
-        return Product.builder().name(name).price(BigDecimal.valueOf(price)).unit(unit).type(type).taxRate(vat).stockQuantity(qty).active(true).build();
+        return Product.builder()
+                .name(name)
+                .price(BigDecimal.valueOf(price))
+                .unit(unit)
+                .type(type)
+                .taxRate(vat)
+                .stockQuantity(qty)
+                .active(true)
+                .build();
     }
 
     private void seedRecipes(Map<String, Product> p, Map<String, Product> m) {
@@ -185,6 +203,7 @@ public class DataSeeder implements CommandLineRunner {
                 for (User emp : workers) {
                     LocalDateTime in = date.atTime(LocalTime.of(7, 30));
                     LocalDateTime out = date.atTime(LocalTime.of(16, 0));
+
                     attendanceRepository.save(AttendanceRecord.builder().employee(emp).timestamp(in).type(AttendanceRecord.AttendanceType.CLOCK_IN).build());
                     attendanceRepository.save(AttendanceRecord.builder().employee(emp).timestamp(in.plusHours(4)).type(AttendanceRecord.AttendanceType.BREAK_START).build());
                     attendanceRepository.save(AttendanceRecord.builder().employee(emp).timestamp(in.plusHours(4).plusMinutes(30)).type(AttendanceRecord.AttendanceType.BREAK_END).build());
@@ -198,6 +217,7 @@ public class DataSeeder implements CommandLineRunner {
 
     private void seedOrders(Map<String, User> customers, Map<String, Product> p, Map<String, OrderStatus> s) {
         LocalDateTime now = LocalDateTime.now();
+
         createOrder("ORD-2024-00001", customers.get("c1"), s.get("DONE"), now.minusDays(14),
                 Map.of(p.get("stul"), 2, p.get("podtacky"), 4));
         createOrder("ORD-2024-00002", customers.get("c2"), s.get("SHIP"), now.minusDays(5),
@@ -244,6 +264,14 @@ public class DataSeeder implements CommandLineRunner {
                     .actualTaxRate(taxRateValue)
                     .build();
 
+            // Automatické navolení variant u testovacích objednávek pro ukázku
+            if (p.getName().contains("Jídelní stůl")) {
+                item.setSelectedLazure("Olejovaný dub");
+                item.setSelectedDesign("Přírodní hrana (Live Edge)");
+            } else if (p.getName().contains("stolek")) {
+                item.setSelectedLazure("Mahagon");
+            }
+
             order.getItems().add(item);
             total = total.add(price.multiply(BigDecimal.valueOf(qty)));
         }
@@ -266,7 +294,7 @@ public class DataSeeder implements CommandLineRunner {
                 .user(admin)
                 .module("SYSTÉM")
                 .action("INITIAL_SEED")
-                .details("Založena deterministická datová sada - pevně definovaní zákazníci, kusovníky a 6 objednávek v různých stavech.")
+                .details("Založena deterministická datová sada - pevně definovaní zákazníci, kusovníky, produkty s variantami a 6 objednávek.")
                 .timestamp(LocalDateTime.now())
                 .ipAddress("127.0.0.1")
                 .build());

@@ -1,6 +1,7 @@
 package org.example.config;
 
 import org.example.model.Order;
+import org.example.model.Product;
 import org.example.repository.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,13 +49,21 @@ class DataSeederTest {
     }
 
     @Test
+    void seedProducts_DatabaseIsPopulatedWithVariants() {
+        List<Product> products = productRepository.findAll();
+        boolean hasVariants = products.stream()
+                .anyMatch(p -> p.getAvailableLazures() != null && !p.getAvailableLazures().isEmpty());
+        assertTrue(hasVariants, "Seeder by měl vytvořit alespoň jeden produkt s dostupnými variantami.");
+    }
+
+    @Test
     void seedStockMovements_DatabaseIsPopulated() {
         long movementCount = stockMovementRepository.count();
         assertTrue(movementCount >= 11, "Měl by existovat pohyb skladu pro každý vygenerovaný produkt");
 
         boolean auditExists = auditLogRepository.findAll().stream()
                 .anyMatch(log -> "INITIAL_SEED".equals(log.getAction()));
-        assertTrue(auditExists, "Chybí auditní stopa počátečního naskladnění (INITIAL_SEED)");
+        assertTrue(auditExists, "Chybí auditní stopa po úvodním naskladnění (INITIAL_SEED)");
     }
 
     @Test
@@ -85,12 +94,16 @@ class DataSeederTest {
     void seedOrders_DatabaseIsPopulated() {
         List<Order> orders = orderRepository.findAll();
         assertEquals(6, orders.size(), "Celkový počet objednávek by měl být 6");
-
         if (orders.isEmpty()) return;
 
         Order firstOrder = orderRepository.findById(orders.get(0).getId()).orElseThrow();
-        assertTrue(!firstOrder.getItems().isEmpty(), "Objednávka by měla mít nějaké položky (OrderItem)");
+        assertTrue(!firstOrder.getItems().isEmpty(), "Objednávka by měla mít položky (OrderItem)");
         assertTrue(!firstOrder.getStatusHistory().isEmpty(), "Objednávka by měla mít vygenerovanou počáteční historii stavu");
         assertTrue(firstOrder.getTotalAmount().doubleValue() >= 150.0, "Celková hodnota objednávky by měla obsahovat alespoň cenu dopravy");
+
+        boolean hasOrderVariants = orders.stream()
+                .flatMap(o -> o.getItems().stream())
+                .anyMatch(item -> item.getSelectedLazure() != null);
+        assertTrue(hasOrderVariants, "Seeder by měl vytvořit alespoň jednu položku objednávky s vybranou variantou (např. Lazurou).");
     }
 }

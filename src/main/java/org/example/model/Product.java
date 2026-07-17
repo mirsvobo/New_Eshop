@@ -111,4 +111,12 @@ public class Product {
     public enum ProductType {
         MATERIAL, PRODUCT
     }
+    @Column(name = "available_lazures")
+    private String availableLazures;
+
+    @Column(name = "available_roof_colors")
+    private String availableRoofColors;
+
+    @Column(name = "available_designs")
+    private String availableDesigns;
 }

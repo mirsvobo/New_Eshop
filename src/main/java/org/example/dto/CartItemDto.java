@@ -19,6 +19,9 @@ public class CartItemDto {
     private BigDecimal basePrice;
     private BigDecimal originalPrice;
     private BigDecimal taxRateValue;
+    private String selectedLazure;
+    private String selectedRoofColor;
+    private String selectedDesign;
 
     // NOVÉ: Aktuální stav skladu v momentě vložení/kontroly
     private double stockQuantity;

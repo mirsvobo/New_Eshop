@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Detail objednávky', ~{::section})}">
 <body>
-
 <section class="py-12 sm:py-20 w-full max-w-5xl mx-auto px-4">
     <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <a href="/muj-ucet"
@@ -35,20 +34,17 @@
 
             <div class="p-8 sm:p-10 md:col-span-1 bg-slate-50/30">
                 <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8 flex items-center gap-2">
-                    <i data-lucide="activity" class="w-4 h-4"></i> Průběh vyřízení
+                    <i data-lucide="activity" class="w-4 h-4"></i> Průběh vyřizování
                 </h3>
-
                 <div class="relative border-l-2 border-slate-200 ml-3 pl-6 space-y-8">
                     <div th:each="history, iterStat : ${order.statusHistory}" class="relative">
                         <div class="absolute w-3.5 h-3.5 rounded-full -left-[31px] top-0.5 ring-4 ring-slate-50"
                              th:classappend="${iterStat.first ? 'bg-blue-500' : 'bg-slate-300'}"></div>
-
                         <div class="text-sm font-black text-slate-900 mb-1" th:text="${history.status.name}">Stav</div>
                         <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"
                              th:text="${#temporals.format(history.createdAt, 'dd.MM.yyyy HH:mm')}">Datum
                         </div>
                     </div>
-
                     <div th:if="${#lists.isEmpty(order.statusHistory)}" class="text-xs text-slate-400 font-bold italic">
                         Informace o průběhu zatím nejsou k dispozici.
                     </div>
@@ -84,7 +80,15 @@
                                  th:text="${item.quantity}"></div>
                             <div class="flex flex-col">
                                 <span class="text-sm font-black text-slate-800" th:text="${item.product.name}"></span>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5"
+
+                                <!-- Vybrané varianty v detailu objednávky pro zákazníka -->
+                                <div class="mt-1 flex flex-wrap gap-1.5" th:if="${item.selectedLazure != null or item.selectedRoofColor != null or item.selectedDesign != null}">
+                                    <span th:if="${item.selectedLazure != null and !item.selectedLazure.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">Lazura: <span th:text="${item.selectedLazure}" class="text-slate-800"></span></span>
+                                    <span th:if="${item.selectedRoofColor != null and !item.selectedRoofColor.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">Střecha: <span th:text="${item.selectedRoofColor}" class="text-slate-800"></span></span>
+                                    <span th:if="${item.selectedDesign != null and !item.selectedDesign.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">Design: <span th:text="${item.selectedDesign}" class="text-slate-800"></span></span>
+                                </div>
+
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1"
                                       th:text="'DPH ' + ${#numbers.formatDecimal(item.actualTaxRate, 1, 0)} + ' %'"></span>
                             </div>
                         </div>
@@ -105,10 +109,8 @@
                          th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'WHITESPACE', 0, 'POINT')} + ' Kč'"></div>
                 </div>
             </div>
-
         </div>
     </div>
 </section>
-
 </body>
 </html>

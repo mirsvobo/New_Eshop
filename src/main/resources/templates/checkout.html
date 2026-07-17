@@ -6,7 +6,6 @@
 
     <form th:action="@{/kosik/objednat}" th:object="${checkoutForm}" method="post"
           class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
         <input type="hidden" id="taxModeInput" th:field="*{taxMode}" />
 
         <!-- VÝRAZNÝ CHYBOVÝ BAR PRO ČESTNÉ PROHLÁŠENÍ -->
@@ -25,7 +24,6 @@
         </div>
 
         <div class="lg:col-span-2 space-y-6">
-
             <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-sm">
                 <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest border-b pb-3 mb-6">1. Osobní
                     údaje</h3>
@@ -46,7 +44,7 @@
                     údaje</h3>
 
                 <div id="companySection" class="space-y-4">
-                    <input type="text" th:field="*{companyName}" placeholder="Název firmy (volitelně)"
+                    <input type="text" th:field="*{companyName}" placeholder="Název firmy (volitelné)"
                            class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -88,11 +86,11 @@
                             <div class="flex flex-col">
                                 <span class="text-sm font-black transition-colors"
                                       th:classappend="${#fields.hasErrors('affidavitSigned')} ? 'text-red-900 group-hover:text-red-700' : 'text-blue-900 group-hover:text-blue-700'">
-                                    Čestné prohlášení o splnění podmínek § 48 zákona o DPH
+                                     Čestné prohlášení o splnění podmínek § 48 zákona o DPH
                                 </span>
                                 <span class="text-xs mt-1.5 leading-relaxed"
                                       th:classappend="${#fields.hasErrors('affidavitSigned')} ? 'text-red-800' : 'text-blue-700/80'">
-                                    Prohlašuji, že stavební nebo montážní práce jsou poskytnuty na dokončené stavbě pro bydlení a splňuji podmínky pro uplatnění snížené sazby DPH 12 %. Jsem si vědom(a), že při nesplnění podmínek nesu plnou právní zodpovědnost za ušlou daň.
+                                    Prohlašuji, že stavební nebo montážní práce jsou poskytnuty na dokončené stavbě pro bydlení a splňují podmínky pro uplatnění snížené sazby DPH 12 %. Jsem si vědom(a), že při nesplnění podmínek nesu plnou právní zodpovědnost za ušlou daň.
                                 </span>
                             </div>
                         </label>
@@ -113,7 +111,6 @@
                 <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest border-b pb-3 mb-6">3. Údaje pro
                     doručení</h3>
                 <div class="space-y-4">
-
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <input type="text" th:field="*{shippingFirstName}" placeholder="Jméno příjemce"
                                class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors">
@@ -122,7 +119,6 @@
                     </div>
                     <input type="tel" th:field="*{shippingPhone}" placeholder="Telefon na příjemce"
                            class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors">
-
                     <input type="text" th:field="*{shippingStreet}" placeholder="Doručovací ulice a č.p."
                            class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 mt-4 focus:bg-white focus:ring-blue-500 transition-colors">
                     <div class="grid grid-cols-2 gap-4">
@@ -143,20 +139,24 @@
         <div class="lg:col-span-1">
             <div class="bg-gray-50 rounded-3xl p-6 sm:p-8 border border-gray-200 lg:sticky lg:top-24 shadow-sm">
                 <h3 class="text-sm font-black text-gray-900 uppercase tracking-widest mb-6">Rekapitulace</h3>
-
                 <div class="space-y-4 mb-6">
                     <div th:each="item : ${cartItems}" class="flex justify-between items-center text-sm border-b border-gray-200/50 pb-3 last:border-0 last:pb-0">
                         <div class="flex flex-col">
                             <span th:text="${item.quantity + 'x ' + item.productName}" class="text-gray-700 font-bold"></span>
 
-                            <span th:if="${@cart.taxMode.name() == 'REDUCED'}" class="text-[9px] font-black text-blue-500 uppercase tracking-widest mt-0.5">DPH 12 % (Bydlení)</span>
-                            <span th:unless="${@cart.taxMode.name() == 'REDUCED'}" class="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-0.5" th:text="'DPH ' + ${#numbers.formatDecimal(item.taxRateValue, 1, 0)} + ' % (Standard)'"></span>
-                        </div>
+                            <!-- Vybrané varianty zobrazené v rekapitulaci checkoutu -->
+                            <div class="mt-1 flex flex-wrap gap-1" th:if="${item.selectedLazure != null or item.selectedRoofColor != null or item.selectedDesign != null}">
+                                <span th:if="${item.selectedLazure != null and !item.selectedLazure.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">Lazura: <span th:text="${item.selectedLazure}"></span></span>
+                                <span th:if="${item.selectedRoofColor != null and !item.selectedRoofColor.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">Střecha: <span th:text="${item.selectedRoofColor}"></span></span>
+                                <span th:if="${item.selectedDesign != null and !item.selectedDesign.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">Design: <span th:text="${item.selectedDesign}"></span></span>
+                            </div>
 
+                            <span th:if="${@cart.taxMode.name() == 'REDUCED'}" class="text-[9px] font-black text-blue-500 uppercase tracking-widest mt-1">DPH 12 % (Bydlení)</span>
+                            <span th:unless="${@cart.taxMode.name() == 'REDUCED'}" class="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1" th:text="'DPH ' + ${#numbers.formatDecimal(item.taxRateValue, 1, 0)} + ' % (Standard)'"></span>
+                        </div>
                         <span th:if="${@cart.taxMode.name() == 'REDUCED'}"
                               th:text="${#numbers.formatDecimal(item.basePrice * 1.12 * item.quantity, 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč'"
                               class="font-black text-blue-600 whitespace-nowrap"></span>
-
                         <span th:unless="${@cart.taxMode.name() == 'REDUCED'}"
                               th:text="${#numbers.formatDecimal(item.price * item.quantity, 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč'"
                               class="font-black text-gray-900 whitespace-nowrap"></span>
@@ -180,7 +180,6 @@
                         <span>Základ daně (Doprava)</span>
                         <span>150 Kč</span>
                     </div>
-
                     <div class="flex justify-between text-xs font-bold uppercase tracking-widest"
                          th:classappend="${@cart.taxMode.name() == 'REDUCED'} ? 'text-blue-400' : 'text-gray-400'">
                         <span th:text="'DPH Doprava ' + ${@cart.taxMode.name() == 'REDUCED' ? '(12 %)' : '(21 %)'}"></span>
@@ -208,7 +207,6 @@
             // Togglování doručovací adresy
             const toggle = document.getElementById('toggle-delivery');
             const section = document.getElementById('shippingSection');
-
             if (toggle && section) {
                 const updateVisibility = () => {
                     if (toggle.checked) {
@@ -230,7 +228,7 @@
             const companyInput = document.getElementById('companyName');
 
             if (taxModeValue === 'REDUCED') {
-                // Skrytí a vymazání firemních údajů (IČO a DIČ nejsou pro sníženou sazbu bydlení povoleny)
+                // Skrytí a vymazání firemních IČO a DIČ nejsou pro sníženou sazbu bydlení povoleny)
                 companySection.style.display = 'none';
                 if(icoInput) icoInput.value = '';
                 if(dicInput) dicInput.value = '';
@@ -239,13 +237,12 @@
                 // Zobrazení povinného čestného prohlášení
                 if(affidavitSection) affidavitSection.classList.remove('hidden');
             } else {
-                // Standardní režim - zobrazení firemních údajů a skrytí prohlášení
+                // Standardní režim - zobrazení firemních a skrytí prohlášení
                 companySection.style.display = 'block';
                 if(affidavitSection) affidavitSection.classList.add('hidden');
             }
         });
     </script>
-
 </section>
 </body>
 </html>
