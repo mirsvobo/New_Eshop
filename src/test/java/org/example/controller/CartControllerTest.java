@@ -53,6 +53,7 @@ class CartControllerTest {
                 .name("Konfigurovatelný Altán")
                 .price(new BigDecimal("15000"))
                 .stockQuantity(2)
+                .imageUrl("altan.jpg") // Přidáno pro test obrázku
                 .build();
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(mockProduct));
@@ -76,5 +77,6 @@ class CartControllerTest {
         assertEquals("Pinie", addedItem.getSelectedLazure(), "Lazura se z requestu nepředala do DTO košíku.");
         assertEquals("Černá", addedItem.getSelectedRoofColor(), "Barva střechy se z requestu nepředala do DTO košíku.");
         assertEquals("Moderní", addedItem.getSelectedDesign(), "Design se z requestu nepředal do DTO košíku.");
+        assertEquals("/images/altan.jpg", addedItem.getImageUrl(), "Obrázek se z produktu nepředal do DTO košíku.");
     }
 }

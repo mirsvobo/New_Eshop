@@ -14,19 +14,21 @@ import java.math.BigDecimal;
 public class CartItemDto {
     private Long productId;
     private String productName;
+    private String imageUrl;
     private Integer quantity;
     private BigDecimal price;
     private BigDecimal basePrice;
     private BigDecimal originalPrice;
     private BigDecimal taxRateValue;
+
     private String selectedLazure;
     private String selectedRoofColor;
     private String selectedDesign;
 
-    // NOVÉ: Aktuální stav skladu v momentě vložení/kontroly
+    // Aktuální stav skladu v momentě vložení/kontroly
     private double stockQuantity;
 
-    // NOVÉ: Pomocná metoda pro vyhodnocení nutnosti výroby
+    // Pomocná metoda pro vyhodnocení nutnosti výroby
     public boolean isRequiresManufacturing() {
         return this.quantity > this.stockQuantity;
     }

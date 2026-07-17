@@ -50,6 +50,7 @@ public class CartController {
         cart.addItem(CartItemDto.builder()
                 .productId(product.getId())
                 .productName(product.getName())
+                .imageUrl(product.getDisplayImageUrl())
                 .quantity(quantity)
                 .price(product.getPriceWithTax())
                 .basePrice(product.getActiveBasePrice())
