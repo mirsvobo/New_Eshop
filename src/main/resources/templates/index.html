@@ -102,7 +102,7 @@
                     <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md">Blesková expedice</span>
                 </div>
                 <h2 class="text-3xl font-black text-slate-900 tracking-tight">Ihned k odběru</h2>
-                <p class="text-slate-500 mt-1">To nejlepší z naší dílny připravené k okamžitému odeslání. Bez zbytečného čekání.</p>
+                <p class="text-slate-500 mt-1">To nejlepší z naší dílny připravené k odeslání. Odborná montáž u vás doma je vždy v ceně.</p>
             </div>
             <a th:href="@{/produkty}"
                class="mt-4 sm:mt-0 flex items-center gap-2 font-bold text-sm uppercase tracking-widest text-slate-900 hover:text-blue-600 transition-colors bg-white border border-slate-200 px-5 py-2.5 rounded-xl hover:border-blue-200 hover:shadow-sm">
@@ -156,13 +156,14 @@
                             <div class="flex flex-col">
                                 <div class="flex items-center gap-2">
                                     <span class="text-xl font-black text-slate-900"
-                                          th:text="${#numbers.formatInteger(product.getPriceWithTax(), 1, 'WHITESPACE')} + ' Kč'"></span>
+                                          th:text="${#numbers.formatInteger(product.getActiveBasePrice() * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
                                     <span th:if="${product.isOnSale()}"
                                           class="text-sm font-bold text-slate-400 line-through"
-                                          th:text="${#numbers.formatInteger(product.getRegularPriceWithTax(), 1, 'WHITESPACE')} + ' Kč'"></span>
+                                          th:text="${#numbers.formatInteger(product.price * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
                                 </div>
-                                <span class="text-xs text-slate-400"
-                                      th:text="'bez DPH ' + ${#numbers.formatInteger(product.getActiveBasePrice(), 1, 'WHITESPACE')} + ' Kč'"></span>
+                                <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest mt-0.5">Pro bydlení (soukromě, 12 % DPH)</span>
+                                <span class="text-xs text-slate-400 mt-0.5"
+                                      th:text="'Firma / rekreace: ' + ${#numbers.formatInteger(product.getPriceWithTax(), 1, 'WHITESPACE')} + ' Kč (21 %)'"></span>
                             </div>
                             <form th:action="@{/kosik/pridat}" method="post" class="lg:hidden">
                                 <input type="hidden" name="productId" th:value="${product.id}"/>
@@ -185,7 +186,7 @@
                     <span class="bg-amber-50 text-amber-800 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md">Poctivá ruční tesařina</span>
                 </div>
                 <h2 class="text-3xl font-black text-slate-900 tracking-tight">Na zakázku s dodáním do 5 týdnů</h2>
-                <p class="text-slate-500 mt-1">Zakázkové dřevníky, které pro vás vyrobíme zcela od nuly. Kvalita, na kterou se vyplatí počkat.</p>
+                <p class="text-slate-500 mt-1">Kousky, které pro vás vyrobíme zcela od nuly. Odborná montáž u vás doma je vždy v ceně.</p>
             </div>
             <a th:href="@{/kontakt}"
                class="mt-4 sm:mt-0 flex items-center gap-2 font-bold text-sm uppercase tracking-widest text-slate-900 hover:text-amber-600 transition-colors bg-white border border-slate-200 px-5 py-2.5 rounded-xl hover:border-amber-200 hover:shadow-sm">
@@ -238,13 +239,14 @@
                             <div class="flex flex-col">
                                 <div class="flex items-center gap-2">
                                     <span class="text-xl font-black text-slate-900"
-                                          th:text="${#numbers.formatInteger(product.getPriceWithTax(), 1, 'WHITESPACE')} + ' Kč'"></span>
+                                          th:text="${#numbers.formatInteger(product.getActiveBasePrice() * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
                                     <span th:if="${product.isOnSale()}"
                                           class="text-sm font-bold text-slate-400 line-through"
-                                          th:text="${#numbers.formatInteger(product.getRegularPriceWithTax(), 1, 'WHITESPACE')} + ' Kč'"></span>
+                                          th:text="${#numbers.formatInteger(product.price * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
                                 </div>
-                                <span class="text-xs text-slate-400"
-                                      th:text="'bez DPH ' + ${#numbers.formatInteger(product.getActiveBasePrice(), 1, 'WHITESPACE')} + ' Kč'"></span>
+                                <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest mt-0.5">Pro bydlení (soukromě, 12 % DPH)</span>
+                                <span class="text-xs text-slate-400 mt-0.5"
+                                      th:text="'Firma / rekreace: ' + ${#numbers.formatInteger(product.getPriceWithTax(), 1, 'WHITESPACE')} + ' Kč (21 %)'"></span>
                             </div>
                             <form th:action="@{/kosik/pridat}" method="post" class="lg:hidden">
                                 <input type="hidden" name="productId" th:value="${product.id}"/>
@@ -353,6 +355,7 @@
                     data-lucide="mail" class="w-5 h-5"></i> Spojit se s dílnou</a>
         </div>
     </section>
+
 </div>
 </body>
 </html>

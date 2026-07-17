@@ -58,14 +58,16 @@
                 </div>
 
                 <div class="flex items-end justify-between mt-auto pt-4 border-t border-slate-100">
-                    <div>
-                        <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Cena s DPH</span>
+                    <div class="flex flex-col">
                         <div class="flex items-center gap-2">
                             <span class="text-xl font-black text-slate-900"
-                                  th:text="${#numbers.formatInteger(product.getPriceWithTax(), 1, 'WHITESPACE')} + ' Kč'"></span>
+                                  th:text="${#numbers.formatInteger(product.getActiveBasePrice() * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
                             <span th:if="${product.isOnSale()}" class="text-xs font-bold text-slate-400 line-through"
-                                  th:text="${#numbers.formatInteger(product.getRegularPriceWithTax(), 1, 'WHITESPACE')} + ' Kč'"></span>
+                                  th:text="${#numbers.formatInteger(product.price * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
                         </div>
+                        <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest mt-0.5">Pro bydlení (soukromě, 12 % DPH)</span>
+                        <span class="text-xs text-slate-400 mt-0.5"
+                              th:text="'Firma / rekreace: ' + ${#numbers.formatInteger(product.getPriceWithTax(), 1, 'WHITESPACE')} + ' Kč (21 %)'"></span>
                     </div>
                     <form th:action="@{/kosik/pridat}" method="post">
                         <input type="hidden" name="productId" th:value="${product.id}">
