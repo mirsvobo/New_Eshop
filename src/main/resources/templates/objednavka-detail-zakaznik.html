@@ -82,7 +82,11 @@
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center font-black text-slate-500 text-xs border border-slate-100"
                                  th:text="${item.quantity}"></div>
-                            <div class="text-sm font-black text-slate-800" th:text="${item.product.name}"></div>
+                            <div class="flex flex-col">
+                                <span class="text-sm font-black text-slate-800" th:text="${item.product.name}"></span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5"
+                                      th:text="'DPH ' + ${#numbers.formatDecimal(item.actualTaxRate, 1, 0)} + ' %'"></span>
+                            </div>
                         </div>
                         <div class="text-sm font-black text-slate-900"
                              th:text="${#numbers.formatDecimal(item.unitPrice * item.quantity, 1, 'WHITESPACE', 0, 'POINT')} + ' Kč'"></div>
@@ -91,9 +95,10 @@
 
                 <div class="bg-slate-900 p-6 sm:p-8 rounded-3xl text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xl shadow-slate-900/10">
                     <div>
-                        <span class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Doprava: <span
-                                class="text-white"
-                                th:text="${#numbers.formatDecimal(order.shippingCost, 1, 'WHITESPACE', 0, 'POINT')} + ' Kč'"></span></span>
+                        <span class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">
+                            Doprava: <span class="text-white" th:text="${#numbers.formatDecimal(order.shippingCost, 1, 'WHITESPACE', 0, 'POINT')} + ' Kč'"></span>
+                            <span class="text-slate-500" th:text="${order.taxMode.name() == 'REDUCED' ? '(12 %)' : '(21 %)'}"></span>
+                        </span>
                         <span class="block text-[10px] font-black text-slate-500 uppercase tracking-widest">Konečná částka (vč. DPH)</span>
                     </div>
                     <div class="text-3xl sm:text-4xl font-black tracking-tighter text-blue-400"

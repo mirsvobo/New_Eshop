@@ -9,6 +9,21 @@
 
         <input type="hidden" id="taxModeInput" th:field="*{taxMode}" />
 
+        <!-- VÝRAZNÝ CHYBOVÝ BAR PRO ČESTNÉ PROHLÁŠENÍ -->
+        <div th:if="${#fields.hasErrors('affidavitSigned')}"
+             class="lg:col-span-3 bg-red-600 text-white p-6 sm:p-8 rounded-3xl shadow-xl flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6 border border-red-500 animate-in slide-in-from-top-4 fade-in duration-500">
+            <div class="bg-red-500/60 p-4 rounded-2xl shrink-0">
+                <i data-lucide="alert-octagon" class="w-10 h-10 text-white"></i>
+            </div>
+            <div class="flex flex-col flex-1">
+                <h3 class="text-xl sm:text-2xl font-black uppercase tracking-widest mb-1.5">Chybí podepsat čestné prohlášení!</h3>
+                <p class="text-sm font-medium text-red-100" th:errors="*{affidavitSigned}"></p>
+            </div>
+            <a href="#affidavitSection" class="shrink-0 w-full sm:w-auto bg-white text-red-600 px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-md hover:bg-red-50 hover:shadow-lg transition-all flex items-center justify-center gap-2 mt-2 sm:mt-0">
+                Přejít k prohlášení <i data-lucide="arrow-down" class="w-5 h-5"></i>
+            </a>
+        </div>
+
         <div class="lg:col-span-2 space-y-6">
 
             <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-sm">
@@ -62,19 +77,25 @@
 
                 <!-- Čestné prohlášení (zobrazí se pouze při 12% sazbě) -->
                 <div id="affidavitSection" class="mt-6 pt-6 border-t border-gray-50 hidden animate-in fade-in zoom-in duration-300">
-                    <div class="bg-blue-50/50 p-6 rounded-2xl border border-blue-100">
-                        <label class="flex items-start gap-3.5 cursor-pointer group">
-                            <div class="flex items-center h-5 mt-0.5">
+                    <div class="p-6 rounded-2xl border transition-colors shadow-sm"
+                         th:classappend="${#fields.hasErrors('affidavitSigned')} ? 'bg-red-50 border-red-400' : 'bg-blue-50/50 border-blue-100'">
+                        <label class="flex items-start gap-4 cursor-pointer group">
+                            <div class="flex items-center h-5 mt-0.5 shrink-0">
                                 <input type="checkbox" th:field="*{affidavitSigned}"
-                                       class="w-5 h-5 rounded border-blue-300 text-blue-600 focus:ring-blue-500 transition-colors">
+                                       class="w-6 h-6 rounded border-gray-300 text-blue-600 focus:ring-blue-500 transition-colors"
+                                       th:classappend="${#fields.hasErrors('affidavitSigned')} ? 'border-red-500 ring-2 ring-red-200' : ''">
                             </div>
                             <div class="flex flex-col">
-                                <span class="text-sm font-black text-blue-900 group-hover:text-blue-700 transition-colors">Čestné prohlášení o splnění podmínek § 48 zákona o DPH</span>
-                                <span class="text-xs text-blue-700/80 mt-1.5 leading-relaxed">Prohlašuji, že stavební nebo montážní práce jsou poskytnuty na dokončené stavbě pro bydlení a splňuji podmínky pro uplatnění snížené sazby DPH 12 %. Jsem si vědom(a), že při nesplnění podmínek nesu plnou právní zodpovědnost za ušlou daň.</span>
+                                <span class="text-sm font-black transition-colors"
+                                      th:classappend="${#fields.hasErrors('affidavitSigned')} ? 'text-red-900 group-hover:text-red-700' : 'text-blue-900 group-hover:text-blue-700'">
+                                    Čestné prohlášení o splnění podmínek § 48 zákona o DPH
+                                </span>
+                                <span class="text-xs mt-1.5 leading-relaxed"
+                                      th:classappend="${#fields.hasErrors('affidavitSigned')} ? 'text-red-800' : 'text-blue-700/80'">
+                                    Prohlašuji, že stavební nebo montážní práce jsou poskytnuty na dokončené stavbě pro bydlení a splňuji podmínky pro uplatnění snížené sazby DPH 12 %. Jsem si vědom(a), že při nesplnění podmínek nesu plnou právní zodpovědnost za ušlou daň.
+                                </span>
                             </div>
                         </label>
-                        <p th:if="${#fields.hasErrors('affidavitSigned')}" th:errors="*{affidavitSigned}"
-                           class="text-red-500 text-[10px] mt-3 uppercase font-bold ml-8"></p>
                     </div>
                 </div>
 

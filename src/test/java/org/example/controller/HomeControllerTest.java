@@ -1,7 +1,9 @@
 package org.example.controller;
 
 import org.example.dto.CartItemDto;
+import org.example.model.TaxMode;
 import org.example.service.Cart;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,8 +26,14 @@ class HomeControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
+    @MockitoBean(name = "cart")
     private Cart cart;
+
+    @BeforeEach
+    void setUp() {
+        when(cart.getTaxMode()).thenReturn(TaxMode.STANDARD);
+        when(cart.getTotalItems()).thenReturn(0);
+    }
 
     @Test
     void homePage_LoadsSuccessfully() throws Exception {
@@ -47,6 +55,7 @@ class HomeControllerTest {
 
         when(cart.getItems()).thenReturn(List.of(item));
         when(cart.getTotalPrice()).thenReturn(new BigDecimal("100.00"));
+        when(cart.getTaxMode()).thenReturn(TaxMode.STANDARD);
 
         mockMvc.perform(get("/kosik/pokladna"))
                 .andExpect(status().isOk())

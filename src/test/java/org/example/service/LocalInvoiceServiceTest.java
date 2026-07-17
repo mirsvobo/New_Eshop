@@ -3,6 +3,7 @@ package org.example.service;
 import org.example.model.Order;
 import org.example.model.OrderItem;
 import org.example.model.Product;
+import org.example.model.TaxMode;
 import org.example.model.TaxRate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +20,9 @@ import org.thymeleaf.context.Context;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -52,27 +55,24 @@ class LocalInvoiceServiceTest {
     }
 
     @Test
-    void generateHtmlInvoice_PassesCorrectContext() {
+    void generateHtmlInvoice_StandardMode_Calculates21PercentTax() {
         TaxRate tax21 = new TaxRate(1L, "DPH 21%", new BigDecimal("21.00"), true, false);
-
-        Product product = Product.builder()
-                .name("Test Produkt")
-                .taxRate(tax21)
-                .build();
-
+        Product product = Product.builder().name("Test Produkt").taxRate(tax21).build();
         OrderItem item = OrderItem.builder()
                 .product(product)
                 .quantity(2)
                 .unitPrice(new BigDecimal("121.00"))
+                .actualTaxRate(new BigDecimal("21.00"))
                 .build();
 
         Order order = new Order();
         order.setId(1L);
         order.setOrderNumber(TEST_ORDER_NUMBER);
         order.setItems(List.of(item));
-        order.setShippingCost(BigDecimal.ZERO);
+        order.setTaxMode(TaxMode.STANDARD);
+        order.setShippingCost(new BigDecimal("150.00"));
         order.setDiscountAmount(BigDecimal.ZERO);
-        order.setTotalAmount(new BigDecimal("242.00"));
+        order.setTotalAmount(new BigDecimal("392.00"));
         order.setDeliveryAddress("Test Ulice 123");
 
         when(templateEngine.process(anyString(), any(Context.class))).thenReturn("<html>Test Faktura</html>");
@@ -86,12 +86,51 @@ class LocalInvoiceServiceTest {
         Order capturedOrder = (Order) context.getVariable("order");
 
         @SuppressWarnings("unchecked")
-        java.util.Map<BigDecimal, java.util.Map<String, BigDecimal>> capturedTax =
-                (java.util.Map<BigDecimal, java.util.Map<String, BigDecimal>>) context.getVariable("taxSummary");
+        Map<BigDecimal, Map<String, BigDecimal>> capturedTax =
+                (Map<BigDecimal, Map<String, BigDecimal>>) context.getVariable("taxSummary");
 
-        assertNotNull(capturedOrder, "Kontext by měl obsahovat objekt order");
-        assertEquals(TEST_ORDER_NUMBER, capturedOrder.getOrderNumber(), "Objednávka v kontextu by měla odpovídat té testované");
-        assertNotNull(capturedTax, "Kontext by měl obsahovat vygenerovanou strukturu pro DPH (taxSummary)");
+        assertNotNull(capturedOrder);
         assertTrue(capturedTax.containsKey(new BigDecimal("21.00")), "Měla by být zachycena daň 21%");
+        assertFalse(capturedTax.containsKey(new BigDecimal("12.00")), "Daň 12% by se neměla vyskytovat");
+    }
+
+    @Test
+    void generateHtmlInvoice_ReducedMode_Calculates12PercentTax() {
+        // Produkt má standardně v katalogu 21 %
+        TaxRate tax21 = new TaxRate(1L, "DPH 21%", new BigDecimal("21.00"), true, false);
+        Product product = Product.builder().name("Sada podtácků").taxRate(tax21).build();
+
+        // Ale položka objednávky si správně drží 12 %
+        OrderItem item = OrderItem.builder()
+                .product(product)
+                .quantity(1)
+                .unitPrice(new BigDecimal("112.00"))
+                .actualTaxRate(new BigDecimal("12.00"))
+                .build();
+
+        Order order = new Order();
+        order.setId(2L);
+        order.setOrderNumber(TEST_ORDER_NUMBER);
+        order.setItems(List.of(item));
+        order.setTaxMode(TaxMode.REDUCED);
+        order.setShippingCost(new BigDecimal("150.00")); // Doprava bude též daněna 12%
+        order.setDiscountAmount(BigDecimal.ZERO);
+        order.setTotalAmount(new BigDecimal("262.00"));
+
+        when(templateEngine.process(anyString(), any(Context.class))).thenReturn("<html>Test Faktura Snížená</html>");
+
+        localInvoiceService.generateHtmlInvoice(order);
+
+        ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
+        verify(templateEngine).process(eq("faktura-sablona"), contextCaptor.capture());
+
+        Context context = contextCaptor.getValue();
+        @SuppressWarnings("unchecked")
+        Map<BigDecimal, Map<String, BigDecimal>> capturedTax =
+                (Map<BigDecimal, Map<String, BigDecimal>>) context.getVariable("taxSummary");
+
+        assertNotNull(capturedTax);
+        assertTrue(capturedTax.containsKey(new BigDecimal("12.00")), "Musí se spočítat 12% DPH z položky i dopravy");
+        assertFalse(capturedTax.containsKey(new BigDecimal("21.00")), "Původní 21% DPH (z entity Product) musí být ignorována");
     }
 }

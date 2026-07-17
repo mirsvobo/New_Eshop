@@ -1,8 +1,11 @@
 package org.example.controller;
 
 import org.example.model.Product;
+import org.example.model.TaxMode;
+import org.example.model.TaxRate;
 import org.example.repository.ProductRepository;
 import org.example.service.Cart;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -11,12 +14,14 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -31,6 +36,12 @@ class ProductControllerTest {
 
     @MockitoBean(name = "cart")
     private Cart cart;
+
+    @BeforeEach
+    void setUp() {
+        when(cart.getTaxMode()).thenReturn(TaxMode.STANDARD);
+        when(cart.getTotalItems()).thenReturn(0);
+    }
 
     @Test
     @WithMockUser
@@ -47,11 +58,19 @@ class ProductControllerTest {
     @Test
     @WithMockUser
     void shouldShowProductDetailWhenActiveAndTypeIsProduct() throws Exception {
+        TaxRate standardTax = TaxRate.builder().rate(new BigDecimal("21.0")).build();
+
         Product product = Product.builder()
                 .id(1L)
+                .name("Pracovní Stůl")
                 .active(true)
                 .type(Product.ProductType.PRODUCT)
+                .price(new BigDecimal("1000.00"))
+                .stockQuantity(10.0)
+                .unit("ks")
+                .taxRate(standardTax)
                 .build();
+
         given(productRepository.findById(1L)).willReturn(Optional.of(product));
 
         mockMvc.perform(get("/produkty/1"))
@@ -68,6 +87,7 @@ class ProductControllerTest {
                 .active(true)
                 .type(Product.ProductType.MATERIAL)
                 .build();
+
         given(productRepository.findById(1L)).willReturn(Optional.of(material));
 
         mockMvc.perform(get("/produkty/1"))

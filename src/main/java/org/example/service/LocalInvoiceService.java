@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.example.model.Order;
 import org.example.model.OrderItem;
+import org.example.model.TaxMode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -45,10 +46,10 @@ public class LocalInvoiceService {
     private Map<BigDecimal, Map<String, BigDecimal>> calculateTaxSummary(Order order) {
         Map<BigDecimal, Map<String, BigDecimal>> taxSummary = new HashMap<>();
 
+        // 1. Zdanění samotných položek
         for (OrderItem item : order.getItems()) {
-            BigDecimal rate = (item.getProduct() != null && item.getProduct().getTaxRate() != null)
-                    ? item.getProduct().getTaxRate().getRate() : BigDecimal.ZERO;
-
+            // ZDE JE OPRAVA: Čteme actualTaxRate přímo z OrderItem, nikoliv z Product
+            BigDecimal rate = item.getActualTaxRate() != null ? item.getActualTaxRate() : BigDecimal.ZERO;
             BigDecimal quantity = BigDecimal.valueOf(item.getQuantity());
             BigDecimal totalWithTax = item.getUnitPrice().multiply(quantity);
 
@@ -62,6 +63,21 @@ public class LocalInvoiceService {
             amounts.put("tax", amounts.get("tax").add(tax));
         }
 
+        // 2. Zdanění dopravy (dle režimu objednávky)
+        if (order.getShippingCost() != null && order.getShippingCost().compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal shippingRate = (order.getTaxMode() == TaxMode.REDUCED) ? new BigDecimal("12.00") : new BigDecimal("21.00");
+            BigDecimal totalWithTax = order.getShippingCost();
+
+            BigDecimal divisor = BigDecimal.ONE.add(shippingRate.divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP));
+            BigDecimal base = totalWithTax.divide(divisor, 2, RoundingMode.HALF_UP);
+            BigDecimal tax = totalWithTax.subtract(base);
+
+            taxSummary.putIfAbsent(shippingRate, new HashMap<>(Map.of("base", BigDecimal.ZERO, "tax", BigDecimal.ZERO)));
+            Map<String, BigDecimal> amounts = taxSummary.get(shippingRate);
+            amounts.put("base", amounts.get("base").add(base));
+            amounts.put("tax", amounts.get("tax").add(tax));
+        }
+
         return taxSummary;
     }
 
@@ -71,13 +87,10 @@ public class LocalInvoiceService {
             if (!Files.exists(dirPath)) {
                 Files.createDirectories(dirPath);
             }
-
             String filename = "FAKTURA-" + orderNumber + ".html";
             Path filePath = dirPath.resolve(filename);
-
             Files.writeString(filePath, htmlContent, StandardCharsets.UTF_8);
             log.info("Faktura byla vygenerována a uložena jako HTML: {}", filePath.toAbsolutePath());
-
         } catch (IOException e) {
             log.error("Chyba při generování/ukládání HTML faktury: {}", e.getMessage(), e);
         }
@@ -117,7 +130,6 @@ public class LocalInvoiceService {
             sheet.getRow(2).getCell(3).setCellStyle(headerStyle);
             sheet.getRow(3).createCell(3).setCellValue(order.getCustomer() != null ? order.getCustomer().getFullName() : order.getGuestFirstName() + " " + order.getGuestLastName());
             sheet.getRow(4).createCell(3).setCellValue(order.getBillingAddress());
-
             if (order.getIco() != null && !order.getIco().isBlank()) {
                 sheet.getRow(5).createCell(3).setCellValue("IČO: " + order.getIco() + (order.getDic() != null ? ", DIČ: " + order.getDic() : ""));
             }
@@ -139,21 +151,24 @@ public class LocalInvoiceService {
                 Row row = sheet.createRow(rowIdx++);
                 row.createCell(0).setCellValue(item.getProduct().getName());
                 row.createCell(1).setCellValue(item.getQuantity() + " " + item.getProduct().getUnit());
-                row.createCell(2).setCellValue(item.getProduct().getTaxRate() != null ? item.getProduct().getTaxRate().getRate().doubleValue() + " %" : "0 %");
+
+                // ZDE JE OPRAVA: Exportujeme actualTaxRate
+                row.createCell(2).setCellValue(item.getActualTaxRate() != null ? item.getActualTaxRate().doubleValue() + " %" : "0 %");
+
                 row.createCell(3).setCellValue(item.getUnitPrice().doubleValue() + " Kč");
                 row.createCell(4).setCellValue(item.getUnitPrice().doubleValue() * item.getQuantity() + " Kč");
             }
 
             Row shippingRow = sheet.createRow(rowIdx++);
             shippingRow.createCell(0).setCellValue("Doprava a balné");
+            shippingRow.createCell(2).setCellValue((order.getTaxMode() == TaxMode.REDUCED ? "12.0 %" : "21.0 %"));
             shippingRow.createCell(4).setCellValue(order.getShippingCost().doubleValue() + " Kč");
-
             rowIdx++;
+
             Row totalRow = sheet.createRow(rowIdx);
             Cell totalLabel = totalRow.createCell(3);
             totalLabel.setCellValue("CELKEM K ÚHRADĚ:");
             totalLabel.setCellStyle(headerStyle);
-
             Cell totalValue = totalRow.createCell(4);
             totalValue.setCellValue(order.getTotalAmount().doubleValue() + " Kč");
             totalValue.setCellStyle(boldStyle);
@@ -192,10 +207,8 @@ public class LocalInvoiceService {
 
             int rowIdx = 1;
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-
             for (Order order : orders) {
                 Row row = sheet.createRow(rowIdx++);
-
                 String customerName = order.getCustomer() != null
                         ? order.getCustomer().getFullName()
                         : order.getGuestFirstName() + " " + order.getGuestLastName() + " (Host)";
