@@ -63,4 +63,13 @@ class CartControllerIntegrationTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/kosik"));
     }
+
+    @Test
+    void switchTaxMode_RedirectsToCartPage() throws Exception {
+        mockMvc.perform(post("/kosik/rezim")
+                        .with(csrf())
+                        .param("taxMode", "REDUCED"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/kosik"));
+    }
 }

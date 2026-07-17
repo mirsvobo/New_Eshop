@@ -81,6 +81,15 @@ public class Order {
     @OrderBy("createdAt DESC")
     private List<OrderStatusHistory> statusHistory = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tax_mode", nullable = false)
+    @Builder.Default
+    private TaxMode taxMode = TaxMode.STANDARD;
+
+    @Column(name = "affidavit_signed", nullable = false)
+    @Builder.Default
+    private boolean affidavitSigned = false;
+
     public String getCustomerFullName() {
         if (customer != null) return customer.getFullName();
         if (guestFirstName != null) return guestFirstName + " " + guestLastName;

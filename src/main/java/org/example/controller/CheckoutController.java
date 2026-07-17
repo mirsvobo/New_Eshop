@@ -3,6 +3,7 @@ package org.example.controller;
 import jakarta.validation.Valid;
 import org.example.dto.CheckoutFormDataDto;
 import org.example.model.Order;
+import org.example.model.TaxMode;
 import org.example.model.User;
 import org.example.repository.UserRepository;
 import org.example.service.Cart;
@@ -29,6 +30,10 @@ public class CheckoutController {
         if (cart.getItems().isEmpty()) return "redirect:/kosik";
 
         CheckoutFormDataDto formData = new CheckoutFormDataDto();
+
+        // Přenese se aktuální režim z košíku do formuláře
+        formData.setTaxMode(cart.getTaxMode());
+
         if (principal != null) {
             userRepository.findByEmail(principal.getName()).ifPresent(user -> {
                 formData.setFirstName(user.getFirstName());
@@ -51,6 +56,16 @@ public class CheckoutController {
             bindingResult.rejectValue("ico", "error.ico", "Při vyplnění IČO musí být vyplněno i DIČ a naopak.");
         }
 
+        // Nové DPH validace dle požadavků
+        if (formData.getTaxMode() == TaxMode.REDUCED) {
+            if (!formData.isAffidavitSigned()) {
+                bindingResult.rejectValue("affidavitSigned", "error.affidavitSigned", "Pro uplatnění 12% sazby DPH pro bydlení musíte podepsat čestné prohlášení.");
+            }
+            if (formData.getIco() != null && !formData.getIco().isBlank()) {
+                bindingResult.rejectValue("ico", "error.ico", "Sníženou sazbu DPH pro bydlení nelze uplatnit při nákupu na IČO.");
+            }
+        }
+
         if (bindingResult.hasErrors()) {
             model.addAttribute("cartItems", cart.getItems());
             model.addAttribute("cartTotal", cart.getTotalPrice());
@@ -58,9 +73,7 @@ public class CheckoutController {
         }
 
         User customer = (principal != null) ? userRepository.findByEmail(principal.getName()).orElse(null) : null;
-
         Order savedOrder = orderService.processCheckout(customer, formData, formData.getCouponCode());
-
         return "redirect:/kosik/potvrzeni/" + savedOrder.getOrderNumber();
     }
 

@@ -5,12 +5,14 @@ import org.example.dto.CartItemDto;
 import org.example.model.Coupon;
 import org.example.model.DiscountType;
 import org.example.model.Product;
+import org.example.model.TaxMode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,6 +25,11 @@ public class Cart {
 
     private final List<CartItemDto> items = new ArrayList<>();
     private Coupon appliedCoupon;
+    private TaxMode taxMode = TaxMode.STANDARD;
+
+    public void setTaxMode(TaxMode taxMode) {
+        this.taxMode = taxMode;
+    }
 
     public void addItem(CartItemDto item) {
         for (CartItemDto existingItem : items) {
@@ -52,6 +59,7 @@ public class Cart {
     public void clear() {
         items.clear();
         appliedCoupon = null;
+        taxMode = TaxMode.STANDARD;
     }
 
     public void applyCoupon(Coupon coupon) {
@@ -66,9 +74,19 @@ public class Cart {
         return items.stream().mapToInt(CartItemDto::getQuantity).sum();
     }
 
+    // Dynamický výpočet ceny položky včetně DPH dle aktivního režimu
+    private BigDecimal getDynamicItemPrice(CartItemDto item) {
+        BigDecimal activeTaxRate = (this.taxMode == TaxMode.REDUCED) ? new BigDecimal("12.00") : item.getTaxRateValue();
+        if (activeTaxRate == null) {
+            activeTaxRate = BigDecimal.ZERO;
+        }
+        BigDecimal taxMultiplier = BigDecimal.ONE.add(activeTaxRate.divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP));
+        return item.getBasePrice().multiply(taxMultiplier).setScale(2, RoundingMode.HALF_UP);
+    }
+
     public BigDecimal getTotalPrice() {
         return items.stream()
-                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .map(item -> getDynamicItemPrice(item).multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
@@ -78,7 +96,6 @@ public class Cart {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-
     public BigDecimal getDiscountAmount() {
         if (appliedCoupon == null) return BigDecimal.ZERO;
 
@@ -87,9 +104,10 @@ public class Cart {
                 .map(Product::getId)
                 .collect(Collectors.toSet());
 
+        // Pro slevy využijeme dynamicky přepočítanou cenu (pokud je aktivních 12% DPH, aplikuje se sleva z nižší částky)
         BigDecimal applicableTotal = items.stream()
                 .filter(item -> applicableProductIds.isEmpty() || applicableProductIds.contains(item.getProductId()))
-                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .map(item -> getDynamicItemPrice(item).multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         if (applicableTotal.compareTo(BigDecimal.ZERO) == 0) return BigDecimal.ZERO;
@@ -114,13 +132,21 @@ public class Cart {
     }
 
     public Map<BigDecimal, BigDecimal> getTaxBreakdown() {
-        return items.stream().collect(Collectors.groupingBy(
-                CartItemDto::getTaxRateValue,
-                Collectors.mapping(item -> {
-                    BigDecimal lineBase = item.getBasePrice().multiply(BigDecimal.valueOf(item.getQuantity()));
-                    BigDecimal lineWithTax = item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
-                    return lineWithTax.subtract(lineBase);
-                }, Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
-        ));
+        Map<BigDecimal, BigDecimal> breakdown = new HashMap<>();
+        BigDecimal activeTaxRate = (this.taxMode == TaxMode.REDUCED) ? new BigDecimal("12.00") : null;
+
+        for (CartItemDto item : items) {
+            BigDecimal itemTaxRate = (activeTaxRate != null) ? activeTaxRate : item.getTaxRateValue();
+            if (itemTaxRate == null) {
+                itemTaxRate = BigDecimal.ZERO;
+            }
+
+            BigDecimal lineBase = item.getBasePrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+            BigDecimal taxMultiplier = itemTaxRate.divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP);
+            BigDecimal lineTax = lineBase.multiply(taxMultiplier).setScale(2, RoundingMode.HALF_UP);
+
+            breakdown.merge(itemTaxRate, lineTax, BigDecimal::add);
+        }
+        return breakdown;
     }
 }

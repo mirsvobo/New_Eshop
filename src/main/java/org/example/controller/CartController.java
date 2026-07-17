@@ -2,6 +2,7 @@ package org.example.controller;
 
 import org.example.dto.CartItemDto;
 import org.example.model.Product;
+import org.example.model.TaxMode;
 import org.example.repository.ProductRepository;
 import org.example.service.Cart;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +52,7 @@ public class CartController {
                 .basePrice(product.getActiveBasePrice())
                 .originalPrice(originalPriceWithTax)
                 .taxRateValue(product.getTaxRate() != null ? product.getTaxRate().getRate() : BigDecimal.ZERO)
-                .stockQuantity(product.getStockQuantity()) // NOVÉ: Předání stavu skladu
+                .stockQuantity(product.getStockQuantity())
                 .build());
 
         return "redirect:/kosik";
@@ -72,6 +73,12 @@ public class CartController {
     @PostMapping("/vycistit")
     public String clearCart() {
         cart.clear();
+        return "redirect:/kosik";
+    }
+
+    @PostMapping("/rezim")
+    public String switchTaxMode(@RequestParam TaxMode taxMode) {
+        cart.setTaxMode(taxMode);
         return "redirect:/kosik";
     }
 }

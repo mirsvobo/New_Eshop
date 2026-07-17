@@ -6,6 +6,7 @@ import org.example.model.Order;
 import org.example.model.OrderStatus;
 import org.example.model.Product;
 import org.example.model.StockMovement;
+import org.example.model.TaxMode;
 import org.example.model.User;
 import org.example.repository.CouponRepository;
 import org.example.repository.OrderRepository;
@@ -35,20 +36,27 @@ class OrderServiceTest {
 
     @Mock
     private OrderRepository orderRepository;
+
     @Mock
     private ProductRepository productRepository;
+
     @Mock
     private OrderStatusRepository orderStatusRepository;
+
     @Mock
     private InventoryService inventoryService;
+
     @Mock
     private LocalInvoiceService invoiceService;
+
     @Mock
     private CouponRepository couponRepository;
+
     @Mock
     private Cart cart;
+
     @Mock
-    private AuditService auditService; // PŘIDANÝ MOCK
+    private AuditService auditService;
 
     @InjectMocks
     private OrderService orderService;
@@ -70,7 +78,6 @@ class OrderServiceTest {
         formData.setBillingCity("Praha");
 
         testProduct = Product.builder().id(1L).name("Test Product").build();
-
         novaStatus = OrderStatus.builder().id(1L).name("Nová").build();
     }
 
@@ -78,7 +85,6 @@ class OrderServiceTest {
     void processCheckout_WithGuestUser() {
         when(orderStatusRepository.findByName("Nová")).thenReturn(Optional.of(novaStatus));
 
-        // Použití builderu místo konstruktoru
         CartItemDto item = CartItemDto.builder()
                 .productId(1L)
                 .productName("Test Product")
@@ -86,8 +92,8 @@ class OrderServiceTest {
                 .price(new BigDecimal("500.00"))
                 .basePrice(BigDecimal.ZERO)
                 .originalPrice(new BigDecimal("1000.00"))
-                .taxRateValue(new BigDecimal("21"))
-                .stockQuantity(10.0) // Přidán stav skladu
+                .taxRateValue(new BigDecimal("21.00"))
+                .stockQuantity(10.0)
                 .build();
 
         when(cart.getItems()).thenReturn(Arrays.asList(item));
@@ -112,9 +118,9 @@ class OrderServiceTest {
     @Test
     void processCheckout_WithRegisteredUser() {
         when(orderStatusRepository.findByName("Nová")).thenReturn(Optional.of(novaStatus));
+
         User registeredUser = User.builder().id(1L).email("user@test.cz").firstName("Registered").lastName("User").build();
 
-        // Použití builderu místo konstruktoru
         CartItemDto item = CartItemDto.builder()
                 .productId(1L)
                 .productName("Test Product")
@@ -122,12 +128,13 @@ class OrderServiceTest {
                 .price(new BigDecimal("500.00"))
                 .basePrice(BigDecimal.ZERO)
                 .originalPrice(new BigDecimal("500.00"))
-                .taxRateValue(new BigDecimal("21"))
-                .stockQuantity(10.0) // Přidán stav skladu
+                .taxRateValue(new BigDecimal("21.00"))
+                .stockQuantity(10.0)
                 .build();
 
         when(cart.getItems()).thenReturn(Arrays.asList(item));
         when(productRepository.findAllById(any())).thenReturn(Arrays.asList(testProduct));
+
         when(orderRepository.save(any(Order.class))).thenAnswer(i -> i.getArgument(0));
 
         Order result = orderService.processCheckout(registeredUser, formData, null);
@@ -149,40 +156,66 @@ class OrderServiceTest {
         assertTrue(result.getItems().isEmpty());
         assertEquals(0, new BigDecimal("150.00").compareTo(result.getTotalAmount()));
     }
+
     @Test
     void processCheckout_WithReducedTaxMode_SavesOrderAndItemsCorrectly() {
-        // Arrange
         when(orderStatusRepository.findByName("Nová")).thenReturn(Optional.of(novaStatus));
 
         CartItemDto item = CartItemDto.builder()
                 .productId(1L)
                 .productName("Test Product")
                 .quantity(1)
-                .price(new BigDecimal("112.00")) // Cena už po slevě DPH v košíku
+                .price(new BigDecimal("112.00"))
                 .basePrice(new BigDecimal("100.00"))
-                .taxRateValue(new BigDecimal("21.00")) // Produkt v DB má stále 21 %
+                .taxRateValue(new BigDecimal("21.00"))
                 .build();
 
-        when(cart.getItems()).thenReturn(java.util.Arrays.asList(item));
-        when(cart.getTaxMode()).thenReturn(TaxMode.REDUCED); // Košík je přepnutý na 12 %
-        when(productRepository.findAllById(any())).thenReturn(java.util.Arrays.asList(testProduct));
+        when(cart.getItems()).thenReturn(Arrays.asList(item));
+        when(productRepository.findAllById(any())).thenReturn(Arrays.asList(testProduct));
 
-        // Formulář musí nést informaci o režimu a souhlasu
         formData.setTaxMode(TaxMode.REDUCED);
         formData.setAffidavitSigned(true);
 
         when(orderRepository.save(any(Order.class))).thenAnswer(i -> i.getArgument(0));
 
-        // Act
         Order result = orderService.processCheckout(null, formData, null);
 
-        // Assert
         assertNotNull(result);
-        assertEquals(TaxMode.REDUCED, result.getTaxMode(), "Objednávka musí mít uložený daňový režim REDUCED");
-        assertTrue(result.isAffidavitSigned(), "Objednávka musí mít příznak podepsaného čestného prohlášení");
-
+        assertEquals(TaxMode.REDUCED, result.getTaxMode(), "Objednávka musí být uložena v režimu REDUCED");
+        assertTrue(result.isAffidavitSigned(), "Objednávka musí mít znak podepsaného čestného prohlášení");
         assertFalse(result.getItems().isEmpty());
         assertEquals(0, new BigDecimal("12.00").compareTo(result.getItems().get(0).getActualTaxRate()),
                 "Položka objednávky si musí pro účetnictví fixně uložit 12 % DPH bez ohledu na produkt v DB");
+    }
+
+    @Test
+    void processCheckout_WithStandardTaxMode_SavesOrderAndItemsCorrectly() {
+        when(orderStatusRepository.findByName("Nová")).thenReturn(Optional.of(novaStatus));
+
+        CartItemDto item = CartItemDto.builder()
+                .productId(1L)
+                .productName("Test Product")
+                .quantity(1)
+                .price(new BigDecimal("121.00"))
+                .basePrice(new BigDecimal("100.00"))
+                .taxRateValue(new BigDecimal("21.00"))
+                .build();
+
+        when(cart.getItems()).thenReturn(Arrays.asList(item));
+        when(productRepository.findAllById(any())).thenReturn(Arrays.asList(testProduct));
+
+        formData.setTaxMode(TaxMode.STANDARD);
+        formData.setAffidavitSigned(false);
+
+        when(orderRepository.save(any(Order.class))).thenAnswer(i -> i.getArgument(0));
+
+        Order result = orderService.processCheckout(null, formData, null);
+
+        assertNotNull(result);
+        assertEquals(TaxMode.STANDARD, result.getTaxMode(), "Objednávka musí být uložena v režimu STANDARD");
+        assertFalse(result.isAffidavitSigned(), "Objednávka nesmí mít podepsané čestné prohlášení v režimu STANDARD");
+        assertFalse(result.getItems().isEmpty());
+        assertEquals(0, new BigDecimal("21.00").compareTo(result.getItems().get(0).getActualTaxRate()),
+                "Položka objednávky si musí uložit originální 21 % DPH");
     }
 }

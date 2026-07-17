@@ -2,6 +2,7 @@ package org.example.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import org.example.model.TaxMode;
 
 @Data
 public class CheckoutFormDataDto {
@@ -44,6 +45,8 @@ public class CheckoutFormDataDto {
     private String shippingZipCode;
 
     private String couponCode;
+    private TaxMode taxMode = TaxMode.STANDARD;
+    private boolean affidavitSigned = false;
 
     public boolean isBusinessValidationOk() {
         boolean hasIco = ico != null && !ico.isBlank();

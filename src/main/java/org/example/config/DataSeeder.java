@@ -35,7 +35,6 @@ public class DataSeeder implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         log.info("Zahajuji deterministické seedování dat pro systém FajnDřevo s.r.o...");
-
         clearDatabase();
 
         Map<String, OrderStatus> statuses = seedOrderStatuses();
@@ -48,7 +47,6 @@ public class DataSeeder implements CommandLineRunner {
 
         seedRecipes(products, materials);
         seedInitialStockMovements(products, materials, employees.get("ceo"));
-
         seedAttendanceHistory(employees);
         seedOrders(customers, products, statuses);
         seedFinalAudit(employees.get("ceo"));
@@ -57,7 +55,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void clearDatabase() {
-        log.debug("Čištění databáze...");
+        log.debug("Čistím databázi...");
         auditLogRepository.deleteAll();
         stockMovementRepository.deleteAll();
         attendanceRepository.deleteAll();
@@ -104,20 +102,17 @@ public class DataSeeder implements CommandLineRunner {
     private Map<String, User> seedCustomers() {
         String pass = passwordEncoder.encode("heslo123");
         Map<String, User> map = new HashMap<>();
-
         map.put("c1", userRepository.save(User.builder().email("info@architekti-brno.cz").password(pass).firstName("Ing. Marek").lastName("Kopecký").companyName("Architekti Brno s.r.o.").ico("12345678").dic("CZ12345678").role(User.Role.ROLE_CUSTOMER).active(true).build()));
         map.put("c2", userRepository.save(User.builder().email("hotel-slunce@gastromail.cz").password(pass).firstName("Provozní").lastName("Hotel Slunce").companyName("Hotel Slunce a.s.").ico("87654321").dic("CZ87654321").role(User.Role.ROLE_CUSTOMER).active(true).build()));
         map.put("c3", userRepository.save(User.builder().email("jan.novak@stavby-novak.cz").password(pass).firstName("Jan").lastName("Novák").companyName("Stavby Novák").role(User.Role.ROLE_CUSTOMER).active(true).build()));
         map.put("c4", userRepository.save(User.builder().email("petr.vesely@email.cz").password(pass).firstName("Petr").lastName("Veselý").role(User.Role.ROLE_CUSTOMER).active(true).build()));
         map.put("c5", userRepository.save(User.builder().email("lucie.kratka@seznam.cz").password(pass).firstName("Lucie").lastName("Krátká").role(User.Role.ROLE_CUSTOMER).active(true).build()));
         map.put("c6", userRepository.save(User.builder().email("martin.svoboda@gmail.com").password(pass).firstName("Martin").lastName("Svoboda").role(User.Role.ROLE_CUSTOMER).active(true).build()));
-
         return map;
     }
 
     private Map<String, Product> seedMaterials(TaxRate vat) {
         Map<String, Product> map = new HashMap<>();
-        // Jednotky upraveny na kusy/balení, aby celočíselné vazby v kusovnících dávaly smysl
         map.put("dub", productRepository.save(createItem("Dubová fošna 50x200x2000mm", 1450, "ks", Product.ProductType.MATERIAL, vat, 50)));
         map.put("buk", productRepository.save(createItem("Bukový hranol 80x80x1000mm", 450, "ks", Product.ProductType.MATERIAL, vat, 80)));
         map.put("olej", productRepository.save(createItem("Tvrdý voskový olej Osmo 0.5l", 750, "ks", Product.ProductType.MATERIAL, vat, 25)));
@@ -131,7 +126,7 @@ public class DataSeeder implements CommandLineRunner {
         Map<String, Product> map = new HashMap<>();
         map.put("stul", productRepository.save(createItem("Jídelní stůl 'FajnDub' - Masiv", 34500, "ks", Product.ProductType.PRODUCT, vat, 3)));
         map.put("stolek", productRepository.save(createItem("Konferenční stolek 'Industriál'", 14200, "ks", Product.ProductType.PRODUCT, vat, 5)));
-        map.put("prkenko", productRepository.save(createItem("Dubové krájecí prkénko PRO", 1650, "ks", Product.ProductType.PRODUCT, vat, 15)));
+        map.put("prkenko", productRepository.save(createItem("Dubové prkénko PRO", 1650, "ks", Product.ProductType.PRODUCT, vat, 15)));
         map.put("police", productRepository.save(createItem("Nástěnná police 'Minimalist'", 2400, "ks", Product.ProductType.PRODUCT, vat, 10)));
         map.put("podtacky", productRepository.save(createItem("Sada dřevěných podtácků (6ks)", 550, "sada", Product.ProductType.PRODUCT, vat, 20)));
         return map;
@@ -142,30 +137,25 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void seedRecipes(Map<String, Product> p, Map<String, Product> m) {
-        // Kusovník: Jídelní stůl
         saveRecipe(p.get("stul"), m.get("dub"), 4);
         saveRecipe(p.get("stul"), m.get("podnoz"), 1);
         saveRecipe(p.get("stul"), m.get("olej"), 2);
         saveRecipe(p.get("stul"), m.get("lepidlo"), 1);
         saveRecipe(p.get("stul"), m.get("vruty"), 1);
 
-        // Kusovník: Konferenční stolek
         saveRecipe(p.get("stolek"), m.get("buk"), 3);
         saveRecipe(p.get("stolek"), m.get("podnoz"), 1);
         saveRecipe(p.get("stolek"), m.get("olej"), 1);
         saveRecipe(p.get("stolek"), m.get("lepidlo"), 1);
         saveRecipe(p.get("stolek"), m.get("vruty"), 1);
 
-        // Kusovník: Prkénko
         saveRecipe(p.get("prkenko"), m.get("dub"), 1);
         saveRecipe(p.get("prkenko"), m.get("olej"), 1);
 
-        // Kusovník: Police
         saveRecipe(p.get("police"), m.get("buk"), 1);
         saveRecipe(p.get("police"), m.get("olej"), 1);
         saveRecipe(p.get("police"), m.get("vruty"), 1);
 
-        // Kusovník: Podtácky
         saveRecipe(p.get("podtacky"), m.get("dub"), 1);
         saveRecipe(p.get("podtacky"), m.get("olej"), 1);
     }
@@ -186,8 +176,6 @@ public class DataSeeder implements CommandLineRunner {
     private void seedAttendanceHistory(Map<String, User> employees) {
         LocalDate today = LocalDate.now();
         List<User> workers = List.of(employees.get("t1"), employees.get("t2"), employees.get("logist"));
-
-
         int daysAdded = 0;
         int daysToSubtract = 1;
 
@@ -197,7 +185,6 @@ public class DataSeeder implements CommandLineRunner {
                 for (User emp : workers) {
                     LocalDateTime in = date.atTime(LocalTime.of(7, 30));
                     LocalDateTime out = date.atTime(LocalTime.of(16, 0));
-
                     attendanceRepository.save(AttendanceRecord.builder().employee(emp).timestamp(in).type(AttendanceRecord.AttendanceType.CLOCK_IN).build());
                     attendanceRepository.save(AttendanceRecord.builder().employee(emp).timestamp(in.plusHours(4)).type(AttendanceRecord.AttendanceType.BREAK_START).build());
                     attendanceRepository.save(AttendanceRecord.builder().employee(emp).timestamp(in.plusHours(4).plusMinutes(30)).type(AttendanceRecord.AttendanceType.BREAK_END).build());
@@ -211,23 +198,16 @@ public class DataSeeder implements CommandLineRunner {
 
     private void seedOrders(Map<String, User> customers, Map<String, Product> p, Map<String, OrderStatus> s) {
         LocalDateTime now = LocalDateTime.now();
-
         createOrder("ORD-2024-00001", customers.get("c1"), s.get("DONE"), now.minusDays(14),
                 Map.of(p.get("stul"), 2, p.get("podtacky"), 4));
-
         createOrder("ORD-2024-00002", customers.get("c2"), s.get("SHIP"), now.minusDays(5),
                 Map.of(p.get("stolek"), 5));
-
-
         createOrder("ORD-2024-00003", customers.get("c4"), s.get("PROD"), now.minusDays(2),
                 Map.of(p.get("stul"), 1, p.get("prkenko"), 1));
-
         createOrder("ORD-2024-00004", customers.get("c5"), s.get("PAY"), now.minusDays(1),
                 Map.of(p.get("police"), 3));
-
         createOrder("ORD-2024-00005", customers.get("c6"), s.get("NEW"), now.minusHours(4),
                 Map.of(p.get("podtacky"), 2, p.get("prkenko"), 2));
-
         createOrder("ORD-2024-00006", customers.get("c3"), s.get("CANCEL"), now.minusDays(10),
                 Map.of(p.get("stul"), 1));
     }
@@ -236,14 +216,16 @@ public class DataSeeder implements CommandLineRunner {
         Order order = Order.builder()
                 .orderNumber(orderNumber)
                 .customer(customer)
-                .deliveryAddress(customer.getCompanyName() != null ? customer.getCompanyName() + ", Panská 15, Brno" : "Doma, Květná 12, Praha")
-                .billingAddress(customer.getCompanyName() != null ? customer.getCompanyName() + ", Panská 15, Brno" : "Doma, Květná 12, Praha")
+                .deliveryAddress(customer.getCompanyName() != null ? customer.getCompanyName() + ", Panská 15, Brno" : "Doma, Květinová 12, Praha")
+                .billingAddress(customer.getCompanyName() != null ? customer.getCompanyName() + ", Panská 15, Brno" : "Doma, Květinová 12, Praha")
                 .status(status)
                 .shippingCost(new BigDecimal("150.00"))
                 .totalAmount(BigDecimal.ZERO)
                 .createdAt(createdAt)
                 .items(new ArrayList<>())
                 .statusHistory(new ArrayList<>())
+                .taxMode(TaxMode.STANDARD)
+                .affidavitSigned(false)
                 .build();
 
         BigDecimal total = order.getShippingCost();
@@ -252,8 +234,16 @@ public class DataSeeder implements CommandLineRunner {
             Product p = entry.getKey();
             int qty = entry.getValue();
             BigDecimal price = p.getPriceWithTax();
+            BigDecimal taxRateValue = p.getTaxRate() != null ? p.getTaxRate().getRate() : BigDecimal.ZERO;
 
-            OrderItem item = OrderItem.builder().order(order).product(p).quantity(qty).unitPrice(price).build();
+            OrderItem item = OrderItem.builder()
+                    .order(order)
+                    .product(p)
+                    .quantity(qty)
+                    .unitPrice(price)
+                    .actualTaxRate(taxRateValue)
+                    .build();
+
             order.getItems().add(item);
             total = total.add(price.multiply(BigDecimal.valueOf(qty)));
         }

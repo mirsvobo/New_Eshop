@@ -77,6 +77,11 @@ public class OrderService {
         order.setGuestPhone(formData.getPhone());
         order.setIco(formData.getIco());
         order.setDic(formData.getDic());
+
+        // Namapování daňového režimu a čestného prohlášení pro uložení
+        order.setTaxMode(formData.getTaxMode() != null ? formData.getTaxMode() : TaxMode.STANDARD);
+        order.setAffidavitSigned(formData.isAffidavitSigned());
+
         return order;
     }
 
@@ -102,6 +107,9 @@ public class OrderService {
         Map<Long, Product> productCache = productRepository.findAllById(productIds).stream()
                 .collect(Collectors.toMap(Product::getId, p -> p));
 
+        // Nastavení plošné sazby 12 %, pokud je aktivní režim montáže
+        BigDecimal activeTaxRate = (order.getTaxMode() == TaxMode.REDUCED) ? new BigDecimal("12.00") : null;
+
         for (CartItemDto item : cart.getItems()) {
             Product product = productCache.get(item.getProductId());
             if (product == null) {
@@ -116,11 +124,21 @@ public class OrderService {
                     customer
             );
 
+            // Zjištění reálné sazby a výpočet dynamické prodejní ceny
+            BigDecimal itemTaxRate = (activeTaxRate != null) ? activeTaxRate : item.getTaxRateValue();
+            if (itemTaxRate == null) {
+                itemTaxRate = BigDecimal.ZERO;
+            }
+
+            BigDecimal taxMultiplier = BigDecimal.ONE.add(itemTaxRate.divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP));
+            BigDecimal dynamicUnitPrice = item.getBasePrice().multiply(taxMultiplier).setScale(2, RoundingMode.HALF_UP);
+
             OrderItem oi = OrderItem.builder()
                     .order(order)
                     .product(product)
                     .quantity(item.getQuantity())
-                    .unitPrice(item.getPrice())
+                    .unitPrice(dynamicUnitPrice)
+                    .actualTaxRate(itemTaxRate)
                     .build();
 
             order.getItems().add(oi);
@@ -162,7 +180,6 @@ public class OrderService {
             order.setAppliedCoupon(cartCoupon);
             return cart.getDiscountAmount();
         }
-
 
         return couponRepository.findByCodeAndActiveTrue(couponCode)
                 .map(coupon -> {

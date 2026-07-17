@@ -31,4 +31,7 @@ public class OrderItem {
 
     @Column(nullable = false)
     private BigDecimal unitPrice;
+
+    @Column(name = "actual_tax_rate", precision = 5, scale = 2, nullable = false)
+    private BigDecimal actualTaxRate;
 }
