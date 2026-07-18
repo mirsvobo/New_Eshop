@@ -23,8 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CartController.class)
 class CartControllerTest {
@@ -78,5 +77,63 @@ class CartControllerTest {
         assertEquals("Černá", addedItem.getSelectedRoofColor(), "Barva střechy se z requestu nepředala do DTO košíku.");
         assertEquals("Moderní", addedItem.getSelectedDesign(), "Design se z requestu nepředal do DTO košíku.");
         assertEquals("/images/altan.jpg", addedItem.getImageUrl(), "Obrázek se z produktu nepředal do DTO košíku.");
+    }
+    @Test
+    @WithMockUser
+    void viewCart_ReturnsCartView() throws Exception {
+        when(cart.getTotalPrice()).thenReturn(BigDecimal.ZERO);
+        when(cart.getDiscountAmount()).thenReturn(BigDecimal.ZERO);
+        when(cart.getFinalPrice()).thenReturn(BigDecimal.ZERO);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/kosik"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("kosik"))
+                .andExpect(model().attributeExists("cartItems"));
+    }
+
+    @Test
+    @WithMockUser
+    void updateCartItem_RedirectsToCart() throws Exception {
+        mockMvc.perform(post("/kosik/upravit")
+                        .param("productId", "1")
+                        .param("quantity", "5")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/kosik"));
+
+        verify(cart).updateQuantity(1L, 5);
+    }
+
+    @Test
+    @WithMockUser
+    void removeFromCart_RedirectsToCart() throws Exception {
+        mockMvc.perform(post("/kosik/odstranit")
+                        .param("productId", "1")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/kosik"));
+    }
+
+    @Test
+    @WithMockUser
+    void clearCart_RedirectsToCart() throws Exception {
+        mockMvc.perform(post("/kosik/vycistit")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/kosik"));
+
+        verify(cart).clear();
+    }
+
+    @Test
+    @WithMockUser
+    void switchTaxMode_RedirectsToCart() throws Exception {
+        mockMvc.perform(post("/kosik/rezim")
+                        .param("taxMode", "REDUCED")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/kosik"));
+
+        verify(cart).setTaxMode(TaxMode.REDUCED);
     }
 }

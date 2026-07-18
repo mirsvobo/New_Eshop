@@ -99,4 +99,50 @@ class AdminUserControllerTest {
 
         verify(userService).promoteToAdmin(2L);
     }
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void showEditForm_ShouldReturnView() throws Exception {
+        User user = new User();
+        user.setId(1L);
+        given(userService.getUserById(1L)).willReturn(user);
+        given(orderRepository.sumTotalAmountByCustomer(user)).willReturn(java.math.BigDecimal.TEN);
+
+        mockMvc.perform(get("/admin/uzivatele/edit/1"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/user-form"))
+                .andExpect(model().attributeExists("user"));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void toggleStatus_Success_ShouldRedirect() throws Exception {
+        mockMvc.perform(post("/admin/uzivatele/zmenit-stav/1").with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/uzivatele"))
+                .andExpect(flash().attributeExists("success"));
+
+        verify(userService).toggleUserStatus(1L);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void showTransferAdminRightsForm_ShouldReturnView() throws Exception {
+        given(userService.getActiveEmployees()).willReturn(java.util.Collections.emptyList());
+
+        mockMvc.perform(get("/admin/uzivatele/prevod-prav"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/transfer-admin"));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void transferAdminRights_Success_ShouldRedirect() throws Exception {
+        mockMvc.perform(post("/admin/uzivatele/prevod-prav")
+                        .param("newAdminId", "2").with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/uzivatele"))
+                .andExpect(flash().attributeExists("success"));
+
+        verify(userService).promoteToAdmin(2L);
+    }
 }

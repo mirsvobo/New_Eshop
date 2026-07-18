@@ -79,4 +79,25 @@ class AdminTaxRateControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(flash().attributeExists("error"));
     }
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void shouldShowCreateForm() throws Exception {
+        mockMvc.perform(get("/admin/tax-rates/create"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/tax-form"))
+                .andExpect(model().attributeExists("taxRate"));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void shouldShowEditForm() throws Exception {
+        TaxRate taxRate = new TaxRate();
+        taxRate.setId(1L);
+        given(taxRateService.findById(1L)).willReturn(taxRate);
+
+        mockMvc.perform(get("/admin/tax-rates/edit/1"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/tax-form"))
+                .andExpect(model().attribute("taxRate", taxRate));
+    }
 }

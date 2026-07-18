@@ -94,4 +94,15 @@ class ProductControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/produkty"));
     }
+    @Test
+    @WithMockUser
+    void listProducts_WithSorting_ReturnsSortedProducts() throws Exception {
+        given(productRepository.findByActiveTrueAndType(eq(Product.ProductType.PRODUCT), any(Sort.class)))
+                .willReturn(java.util.Collections.emptyList());
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/produkty").param("sort", "price_desc"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("produkty"))
+                .andExpect(model().attribute("currentSort", "price_desc"));
+    }
 }

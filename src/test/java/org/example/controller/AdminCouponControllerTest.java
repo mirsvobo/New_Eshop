@@ -97,4 +97,19 @@ class AdminCouponControllerTest {
                 .andExpect(redirectedUrl("/admin/coupons"))
                 .andExpect(flash().attribute("errorMessage", "Kupón nelze smazat."));
     }
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void shouldShowEditFormWhenEditCalled() throws Exception {
+        Coupon coupon = new Coupon();
+        coupon.setId(1L);
+        given(couponService.findById(1L)).willReturn(coupon);
+        given(productRepository.findAll()).willReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/admin/coupons/edit/1"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/coupon-form"))
+                .andExpect(model().attributeExists("coupon"))
+                .andExpect(model().attributeExists("discountTypes"))
+                .andExpect(model().attributeExists("products"));
+    }
 }

@@ -93,4 +93,22 @@ class InventoryControllerTest {
                 .andExpect(redirectedUrl("/admin/sklad"))
                 .andExpect(flash().attributeExists("error"));
     }
+    @Test
+    @WithMockUser(username = "admin@test.cz", roles = "ADMIN")
+    void addMovement_ShouldCallServiceAndRedirectWithSuccessMessage() throws Exception {
+        User mockUser = User.builder().email("admin@test.cz").build();
+        given(userRepository.findByEmail("admin@test.cz")).willReturn(Optional.of(mockUser));
+
+        mockMvc.perform(post("/admin/sklad/pridat")
+                        .param("productId", "1")
+                        .param("quantity", "10")
+                        .param("type", "RECEIPT")
+                        .param("note", "Manual entry")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/sklad"))
+                .andExpect(flash().attributeExists("success"));
+
+        verify(inventoryService).recordMovement(eq(1L), eq(10.0), eq(org.example.model.StockMovement.MovementType.RECEIPT), eq("Manual entry"), any(User.class));
+    }
 }

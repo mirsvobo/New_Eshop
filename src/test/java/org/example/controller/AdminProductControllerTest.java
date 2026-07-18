@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -79,5 +80,110 @@ class AdminProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("admin/product-form"))
                 .andExpect(model().hasErrors());
+    }
+    @Test
+    @WithMockUser(username = "admin@test.cz", roles = "ADMIN")
+    void showAddProductForm_ShouldReturnForm() throws Exception {
+        given(taxRateRepository.findAll()).willReturn(Collections.emptyList());
+        mockMvc.perform(get("/admin/produkty/novy"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/product-form"))
+                .andExpect(model().attributeExists("product"))
+                .andExpect(model().attributeExists("taxes"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin@test.cz", roles = "ADMIN")
+    void showEditProductForm_ShouldReturnForm() throws Exception {
+        Product product = new Product();
+        product.setId(1L);
+        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(taxRateRepository.findAll()).willReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/admin/produkty/edit/1"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/product-form"))
+                .andExpect(model().attribute("product", product))
+                .andExpect(model().attributeExists("taxes"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin@test.cz", roles = "ADMIN")
+    void saveProduct_Success_ShouldRedirect() throws Exception {
+        mockMvc.perform(post("/admin/produkty/save")
+                        .param("name", "Valid Product")
+                        .param("price", "100.00")
+                        .param("stockQuantity", "10")
+                        .param("minStockLevel", "2")
+                        .param("unit", "ks")
+                        .param("type", "PRODUCT")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/produkty"))
+                .andExpect(flash().attributeExists("success"));
+
+        verify(productService).saveProduct(any(Product.class), eq(null), any(User.class));
+    }
+
+    @Test
+    @WithMockUser(username = "admin@test.cz", roles = "ADMIN")
+    void manageRecipe_ShouldReturnRecipeView() throws Exception {
+        Product product = new Product();
+        product.setId(1L);
+        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(productService.getAllMaterials()).willReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/admin/produkty/1/kusovnik"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/product-recipe"))
+                .andExpect(model().attribute("product", product))
+                .andExpect(model().attributeExists("materials"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin@test.cz", roles = "ADMIN")
+    void addRecipeItem_Success_ShouldRedirect() throws Exception {
+        mockMvc.perform(post("/admin/produkty/1/kusovnik/pridat")
+                        .param("materialId", "2")
+                        .param("quantity", "5")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/produkty/1/kusovnik"))
+                .andExpect(flash().attributeExists("success"));
+
+        verify(productService).addRecipeItem(eq(1L), eq(2L), eq(5), any(User.class));
+    }
+
+    @Test
+    @WithMockUser(username = "admin@test.cz", roles = "ADMIN")
+    void deleteRecipeItem_Success_ShouldRedirect() throws Exception {
+        mockMvc.perform(post("/admin/produkty/1/kusovnik/smazat/2")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/produkty/1/kusovnik"))
+                .andExpect(flash().attributeExists("success"));
+
+        verify(productService).deleteRecipeItem(eq(1L), eq(2L), any(User.class));
+    }
+    @Test
+    @WithMockUser(username = "admin@test.cz", roles = "ADMIN")
+    void deleteProduct_Success_ShouldRedirect() throws Exception {
+        mockMvc.perform(post("/admin/produkty/delete/1").with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/produkty"))
+                .andExpect(flash().attributeExists("success"));
+
+        verify(productService).deleteProduct(eq(1L), any());
+    }
+
+    @Test
+    @WithMockUser(username = "admin@test.cz", roles = "ADMIN")
+    void listProducts_ShouldReturnView() throws Exception {
+        given(productRepository.findFilteredProducts(any(), any(), any(), any())).willReturn(java.util.Collections.emptyList());
+
+        mockMvc.perform(get("/admin/produkty"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/produkty"))
+                .andExpect(model().attributeExists("products"));
     }
 }

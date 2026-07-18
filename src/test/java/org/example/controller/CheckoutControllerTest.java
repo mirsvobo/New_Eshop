@@ -122,4 +122,11 @@ class CheckoutControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/kosik/potvrzeni/ORD-12345"));
     }
+    @Test
+    void confirmation_ReturnsView() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/kosik/potvrzeni/ORD-123"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.view().name("potvrzeni"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.model().attributeExists("orderNumber"));
+    }
 }

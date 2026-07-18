@@ -61,4 +61,17 @@ class HomeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("checkout"));
     }
+    @Test
+    void aboutUsPage_LoadsSuccessfully() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/o-nas"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("o-nas"));
+    }
+
+    @Test
+    void contactPage_LoadsSuccessfully() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/kontakt"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("kontakt"));
+    }
 }
