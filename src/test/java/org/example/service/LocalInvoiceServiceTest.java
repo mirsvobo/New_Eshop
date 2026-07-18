@@ -133,4 +133,49 @@ class LocalInvoiceServiceTest {
         assertTrue(capturedTax.containsKey(new BigDecimal("12.00")), "Musí se spočítat 12% DPH z položky i dopravy");
         assertFalse(capturedTax.containsKey(new BigDecimal("21.00")), "Původní 21% DPH (z entity Product) musí být ignorována");
     }
+    @Test
+    void exportInvoiceToExcel_GeneratesValidExcel() throws Exception {
+        org.example.model.Order order = new org.example.model.Order();
+        order.setOrderNumber("INV-123");
+        order.setCreatedAt(java.time.LocalDateTime.now());
+        order.setTotalAmount(new java.math.BigDecimal("1210.00"));
+        order.setShippingCost(new java.math.BigDecimal("150.00"));
+        order.setTaxMode(org.example.model.TaxMode.STANDARD);
+        order.setCustomer(org.example.model.User.builder().firstName("Pepa").lastName("Zdepa").build());
+
+        org.example.model.Product p = org.example.model.Product.builder().name("Stul").unit("ks").build();
+        org.example.model.OrderItem item = org.example.model.OrderItem.builder()
+                .product(p)
+                .quantity(1)
+                .unitPrice(new java.math.BigDecimal("1000"))
+                .actualTaxRate(new java.math.BigDecimal("21"))
+                .build();
+        order.setItems(java.util.List.of(item));
+
+        java.io.ByteArrayInputStream bais = localInvoiceService.exportInvoiceToExcel(order);
+        org.junit.jupiter.api.Assertions.assertNotNull(bais);
+
+        try (org.apache.poi.ss.usermodel.Workbook workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook(bais)) {
+            org.junit.jupiter.api.Assertions.assertEquals("Faktura_INV-123", workbook.getSheetAt(0).getSheetName());
+            org.junit.jupiter.api.Assertions.assertNotNull(workbook.getSheetAt(0).getRow(0).getCell(0));
+        }
+    }
+
+    @Test
+    void exportOrdersToExcel_GeneratesValidExcel() throws Exception {
+        org.example.model.Order order = new org.example.model.Order();
+        order.setOrderNumber("INV-123");
+        order.setCreatedAt(java.time.LocalDateTime.now());
+        order.setTotalAmount(new java.math.BigDecimal("1210.00"));
+        order.setShippingCost(new java.math.BigDecimal("150.00"));
+        order.setCustomer(org.example.model.User.builder().firstName("Pepa").lastName("Zdepa").build());
+
+        java.io.ByteArrayInputStream bais = localInvoiceService.exportOrdersToExcel(java.util.List.of(order));
+        org.junit.jupiter.api.Assertions.assertNotNull(bais);
+
+        try (org.apache.poi.ss.usermodel.Workbook workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook(bais)) {
+            org.junit.jupiter.api.Assertions.assertEquals("Přehled Objednávek", workbook.getSheetAt(0).getSheetName());
+            org.junit.jupiter.api.Assertions.assertEquals("Číslo obj.", workbook.getSheetAt(0).getRow(0).getCell(0).getStringCellValue());
+        }
+    }
 }

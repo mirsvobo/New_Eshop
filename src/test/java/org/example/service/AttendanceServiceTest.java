@@ -241,4 +241,35 @@ class AttendanceServiceTest {
         verify(attendanceRepository).deleteById(1L);
         verify(auditService).log(eq("DOCHÁZKA"), eq("Smazání"), anyString());
     }
+    @Test
+    void testCalculateSummary() {
+        java.util.List<AttendanceRecord> records = java.util.Arrays.asList(
+                createRecord(8, 0, AttendanceRecord.AttendanceType.CLOCK_IN),
+                createRecord(16, 0, AttendanceRecord.AttendanceType.CLOCK_OUT)
+        );
+        java.util.Map<String, Object> summary = attendanceService.calculateSummary(records);
+
+        assertNotNull(summary);
+        assertEquals(2, summary.get("entryCount"));
+        assertEquals(1L, summary.get("clockInCount"));
+        assertNotNull(summary.get("totalHours"));
+        assertNotNull(summary.get("avgHours"));
+    }
+
+    @Test
+    void testExportMonthlyReportToExcel() throws Exception {
+        java.util.List<AttendanceRecord> records = java.util.Arrays.asList(
+                createRecord(8, 0, AttendanceRecord.AttendanceType.CLOCK_IN),
+                createRecord(16, 0, AttendanceRecord.AttendanceType.CLOCK_OUT)
+        );
+        when(attendanceRepository.findByEmployeeOrderByTimestampDesc(testEmployee)).thenReturn(records);
+
+        java.io.ByteArrayInputStream bais = attendanceService.exportMonthlyReportToExcel(testEmployee, testYear, testMonth);
+        assertNotNull(bais);
+
+        try (org.apache.poi.ss.usermodel.Workbook workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook(bais)) {
+            assertTrue(workbook.getSheetAt(0).getSheetName().startsWith("Docházka"));
+            assertEquals("Datum", workbook.getSheetAt(0).getRow(0).getCell(0).getStringCellValue());
+        }
+    }
 }
