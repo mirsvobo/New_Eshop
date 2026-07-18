@@ -89,4 +89,45 @@ class TaxRateServiceTest {
         assertEquals("Nelze smazat výchozí daňovou sazbu.", exception.getMessage());
         verify(taxRateRepository, never()).deleteById(anyLong());
     }
+    @Test
+    void count_ReturnsTotalTaxRates() {
+        when(taxRateRepository.count()).thenReturn(3L);
+        long count = taxRateService.count();
+        assertEquals(3L, count);
+        verify(taxRateRepository).count();
+    }
+
+    @Test
+    void findAll_ReturnsAllTaxRates() {
+        when(taxRateRepository.findAll()).thenReturn(java.util.Collections.emptyList());
+        java.util.List<TaxRate> rates = taxRateService.findAll();
+        assertNotNull(rates);
+        verify(taxRateRepository).findAll();
+    }
+
+    @Test
+    void findById_ReturnsTaxRateIfExists() {
+        TaxRate rate = new TaxRate();
+        rate.setId(1L);
+        when(taxRateRepository.findById(1L)).thenReturn(Optional.of(rate));
+
+        TaxRate found = taxRateService.findById(1L);
+
+        assertEquals(1L, found.getId());
+        verify(taxRateRepository).findById(1L);
+    }
+
+    @Test
+    void getDefaultRate_ReturnsDefaultTaxRate() {
+        TaxRate rate = new TaxRate();
+        rate.setId(1L);
+        rate.setDefaultRate(true);
+        when(taxRateRepository.findByIsDefaultTrue()).thenReturn(Optional.of(rate));
+
+        TaxRate defaultRate = taxRateService.getDefaultRate();
+
+        assertNotNull(defaultRate);
+        assertTrue(defaultRate.isDefaultRate());
+        verify(taxRateRepository).findByIsDefaultTrue();
+    }
 }

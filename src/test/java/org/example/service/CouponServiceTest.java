@@ -113,4 +113,48 @@ class CouponServiceTest {
         // then
         assertThat(result).isFalse();
     }
+    @Test
+    void shouldFindAllCoupons() {
+        couponService.findAll();
+        verify(couponRepository).findAll();
+    }
+
+    @Test
+    void shouldFindByIdWhenExists() {
+        when(couponRepository.findById(1L)).thenReturn(Optional.of(testCoupon));
+
+        Coupon result = couponService.findById(1L);
+
+        assertThat(result).isEqualTo(testCoupon);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenFindByIdNotFound() {
+        when(couponRepository.findById(99L)).thenReturn(Optional.empty());
+
+        IllegalArgumentException exception = org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            couponService.findById(99L);
+        });
+
+        assertThat(exception.getMessage()).contains("neexistuje");
+    }
+
+    @Test
+    void shouldDeleteCouponAndLogAction() {
+        when(couponRepository.findById(1L)).thenReturn(Optional.of(testCoupon));
+
+        couponService.delete(1L);
+
+        verify(couponRepository).deleteById(1L);
+        verify(auditService).log(org.mockito.ArgumentMatchers.eq("OBJEDNÁVKY"), org.mockito.ArgumentMatchers.eq("Smazání kupónu"), org.mockito.ArgumentMatchers.contains("DISCOUNT20"));
+    }
+
+    @Test
+    void shouldCountActiveCoupons() {
+        when(couponRepository.countActiveAt(any(LocalDateTime.class))).thenReturn(5L);
+
+        long count = couponService.countActive();
+
+        assertThat(count).isEqualTo(5L);
+    }
 }

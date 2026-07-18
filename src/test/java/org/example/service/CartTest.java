@@ -136,4 +136,94 @@ class CartTest {
         assertEquals(0, new BigDecimal("21.00").compareTo(taxBreakdown.get(new BigDecimal("21.00"))), "Hodnota DPH musí být 21 Kč");
         assertEquals(0, new BigDecimal("121.00").compareTo(cart.getTotalPrice()), "Celková cena musí odpovídat 21 % DPH");
     }
+    @Test
+    void testUpdateQuantity_UpdatesExistingItem() {
+        CartItemDto item = new CartItemDto();
+        item.setProductId(1L);
+        item.setQuantity(2);
+        cart.addItem(item);
+
+        cart.updateQuantity(1L, 5);
+
+        assertEquals(5, cart.getItems().get(0).getQuantity(), "Množství by mělo být aktualizováno na 5.");
+    }
+
+    @Test
+    void testUpdateQuantity_ZeroOrNegative_RemovesItem() {
+        CartItemDto item = new CartItemDto();
+        item.setProductId(1L);
+        item.setQuantity(2);
+        cart.addItem(item);
+
+        cart.updateQuantity(1L, 0);
+
+        assertTrue(cart.getItems().isEmpty(), "Položka s nulovým nebo záporným množstvím by měla být z košíku odstraněna.");
+    }
+
+    @Test
+    void testGetTotalItems_ReturnsCorrectSum() {
+        CartItemDto item1 = new CartItemDto();
+        item1.setProductId(1L);
+        item1.setQuantity(2);
+
+        CartItemDto item2 = new CartItemDto();
+        item2.setProductId(2L);
+        item2.setQuantity(3);
+
+        cart.addItem(item1);
+        cart.addItem(item2);
+
+        assertEquals(5, cart.getTotalItems(), "Celkový počet položek v košíku musí být 5.");
+    }
+
+    @Test
+    void testApplyAndRemoveCoupon() {
+        org.example.model.Coupon coupon = new org.example.model.Coupon();
+        coupon.setCode("TEST10");
+
+        cart.applyCoupon(coupon);
+        assertEquals(coupon, cart.getAppliedCoupon(), "Kupón musí být úspěšně aplikován do košíku.");
+
+        cart.removeCoupon();
+        assertNull(cart.getAppliedCoupon(), "Kupón musí být úspěšně odstraněn z košíku.");
+    }
+
+    @Test
+    void testGetDiscountAmount_And_FinalPrice_PercentageCoupon() {
+        CartItemDto item = new CartItemDto();
+        item.setProductId(1L);
+        item.setQuantity(1);
+        item.setBasePrice(new BigDecimal("100.00"));
+        item.setTaxRateValue(new BigDecimal("21.00")); // Celková cena s DPH je 121.00
+        cart.addItem(item);
+
+        org.example.model.Coupon coupon = new org.example.model.Coupon();
+        coupon.setType(org.example.model.DiscountType.PERCENTAGE);
+        coupon.setDiscountValue(new BigDecimal("10.00")); // Sleva 10%
+        cart.applyCoupon(coupon);
+
+        assertEquals(0, new BigDecimal("12.10").compareTo(cart.getDiscountAmount()), "Sleva musí činit 10% z 121.00.");
+        assertEquals(0, new BigDecimal("108.90").compareTo(cart.getFinalPrice()), "Konečná cena musí být po odečtení slevy 108.90.");
+    }
+
+    @Test
+    void testGetDiscountAmount_ReducedTaxMode_FixedCouponExceedingTotal() {
+        CartItemDto item = new CartItemDto();
+        item.setProductId(1L);
+        item.setQuantity(1);
+        item.setBasePrice(new BigDecimal("100.00"));
+        item.setTaxRateValue(new BigDecimal("21.00"));
+        cart.addItem(item);
+
+        // Zapneme sníženou sazbu - dynamická cena bude 112.00
+        cart.setTaxMode(TaxMode.REDUCED);
+
+        org.example.model.Coupon coupon = new org.example.model.Coupon();
+        coupon.setType(org.example.model.DiscountType.FIXED);
+        coupon.setDiscountValue(new BigDecimal("200.00")); // Sleva větší než celková cena
+        cart.applyCoupon(coupon);
+
+        assertEquals(0, new BigDecimal("112.00").compareTo(cart.getDiscountAmount()), "Sleva nesmí přesáhnout celkovou hodnotu nákupu.");
+        assertEquals(0, BigDecimal.ZERO.compareTo(cart.getFinalPrice()), "Konečná cena nesmí jít do mínusu, minimum je 0.");
+    }
 }

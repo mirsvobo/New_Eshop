@@ -141,4 +141,71 @@ class UserServiceTest {
 
         verify(userRepository, times(1)).deleteById(2L);
     }
+    @Test
+    void count_ReturnsTotalUsers() {
+        when(userRepository.count()).thenReturn(10L);
+        long count = userService.count();
+        assertEquals(10L, count);
+        verify(userRepository).count();
+    }
+
+    @Test
+    void getAllUsers_ReturnsAllUsers() {
+        when(userRepository.findAll()).thenReturn(java.util.Collections.emptyList());
+        java.util.List<User> users = userService.getAllUsers();
+        assertNotNull(users);
+        verify(userRepository, times(1)).findAll();
+    }
+
+    @Test
+    void getUsersByRole_WithRole_ReturnsFilteredUsers() {
+        when(userRepository.findByRole(User.Role.ROLE_CUSTOMER)).thenReturn(java.util.Collections.emptyList());
+        java.util.List<User> users = userService.getUsersByRole(User.Role.ROLE_CUSTOMER);
+        assertNotNull(users);
+        verify(userRepository).findByRole(User.Role.ROLE_CUSTOMER);
+    }
+
+    @Test
+    void getUsersByRole_WithNullRole_ReturnsAllUsers() {
+        when(userRepository.findAll()).thenReturn(java.util.Collections.emptyList());
+        java.util.List<User> users = userService.getUsersByRole(null);
+        assertNotNull(users);
+        verify(userRepository).findAll();
+    }
+
+    @Test
+    void getUserById_UserExists_ReturnsUser() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
+        User user = userService.getUserById(1L);
+        assertEquals(testEmployee, user);
+    }
+
+    @Test
+    void getUserById_UserDoesNotExist_ThrowsException() {
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            userService.getUserById(99L);
+        });
+        assertTrue(exception.getMessage().contains("99"));
+    }
+
+    @Test
+    void promoteToAdmin_SuccessfullyChangesRole() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testEmployee));
+
+        userService.promoteToAdmin(1L);
+
+        assertEquals(User.Role.ROLE_ADMIN, testEmployee.getRole());
+        assertTrue(testEmployee.isActive());
+        verify(userRepository).save(testEmployee);
+        verify(auditService).log(eq("UŽIVATELÉ"), eq("Povýšení"), anyString());
+    }
+
+    @Test
+    void getActiveEmployees_ReturnsActiveEmployeesOnly() {
+        when(userRepository.findByRoleAndActiveTrue(User.Role.ROLE_EMPLOYEE)).thenReturn(java.util.Collections.emptyList());
+        java.util.List<User> activeEmployees = userService.getActiveEmployees();
+        assertNotNull(activeEmployees);
+        verify(userRepository).findByRoleAndActiveTrue(User.Role.ROLE_EMPLOYEE);
+    }
 }

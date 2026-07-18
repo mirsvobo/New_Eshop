@@ -235,4 +235,57 @@ class OrderServiceTest {
         assertEquals("Černá", result.getItems().get(0).getSelectedRoofColor(), "Barva střechy se musí správně překopírovat do OrderItem");
         assertEquals("Klasik", result.getItems().get(0).getSelectedDesign(), "Design se musí správně překopírovat do OrderItem");
     }
+    @Test
+    void processCheckout_WithInvalidCoupon_SavesOrderWithoutDiscount() {
+        when(orderStatusRepository.findByName("Nová")).thenReturn(Optional.of(novaStatus));
+
+        CartItemDto item = CartItemDto.builder()
+                .productId(1L)
+                .productName("Test Product")
+                .quantity(1)
+                .price(new BigDecimal("100.00"))
+                .basePrice(new BigDecimal("82.64"))
+                .taxRateValue(new BigDecimal("21.00"))
+                .build();
+        when(cart.getItems()).thenReturn(java.util.Arrays.asList(item));
+        when(productRepository.findAllById(any())).thenReturn(java.util.Arrays.asList(testProduct));
+        when(cart.getAppliedCoupon()).thenReturn(null);
+        when(couponRepository.findByCodeAndActiveTrue("INVALID")).thenReturn(Optional.empty());
+        when(orderRepository.save(any(Order.class))).thenAnswer(i -> i.getArgument(0));
+
+        Order result = orderService.processCheckout(null, formData, "INVALID");
+
+        assertNotNull(result);
+        assertEquals(0, BigDecimal.ZERO.compareTo(result.getDiscountAmount()), "U neplatného kupónu musí být sleva 0.");
+        assertNull(result.getAppliedCoupon(), "Při neplatném kupónu nesmí být k objednávce přiřazen žádný kupón.");
+    }
+
+    @Test
+    void processCheckout_WithValidCartCoupon_AppliesDiscount() {
+        when(orderStatusRepository.findByName("Nová")).thenReturn(Optional.of(novaStatus));
+
+        CartItemDto item = CartItemDto.builder()
+                .productId(1L)
+                .productName("Test Product")
+                .quantity(1)
+                .price(new BigDecimal("100.00"))
+                .basePrice(new BigDecimal("82.64"))
+                .taxRateValue(new BigDecimal("21.00"))
+                .build();
+        when(cart.getItems()).thenReturn(java.util.Arrays.asList(item));
+        when(productRepository.findAllById(any())).thenReturn(java.util.Arrays.asList(testProduct));
+
+        org.example.model.Coupon coupon = new org.example.model.Coupon();
+        coupon.setCode("VALID10");
+        when(cart.getAppliedCoupon()).thenReturn(coupon);
+        when(cart.getDiscountAmount()).thenReturn(new BigDecimal("10.00"));
+
+        when(orderRepository.save(any(Order.class))).thenAnswer(i -> i.getArgument(0));
+
+        Order result = orderService.processCheckout(null, formData, "VALID10");
+
+        assertNotNull(result);
+        assertEquals(0, new BigDecimal("10.00").compareTo(result.getDiscountAmount()), "Sleva musí odpovídat výpočtu košíku.");
+        assertEquals(coupon, result.getAppliedCoupon(), "Objednávka musí mít správně navázaný aplikovaný kupón.");
+    }
 }

@@ -99,4 +99,47 @@ class AuditServiceTest {
         assertEquals(details, savedLog.getDetails());
         assertNull(savedLog.getUser());
     }
+    @Test
+    void getFilteredLogs_WithUserAndModule_ReturnsFiltered() {
+        Long userId = 1L;
+        String module = "PRODUKTY";
+
+        auditService.getFilteredLogs(userId, module);
+
+        verify(auditLogRepository).findByUserIdAndModuleOrderByTimestampDesc(userId, module);
+    }
+
+    @Test
+    void getFilteredLogs_WithOnlyUser_ReturnsFiltered() {
+        Long userId = 1L;
+
+        auditService.getFilteredLogs(userId, null);
+
+        verify(auditLogRepository).findByUserIdOrderByTimestampDesc(userId);
+    }
+
+    @Test
+    void getFilteredLogs_WithOnlyModule_ReturnsFiltered() {
+        String module = "PRODUKTY";
+
+        auditService.getFilteredLogs(null, module);
+
+        verify(auditLogRepository).findByModuleOrderByTimestampDesc(module);
+    }
+
+    @Test
+    void getFilteredLogs_WithoutFilters_ReturnsAllLogs() {
+        auditService.getFilteredLogs(null, null);
+
+        verify(auditLogRepository).findAllByOrderByTimestampDesc();
+    }
+
+    @Test
+    void getAllModules_ReturnsExpectedList() {
+        java.util.List<String> modules = auditService.getAllModules();
+
+        org.junit.jupiter.api.Assertions.assertEquals(6, modules.size());
+        org.junit.jupiter.api.Assertions.assertTrue(modules.contains("DOCHÁZKA"));
+        org.junit.jupiter.api.Assertions.assertTrue(modules.contains("SYSTÉM"));
+    }
 }

@@ -173,4 +173,32 @@ class InventoryServiceTest {
         assertEquals("Do výroby lze zadat pouze produkty typu PRODUCT.", exception.getMessage());
         verify(stockMovementRepository, never()).save(any());
     }
+    @Test
+    void getFilteredMovements_CallsRepositoryWithSpecification() {
+        when(stockMovementRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class), any(org.springframework.data.domain.Sort.class)))
+                .thenReturn(Collections.emptyList());
+
+        List<StockMovement> result = inventoryService.getFilteredMovements(1L, 1L, "positive", 10.0, 50.0, "today");
+
+        assertNotNull(result);
+        verify(stockMovementRepository).findAll(any(org.springframework.data.jpa.domain.Specification.class), any(org.springframework.data.domain.Sort.class));
+    }
+
+    @Test
+    void addMovement_SuccessfullyRecordsMovement() {
+        StockMovement movement = StockMovement.builder()
+                .product(testProduct)
+                .quantity(10)
+                .type(StockMovement.MovementType.RECEIPT)
+                .note("Test add")
+                .performedBy(testUser)
+                .build();
+
+        when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct));
+
+        inventoryService.addMovement(movement);
+
+        verify(productRepository).save(testProduct);
+        verify(stockMovementRepository, atLeastOnce()).save(any(StockMovement.class));
+    }
 }
