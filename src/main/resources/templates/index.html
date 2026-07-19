@@ -5,42 +5,45 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 
-    <!-- 1. HERO SEKCE S POSUNUTÝM DŘEVNÍKEM DOPRAVA -->
-    <section class="relative bg-slate-900 text-white overflow-hidden rounded-[2rem] shadow-2xl flex items-center min-h-[500px] lg:min-h-[600px]">
+    <!-- 1. HERO SEKCE -->
+    <section class="relative bg-slate-900 text-white overflow-hidden rounded-[2rem] shadow-2xl flex items-center min-h-[80vh] lg:min-h-[600px]">
 
-        <!-- Obal fotky ukotvený vpravo: zabírá jen 70 % šířky (lg:w-[70%]), čímž se dřevník vizuálně natlačí napravo -->
-        <div class="absolute inset-y-0 right-0 w-full lg:w-[70%]">
+        <!-- OBRÁZEK: Na desktopu zmenšen na pravých 60 %, abychom dali vlevo víc místa textu -->
+        <div class="absolute inset-0 lg:left-auto lg:right-0 lg:w-[60%]">
             <img th:src="@{/images/Hero-background.jpg}" alt="Prémiové dřevníky Kolář"
                  class="w-full h-full object-cover object-center lg:object-left">
-            <!-- Vnitřní maska pro dokonalé zjemnění přechodu na levé hraně fotky -->
-            <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent hidden lg:block w-1/3"></div>
+
+            <!-- Maska POUZE pro mobil -->
+            <div class="absolute inset-0 bg-slate-900/60 lg:hidden pointer-events-none"></div>
+
+            <!-- Maska POUZE pro desktop -->
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/70 to-transparent hidden lg:block w-[60%] pointer-events-none"></div>
         </div>
 
-        <!-- Celkový gradient pokrývající prázdný levý prostor a napojující se na fotku pro perfektní čitelnost textu -->
-        <div class="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-slate-950 via-slate-900/95 lg:via-slate-900/80 to-slate-900/30 lg:to-transparent pointer-events-none"></div>
+        <!-- KONTEJNER PRO TEXT: Zvětšili jsme šířku na lg:w-[60%] a xl:w-[55%] -->
+        <div class="relative z-10 px-6 py-16 sm:px-14 w-full max-w-7xl mx-auto flex flex-col items-center text-center lg:items-start lg:text-left">
+            <div class="max-w-2xl w-full lg:w-[60%] xl:w-[55%] pt-4 lg:pt-0">
+                <span class="text-blue-400 font-black tracking-widest uppercase text-xs sm:text-sm mb-3 sm:mb-4 block drop-shadow-md">Dřevníky Kolář</span>
 
-        <!-- Kontejner pro text v levé části -->
-        <div class="relative z-10 px-8 py-20 sm:px-14 w-full max-w-7xl mx-auto">
-            <div class="max-w-2xl xl:max-w-3xl">
-                <span class="text-blue-400 font-black tracking-widest uppercase text-xs sm:text-sm mb-4 block">Dřevníky Kolář</span>
-
-                <h1 class="text-5xl sm:text-6xl md:text-7xl font-black leading-tight mb-4 text-white">
-                    Prémiové dřevníky<br class="hidden sm:block"> a domky
+                <!-- Zmenšený font na desktopu (lg:text-6xl) a přirozené zalamování -->
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-4 text-white drop-shadow-lg lg:drop-shadow-none">
+                    Prémiové dřevníky a zahradní domky
                 </h1>
 
-                <!-- Dynamický text s fixní minimální výškou -->
-                <div class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-300 mb-10 min-h-[80px] sm:min-h-[48px] leading-snug">
+                <!-- Zmenšen i podnadpis, aby odpovídal proporcím -->
+                <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-200 mb-8 lg:mb-10 min-h-[60px] sm:min-h-[80px] lg:min-h-[48px] leading-snug drop-shadow-md lg:drop-shadow-none">
                     pro <span id="typed-output" class="text-blue-400"></span>
                 </div>
 
-                <div class="flex flex-col sm:flex-row gap-4 mt-8">
+                <!-- Tlačítkům přidáno whitespace-nowrap -->
+                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2 lg:mt-6 w-full sm:w-auto justify-center lg:justify-start">
                     <a th:href="@{/produkty}"
-                       class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-xl text-center transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2 uppercase tracking-widest text-sm">
-                        <i data-lucide="shopping-bag" class="w-5 h-5"></i> Prohlédnout nabídku
+                       class="w-full sm:w-auto whitespace-nowrap bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 sm:py-4 px-6 sm:px-8 rounded-xl text-center transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2 uppercase tracking-widest text-xs sm:text-sm">
+                        <i data-lucide="shopping-bag" class="w-4 h-4 sm:w-5 sm:h-5"></i> Prohlédnout nabídku
                     </a>
                     <a th:href="@{/produkt/na-miru}"
-                       class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 px-8 rounded-xl text-center transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-2 uppercase tracking-widest text-sm">
-                        <i data-lucide="pen-tool" class="w-5 h-5"></i> Navrhnout na míru
+                       class="w-full sm:w-auto whitespace-nowrap bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 sm:py-4 px-6 sm:px-8 rounded-xl text-center transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-2 uppercase tracking-widest text-xs sm:text-sm">
+                        <i data-lucide="pen-tool" class="w-4 h-4 sm:w-5 sm:h-5"></i> Navrhnout na míru
                     </a>
                 </div>
             </div>
