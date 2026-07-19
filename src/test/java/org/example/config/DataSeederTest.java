@@ -57,6 +57,14 @@ class DataSeederTest {
     }
 
     @Test
+    void seedProducts_DatabaseIsPopulatedWithDimensions() {
+        List<Product> products = productRepository.findAll();
+        boolean hasDimensions = products.stream()
+                .anyMatch(p -> p.getWidth() != null && p.getDepth() != null && p.getHeight() != null && p.getVolume() != null);
+        assertTrue(hasDimensions, "Seeder by měl vytvořit alespoň jeden produkt s vyplněnými fyzickými rozměry.");
+    }
+
+    @Test
     void seedStockMovements_DatabaseIsPopulated() {
         long movementCount = stockMovementRepository.count();
         assertTrue(movementCount >= 11, "Měl by existovat pohyb skladu pro každý vygenerovaný produkt");

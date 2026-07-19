@@ -70,6 +70,30 @@ public class Product {
     @JoinColumn(name = "tax_rate_id")
     private TaxRate taxRate;
 
+    @Column(name = "width")
+    private Double width;
+
+    @Column(name = "depth")
+    private Double depth;
+
+    @Column(name = "height")
+    private Double height;
+
+    @Column(name = "volume")
+    private Double volume;
+
+    @Column(name = "additional_dimensions", columnDefinition = "TEXT")
+    private String additionalDimensions;
+
+    @Column(name = "available_lazures")
+    private String availableLazures;
+
+    @Column(name = "available_roof_colors")
+    private String availableRoofColors;
+
+    @Column(name = "available_designs")
+    private String availableDesigns;
+
     public BigDecimal getActiveBasePrice() {
         if (salePrice != null) {
             if (saleUntil == null || LocalDateTime.now().isBefore(saleUntil)) {
@@ -79,12 +103,10 @@ public class Product {
         return price;
     }
 
-
     public BigDecimal getPriceWithTax() {
         BigDecimal base = getActiveBasePrice();
         return getBigDecimal(base);
     }
-
 
     public BigDecimal getRegularPriceWithTax() {
         return getBigDecimal(price);
@@ -94,7 +116,6 @@ public class Product {
     private BigDecimal getBigDecimal(BigDecimal price) {
         if (price == null) return BigDecimal.ZERO;
         if (taxRate == null || taxRate.getRate() == null) return price.setScale(0, RoundingMode.HALF_UP);
-
         BigDecimal multiplier = taxRate.getRate().divide(new BigDecimal("100")).add(BigDecimal.ONE);
         return price.multiply(multiplier).setScale(0, RoundingMode.HALF_UP);
     }
@@ -111,12 +132,4 @@ public class Product {
     public enum ProductType {
         MATERIAL, PRODUCT
     }
-    @Column(name = "available_lazures")
-    private String availableLazures;
-
-    @Column(name = "available_roof_colors")
-    private String availableRoofColors;
-
-    @Column(name = "available_designs")
-    private String availableDesigns;
 }

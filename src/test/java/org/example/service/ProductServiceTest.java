@@ -64,14 +64,13 @@ class ProductServiceTest {
         product.setId(1L);
         product.setName("Test Product");
         product.setImageUrl("old_image.jpg");
-
         MultipartFile imageFile = mock(MultipartFile.class);
         User user = new User();
 
         when(imageFile.isEmpty()).thenReturn(true);
-
         Product existingProduct = new Product();
         existingProduct.setImageUrl("old_image.jpg");
+
         when(productRepository.findById(1L)).thenReturn(Optional.of(existingProduct));
 
         productService.saveProduct(product, imageFile, user);
@@ -80,6 +79,34 @@ class ProductServiceTest {
         verify(fileStorageService, never()).storeFile(any());
         verify(productRepository).save(product);
         verify(auditService).log("PRODUKTY", "ÚPRAVA", "Zpracován produkt: Test Product");
+    }
+
+    @Test
+    void saveProduct_WithDimensions_ShouldSaveProduct() {
+        Product product = new Product();
+        product.setId(1L);
+        product.setName("Test Product with Dimensions");
+        product.setWidth(100.0);
+        product.setDepth(150.0);
+        product.setHeight(200.0);
+        product.setVolume(3.0);
+        product.setAdditionalDimensions("Boční přesah 10cm");
+
+        MultipartFile imageFile = mock(MultipartFile.class);
+        User user = new User();
+        when(imageFile.isEmpty()).thenReturn(true);
+
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+        productService.saveProduct(product, imageFile, user);
+
+        verify(productRepository).save(product);
+        assertEquals(100.0, product.getWidth());
+        assertEquals(150.0, product.getDepth());
+        assertEquals(200.0, product.getHeight());
+        assertEquals(3.0, product.getVolume());
+        assertEquals("Boční přesah 10cm", product.getAdditionalDimensions());
+        verify(auditService).log("PRODUKTY", "ÚPRAVA", "Zpracován produkt: Test Product with Dimensions");
     }
 
     @Test
@@ -111,7 +138,6 @@ class ProductServiceTest {
         Product finalProduct = new Product();
         finalProduct.setId(1L);
         finalProduct.setName("Stul");
-
         Product material = new Product();
         material.setId(2L);
         material.setName("Drevo");
@@ -120,7 +146,6 @@ class ProductServiceTest {
         when(productRepository.findById(2L)).thenReturn(Optional.of(material));
 
         User admin = new User();
-
         productService.addRecipeItem(1L, 2L, 5, admin);
 
         verify(recipeItemRepository).save(any(RecipeItem.class));
@@ -136,7 +161,6 @@ class ProductServiceTest {
         when(productRepository.findById(1L)).thenReturn(Optional.of(finalProduct));
 
         User admin = new User();
-
         productService.deleteRecipeItem(1L, 100L, admin);
 
         verify(recipeItemRepository).deleteById(100L);

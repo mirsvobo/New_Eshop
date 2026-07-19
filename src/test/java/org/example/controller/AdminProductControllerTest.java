@@ -9,6 +9,7 @@ import org.example.service.Cart;
 import org.example.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -19,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Collections;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -35,10 +37,13 @@ class AdminProductControllerTest {
 
     @MockitoBean
     private ProductRepository productRepository;
+
     @MockitoBean
     private ProductService productService;
+
     @MockitoBean
     private UserRepository userRepository;
+
     @MockitoBean
     private TaxRateRepository taxRateRepository;
 
@@ -72,7 +77,6 @@ class AdminProductControllerTest {
     @Test
     @WithMockUser(username = "admin@test.cz", roles = "ADMIN")
     void shouldReturnFormWithErrorsWhenValidationFails() throws Exception {
-
         mockMvc.perform(post("/admin/produkty/save")
                         .param("name", "Testovací produkt")
                         .param("price", "chybna_hodnota")
@@ -81,10 +85,12 @@ class AdminProductControllerTest {
                 .andExpect(view().name("admin/product-form"))
                 .andExpect(model().hasErrors());
     }
+
     @Test
     @WithMockUser(username = "admin@test.cz", roles = "ADMIN")
     void showAddProductForm_ShouldReturnForm() throws Exception {
         given(taxRateRepository.findAll()).willReturn(Collections.emptyList());
+
         mockMvc.perform(get("/admin/produkty/novy"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("admin/product-form"))
@@ -127,6 +133,37 @@ class AdminProductControllerTest {
 
     @Test
     @WithMockUser(username = "admin@test.cz", roles = "ADMIN")
+    void saveProduct_WithDimensions_Success_ShouldRedirect() throws Exception {
+        mockMvc.perform(post("/admin/produkty/save")
+                        .param("name", "Valid Product with Dimensions")
+                        .param("price", "100.00")
+                        .param("stockQuantity", "10")
+                        .param("minStockLevel", "2")
+                        .param("unit", "ks")
+                        .param("type", "PRODUCT")
+                        .param("width", "120.5")
+                        .param("depth", "80.0")
+                        .param("height", "200.0")
+                        .param("volume", "1.92")
+                        .param("additionalDimensions", "Přesah střechy: 10 cm")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/produkty"))
+                .andExpect(flash().attributeExists("success"));
+
+        ArgumentCaptor<Product> productCaptor = ArgumentCaptor.forClass(Product.class);
+        verify(productService).saveProduct(productCaptor.capture(), eq(null), any(User.class));
+
+        Product capturedProduct = productCaptor.getValue();
+        assertEquals(120.5, capturedProduct.getWidth());
+        assertEquals(80.0, capturedProduct.getDepth());
+        assertEquals(200.0, capturedProduct.getHeight());
+        assertEquals(1.92, capturedProduct.getVolume());
+        assertEquals("Přesah střechy: 10 cm", capturedProduct.getAdditionalDimensions());
+    }
+
+    @Test
+    @WithMockUser(username = "admin@test.cz", roles = "ADMIN")
     void manageRecipe_ShouldReturnRecipeView() throws Exception {
         Product product = new Product();
         product.setId(1L);
@@ -165,6 +202,7 @@ class AdminProductControllerTest {
 
         verify(productService).deleteRecipeItem(eq(1L), eq(2L), any(User.class));
     }
+
     @Test
     @WithMockUser(username = "admin@test.cz", roles = "ADMIN")
     void deleteProduct_Success_ShouldRedirect() throws Exception {

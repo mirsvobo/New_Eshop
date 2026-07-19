@@ -129,6 +129,11 @@ public class DataSeeder implements CommandLineRunner {
         Product stul = createItem("Jídelní stůl 'FajnDub' - Masiv", 34500, "ks", Product.ProductType.PRODUCT, vat, 3);
         stul.setAvailableLazures("Bezbarvý lak, Olejovaný dub, Tmavý ořech");
         stul.setAvailableDesigns("Rovná hrana, Přírodní hrana (Live Edge)");
+        stul.setWidth(250.0);
+        stul.setDepth(300.0);
+        stul.setHeight(220.5);
+        stul.setVolume(16.5);
+        stul.setAdditionalDimensions("Přesah střechy: 15 cm boční");
         map.put("stul", productRepository.save(stul));
 
         Product stolek = createItem("Konferenční stolek 'Industriál'", 14200, "ks", Product.ProductType.PRODUCT, vat, 5);
@@ -136,8 +141,10 @@ public class DataSeeder implements CommandLineRunner {
         map.put("stolek", productRepository.save(stolek));
 
         map.put("prkenko", productRepository.save(createItem("Dubové prkénko PRO", 1650, "ks", Product.ProductType.PRODUCT, vat, 15)));
+
         map.put("police", productRepository.save(createItem("Nástěnná police 'Minimalist'", 2400, "ks", Product.ProductType.PRODUCT, vat, 10)));
-        map.put("podtacky", productRepository.save(createItem("Sada dřevěných podtácků (6ks)", 550, "sada", Product.ProductType.PRODUCT, vat, 20)));
+
+        map.put("podtacky", productRepository.save(createItem("Sada dubových podtácků (6ks)", 550, "sada", Product.ProductType.PRODUCT, vat, 20)));
 
         return map;
     }
