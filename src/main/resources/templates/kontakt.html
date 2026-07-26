@@ -2,59 +2,48 @@
 <html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Kontakt', ~{::div.content-wrapper})}">
 <body>
 <div class="content-wrapper w-full flex flex-col gap-12 sm:gap-16 py-6 sm:py-8">
-
     <section class="relative bg-slate-900 text-white overflow-hidden rounded-[2rem] shadow-2xl">
         <div class="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1596524430615-b46475ddff6e?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center"></div>
         <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-slate-900/40"></div>
-
         <div class="relative z-10 px-8 py-16 sm:px-14 sm:py-20 text-center max-w-3xl mx-auto">
-            <span class="text-blue-400 font-black tracking-widest uppercase text-xs sm:text-sm mb-4 block">Spojte se s námi</span>
+            <span class="text-amber-400 font-black tracking-widest uppercase text-xs sm:text-sm mb-4 block">Spojte se s námi</span>
             <h1 class="text-4xl sm:text-5xl font-black leading-tight mb-6">Jsme tu pro vás. Napište nám.</h1>
             <p class="text-lg text-slate-300 leading-relaxed font-medium">
-                Máte dotaz k produktu z našeho e-shopu, potřebujete poradit s údržbou dřeva, nebo chcete probrat velkou
+                Máte dotaz k produktu z našeho e-shopu, potřebujete poradit s těžbou dřeva, nebo chcete probrat velkou
                 firemní zakázku na míru? Ozvěte se, rádi vám odpovíme.
             </p>
         </div>
     </section>
-
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 px-4 sm:px-8">
-
         <div class="lg:col-span-7 bg-white p-8 sm:p-10 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden">
-            <div class="absolute -top-20 -right-20 w-64 h-64 bg-blue-50 rounded-full opacity-50 blur-3xl pointer-events-none"></div>
-
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-amber-50 rounded-full opacity-50 blur-3xl pointer-events-none"></div>
             <h2 class="text-2xl font-black text-slate-900 mb-8 relative z-10">Kontaktní formulář</h2>
-
             <form th:action="@{/kontakt/odeslat}" method="post" class="space-y-6 relative z-10">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
-                        <label for="jmeno" class="block text-sm font-bold text-slate-700 mb-2">Jméno a příjmení
-                            *</label>
+                        <label for="jmeno" class="block text-sm font-bold text-slate-700 mb-2">Jméno a příjmení *</label>
                         <input type="text" id="jmeno" name="jmeno" required
-                               class="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3.5 transition-colors"
+                               class="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-amber-500 focus:border-amber-500 block p-3.5 transition-colors"
                                placeholder="Jan Novák">
                     </div>
                     <div>
-                        <label for="email" class="block text-sm font-bold text-slate-700 mb-2">E-mailová adresa
-                            *</label>
+                        <label for="email" class="block text-sm font-bold text-slate-700 mb-2">E-mailová adresa *</label>
                         <input type="email" id="email" name="email" required
-                               class="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3.5 transition-colors"
+                               class="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-amber-500 focus:border-amber-500 block p-3.5 transition-colors"
                                placeholder="jan@novak.cz">
                     </div>
                 </div>
-
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
-                        <label for="telefon" class="block text-sm font-bold text-slate-700 mb-2">Telefon
-                            (volitelné)</label>
+                        <label for="telefon" class="block text-sm font-bold text-slate-700 mb-2">Telefon (volitelné)</label>
                         <input type="tel" id="telefon" name="telefon"
-                               class="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3.5 transition-colors"
+                               class="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-amber-500 focus:border-amber-500 block p-3.5 transition-colors"
                                placeholder="+420 123 456 789">
                     </div>
                     <div>
-                        <label for="predmet" class="block text-sm font-bold text-slate-700 mb-2">O co se jedná?
-                            *</label>
+                        <label for="predmet" class="block text-sm font-bold text-slate-700 mb-2">O co se jedná? *</label>
                         <select id="predmet" name="predmet" required
-                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3.5 transition-colors appearance-none">
+                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-amber-500 focus:border-amber-500 block p-3.5 transition-colors appearance-none">
                             <option value="" disabled selected>Vyberte téma zprávy...</option>
                             <option value="eshop">Dotaz k objednávce z e-shopu</option>
                             <option value="b2b">Poptávka firemní zakázky / B2B</option>
@@ -63,79 +52,60 @@
                         </select>
                     </div>
                 </div>
-
                 <div>
                     <label for="zprava" class="block text-sm font-bold text-slate-700 mb-2">Vaše zpráva *</label>
                     <textarea id="zprava" name="zprava" rows="5" required
-                              class="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3.5 transition-colors resize-none custom-scrollbar"
+                              class="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-amber-500 focus:border-amber-500 block p-3.5 transition-colors resize-none custom-scrollbar"
                               placeholder="Dobrý den, chtěl bych se zeptat..."></textarea>
                 </div>
-
                 <div class="flex items-start">
                     <div class="flex items-center h-5">
                         <input id="souhlas" name="souhlas" type="checkbox" required value=""
-                               class="w-4 h-4 border border-slate-300 rounded bg-slate-50 focus:ring-3 focus:ring-blue-300 text-blue-600">
+                               class="w-4 h-4 border border-slate-300 rounded bg-slate-50 focus:ring-3 focus:ring-amber-300 text-amber-500">
                     </div>
                     <label for="souhlas" class="ml-3 text-sm text-slate-500 font-medium">
-                        Souhlasím se zpracováním osobních údajů pro účely vyřízení mého dotazu v souladu se <a href="#"
-                                                                                                               class="text-blue-600 hover:underline">Zásadami
-                        ochrany osobních údajů</a>.
+                        Souhlasím se zpracováním osobních údajů pro účely vyřízení dotazu v souladu se <a href="#" class="text-amber-600 hover:underline">Zásadami ochrany osobních údajů</a>.
                     </label>
                 </div>
-
                 <button type="submit"
-                        class="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-10 rounded-xl transition-all shadow-lg shadow-blue-900/20 text-sm uppercase tracking-widest flex items-center justify-center gap-2">
+                        class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-4 px-10 rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm uppercase tracking-widest flex items-center justify-center gap-2">
                     <i data-lucide="send" class="w-4 h-4"></i> Odeslat zprávu
                 </button>
             </form>
         </div>
-
         <div class="lg:col-span-5 flex flex-col gap-6">
-
             <div class="bg-slate-900 text-white p-8 sm:p-10 rounded-[2rem] shadow-xl relative overflow-hidden flex-grow">
-                <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl pointer-events-none"></div>
-
+                <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-amber-500/20 rounded-full blur-2xl pointer-events-none"></div>
                 <h3 class="text-xl font-black mb-8 flex items-center gap-3">
-                    <i data-lucide="map-pin" class="text-blue-400 w-6 h-6"></i> Naše dílna a expedice
+                    <i data-lucide="map-pin" class="text-amber-400 w-6 h-6"></i> Naše dílna a expedice
                 </h3>
-
                 <div class="space-y-6">
                     <div>
                         <p class="font-bold text-slate-300 text-sm uppercase tracking-widest mb-1">Adresa provozovny</p>
                         <p class="text-lg font-medium">Truhlářská 42<br>530 02 Pardubice</p>
                     </div>
-
                     <div class="pt-4 border-t border-slate-800">
                         <p class="font-bold text-slate-300 text-sm uppercase tracking-widest mb-2">Přímé kontakty</p>
-                        <a href="tel:+420123456789"
-                           class="flex items-center gap-3 text-lg font-medium hover:text-blue-400 transition-colors mb-2">
+                        <a href="tel:+420123456789" class="flex items-center gap-3 text-lg font-medium hover:text-amber-400 transition-colors mb-2">
                             <i data-lucide="phone" class="w-5 h-5 text-slate-500"></i> +420 123 456 789
                         </a>
-                        <a href="mailto:info@fajndrevo.cz"
-                           class="flex items-center gap-3 text-lg font-medium hover:text-blue-400 transition-colors">
+                        <a href="mailto:info@fajndrevo.cz" class="flex items-center gap-3 text-lg font-medium hover:text-amber-400 transition-colors">
                             <i data-lucide="mail" class="w-5 h-5 text-slate-500"></i> info@fajndrevo.cz
                         </a>
                     </div>
-
                     <div class="pt-4 border-t border-slate-800">
-                        <p class="font-bold text-slate-300 text-sm uppercase tracking-widest mb-2">Otevírací doba
-                            dílny</p>
+                        <p class="font-bold text-slate-300 text-sm uppercase tracking-widest mb-2">Otevírací doba dílny</p>
                         <ul class="space-y-1 text-slate-300">
-                            <li class="flex justify-between"><span>Pondělí - Čtvrtek</span> <span
-                                    class="font-mono text-white">7:00 - 15:30</span></li>
-                            <li class="flex justify-between"><span>Pátek</span> <span class="font-mono text-white">7:00 - 14:00</span>
-                            </li>
-                            <li class="flex justify-between text-slate-500"><span>Víkendy a svátky</span>
-                                <span>Zavřeno</span></li>
+                            <li class="flex justify-between"><span>Pondělí - Čtvrtek</span> <span class="font-mono text-white">7:00 - 15:30</span></li>
+                            <li class="flex justify-between"><span>Pátek</span> <span class="font-mono text-white">7:00 - 14:00</span></li>
+                            <li class="flex justify-between text-slate-500"><span>Víkendy a svátky</span> <span>Zavřeno</span></li>
                         </ul>
                         <p class="text-xs text-slate-500 mt-3 flex items-start gap-1.5">
-                            <i data-lucide="info" class="w-4 h-4 shrink-0"></i> Pro osobní schůzku nebo konzultaci nad
-                            zakázkou nás prosím kontaktujte předem.
+                            <i data-lucide="info" class="w-4 h-4 shrink-0"></i> Pro osobní schůzku nebo konzultaci nad zakázkou nás prosím kontaktujte předem.
                         </p>
                     </div>
                 </div>
             </div>
-
             <div class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm flex items-start gap-4">
                 <div class="bg-slate-50 p-3 rounded-xl shrink-0">
                     <i data-lucide="file-text" class="w-6 h-6 text-slate-600"></i>
@@ -148,37 +118,28 @@
                         DIČ: CZ12345678
                     </p>
                     <p class="text-xs text-slate-500">
-                        Společnost je zapsána v obchodním rejstříku vedeném Krajským soudem v Hradci Králové, oddíl C,
-                        vložka 12345.
+                        Společnost je zapsána v obchodním rejstříku vedeném Krajským soudem v Hradci Králové, oddíl C, vložka 12345.
                     </p>
                 </div>
             </div>
-
         </div>
     </section>
-
     <section class="px-4 sm:px-8">
         <div class="w-full aspect-video md:aspect-[21/9] rounded-[2rem] overflow-hidden shadow-lg border border-slate-200 bg-slate-100 relative group">
             <div class="absolute inset-0 flex items-center justify-center text-slate-400 flex-col gap-2 z-0">
                 <i data-lucide="map" class="w-10 h-10"></i>
                 <span class="font-bold uppercase tracking-widest text-xs">Načítání mapy...</span>
             </div>
-
-            <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d81938.83594002636!2d15.698943916942055!3d50.03819875143391!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470dcc0c0ce7aee7%3A0x400af0f6615b8d0!2sPardubice!5e0!3m2!1scs!2scz!4v1700000000000!5m2!1scs!2scz"
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d81938.83594002636!2d15.698943916942055!3d50.03819875143391!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470dcc0c0ce7aee7%3A0x400af0f6615b8d0!2sPardubice!5e0!3m2!1scs!2scz!4v1700000000000!5m2!1scs!2scz"
                     class="absolute inset-0 w-full h-full border-0 grayscale group-hover:grayscale-0 transition-all duration-700 z-10 opacity-90 hover:opacity-100"
-                    allowfullscreen=""
-                    loading="lazy"
-                    referrerpolicy="no-referrer-when-downgrade">
+                    allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
             </iframe>
-
             <div class="absolute top-6 left-6 z-20 bg-white/90 backdrop-blur-md p-4 rounded-xl shadow-lg border border-white/50 pointer-events-none hidden sm:block">
                 <p class="font-black text-slate-900 text-sm">FajnDřevo Dílna</p>
                 <p class="text-xs text-slate-500 font-medium mt-0.5">Truhlářská 42, Pardubice</p>
             </div>
         </div>
     </section>
-
 </div>
 </body>
 </html>

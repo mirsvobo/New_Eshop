@@ -3,12 +3,9 @@
 <body>
 <section class="py-8 w-full">
     <h1 class="text-3xl font-black text-gray-900 uppercase mb-8">Pokladna</h1>
-
     <form th:action="@{/kosik/objednat}" th:object="${checkoutForm}" method="post"
           class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <input type="hidden" id="taxModeInput" th:field="*{taxMode}" />
-
-        <!-- VÝRAZNÝ CHYBOVÝ BAR PRO ČESTNÉ PROHLÁŠENÍ -->
         <div th:if="${#fields.hasErrors('affidavitSigned')}"
              class="lg:col-span-3 bg-red-600 text-white p-6 sm:p-8 rounded-3xl shadow-xl flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6 border border-red-500 animate-in slide-in-from-top-4 fade-in duration-500">
             <div class="bg-red-500/60 p-4 rounded-2xl shrink-0">
@@ -22,81 +19,72 @@
                 Přejít k prohlášení <i data-lucide="arrow-down" class="w-5 h-5"></i>
             </a>
         </div>
-
         <div class="lg:col-span-2 space-y-6">
             <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-sm">
-                <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest border-b pb-3 mb-6">1. Osobní
-                    údaje</h3>
+                <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest border-b pb-3 mb-6">1. Osobní údaje</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <input type="text" th:field="*{firstName}" placeholder="Jméno"
-                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors" required>
+                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-amber-500 focus:border-amber-500 transition-colors" required>
                     <input type="text" th:field="*{lastName}" placeholder="Příjmení"
-                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors" required>
+                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-amber-500 focus:border-amber-500 transition-colors" required>
                     <input type="email" th:field="*{email}" placeholder="E-mail"
-                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors" required>
+                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-amber-500 focus:border-amber-500 transition-colors" required>
                     <input type="tel" th:field="*{phone}" placeholder="Telefon"
-                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors" required>
+                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-amber-500 focus:border-amber-500 transition-colors" required>
                 </div>
             </div>
-
             <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-sm">
-                <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest border-b pb-3 mb-6">2. Fakturační
-                    údaje</h3>
-
+                <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest border-b pb-3 mb-6">2. Fakturační údaje</h3>
                 <div id="companySection" class="space-y-4">
                     <input type="text" th:field="*{companyName}" placeholder="Název firmy (volitelné)"
-                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors">
+                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-amber-500 focus:border-amber-500 transition-colors">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <input type="text" th:field="*{ico}" placeholder="IČO (8 číslic)"
-                                   class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors">
+                                   class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-amber-500 focus:border-amber-500 transition-colors">
                             <p th:if="${#fields.hasErrors('ico')}" th:errors="*{ico}"
                                class="text-red-500 text-[10px] mt-1.5 uppercase font-bold"></p>
                         </div>
                         <div>
                             <input type="text" th:field="*{dic}" placeholder="DIČ (CZ12345678)"
-                                   class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors">
+                                   class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-amber-500 focus:border-amber-500 transition-colors">
                             <p th:if="${#fields.hasErrors('dic')}" th:errors="*{dic}"
                                class="text-red-500 text-[10px] mt-1.5 uppercase font-bold"></p>
                         </div>
                     </div>
                 </div>
-
                 <div class="space-y-4 mt-4">
                     <input type="text" th:field="*{billingStreet}" placeholder="Ulice a č.p."
-                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors" required>
+                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-amber-500 focus:border-amber-500 transition-colors" required>
                     <div class="grid grid-cols-2 gap-4">
                         <input type="text" th:field="*{billingCity}" placeholder="Město"
-                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors" required>
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-amber-500 focus:border-amber-500 transition-colors" required>
                         <input type="text" th:field="*{billingZipCode}" placeholder="PSČ"
-                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors" required>
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-amber-500 focus:border-amber-500 transition-colors" required>
                     </div>
                 </div>
-
-                <!-- Čestné prohlášení (zobrazí se pouze při 12% sazbě) -->
                 <div id="affidavitSection" class="mt-6 pt-6 border-t border-gray-50 hidden animate-in fade-in zoom-in duration-300">
                     <div class="p-6 rounded-2xl border transition-colors shadow-sm"
-                         th:classappend="${#fields.hasErrors('affidavitSigned')} ? 'bg-red-50 border-red-400' : 'bg-blue-50/50 border-blue-100'">
+                         th:classappend="${#fields.hasErrors('affidavitSigned')} ? 'bg-red-50 border-red-400' : 'bg-amber-50/50 border-amber-100'">
                         <label class="flex items-start gap-4 cursor-pointer group">
                             <div class="flex items-center h-5 mt-0.5 shrink-0">
                                 <input type="checkbox" th:field="*{affidavitSigned}"
-                                       class="w-6 h-6 rounded border-gray-300 text-blue-600 focus:ring-blue-500 transition-colors"
+                                       class="w-6 h-6 rounded border-gray-300 text-amber-500 focus:ring-amber-500 transition-colors"
                                        th:classappend="${#fields.hasErrors('affidavitSigned')} ? 'border-red-500 ring-2 ring-red-200' : ''">
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-sm font-black transition-colors"
-                                      th:classappend="${#fields.hasErrors('affidavitSigned')} ? 'text-red-900 group-hover:text-red-700' : 'text-blue-900 group-hover:text-blue-700'">
-                                     Čestné prohlášení o splnění podmínek § 48 zákona o DPH
+                                      th:classappend="${#fields.hasErrors('affidavitSigned')} ? 'text-red-900 group-hover:text-red-700' : 'text-amber-900 group-hover:text-amber-700'">
+                                      Čestné prohlášení o splnění podmínek § 48 zákona o DPH
                                 </span>
                                 <span class="text-xs mt-1.5 leading-relaxed"
-                                      th:classappend="${#fields.hasErrors('affidavitSigned')} ? 'text-red-800' : 'text-blue-700/80'">
+                                      th:classappend="${#fields.hasErrors('affidavitSigned')} ? 'text-red-800' : 'text-amber-700/80'">
                                     Prohlašuji, že stavební nebo montážní práce jsou poskytnuty na dokončené stavbě pro bydlení a splňují podmínky pro uplatnění snížené sazby DPH 12 %. Jsem si vědom(a), že při nesplnění podmínek nesu plnou právní zodpovědnost za ušlou daň.
                                 </span>
                             </div>
                         </label>
                     </div>
                 </div>
-
                 <div class="mt-8 pt-6 border-t border-gray-50">
                     <label class="flex items-center gap-3 cursor-pointer group w-max">
                         <input type="checkbox" id="toggle-delivery" th:field="*{shipToDifferentAddress}"
@@ -105,37 +93,33 @@
                     </label>
                 </div>
             </div>
-
             <div id="shippingSection"
                  class="hidden bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-sm transition-all duration-300">
-                <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest border-b pb-3 mb-6">3. Údaje pro
-                    doručení</h3>
+                <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest border-b pb-3 mb-6">3. Údaje pro doručení</h3>
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <input type="text" th:field="*{shippingFirstName}" placeholder="Jméno příjemce"
-                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors">
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-amber-500 focus:border-amber-500 transition-colors">
                         <input type="text" th:field="*{shippingLastName}" placeholder="Příjmení příjemce"
-                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors">
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-amber-500 focus:border-amber-500 transition-colors">
                     </div>
                     <input type="tel" th:field="*{shippingPhone}" placeholder="Telefon na příjemce"
-                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors">
+                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-amber-500 focus:border-amber-500 transition-colors">
                     <input type="text" th:field="*{shippingStreet}" placeholder="Doručovací ulice a č.p."
-                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 mt-4 focus:bg-white focus:ring-blue-500 transition-colors">
+                           class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 mt-4 focus:bg-white focus:ring-amber-500 focus:border-amber-500 transition-colors">
                     <div class="grid grid-cols-2 gap-4">
                         <input type="text" th:field="*{shippingCity}" placeholder="Město"
-                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors">
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-amber-500 focus:border-amber-500 transition-colors">
                         <input type="text" th:field="*{shippingZipCode}" placeholder="PSČ"
-                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-blue-500 transition-colors">
+                               class="w-full border-gray-200 rounded-xl py-3 px-4 font-bold bg-gray-50 focus:bg-white focus:ring-amber-500 focus:border-amber-500 transition-colors">
                     </div>
                 </div>
             </div>
-
             <button type="submit"
-                    class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black hover:bg-blue-600 transition-all uppercase tracking-widest shadow-xl hover:shadow-2xl active:scale-[0.99]">
+                    class="w-full bg-slate-900 hover:bg-amber-500 hover:text-slate-900 text-white py-5 rounded-2xl font-black transition-all uppercase tracking-widest shadow-xl hover:shadow-2xl active:scale-[0.99]">
                 Dokončit a zaplatit
             </button>
         </div>
-
         <div class="lg:col-span-1">
             <div class="bg-gray-50 rounded-3xl p-6 sm:p-8 border border-gray-200 lg:sticky lg:top-24 shadow-sm">
                 <h3 class="text-sm font-black text-gray-900 uppercase tracking-widest mb-6">Rekapitulace</h3>
@@ -143,57 +127,49 @@
                     <div th:each="item : ${cartItems}" class="flex justify-between items-center text-sm border-b border-gray-200/50 pb-3 last:border-0 last:pb-0">
                         <div class="flex flex-col">
                             <span th:text="${item.quantity + 'x ' + item.productName}" class="text-gray-700 font-bold"></span>
-
-                            <!-- Vybrané varianty zobrazené v rekapitulaci checkoutu -->
                             <div class="mt-1 flex flex-wrap gap-1" th:if="${item.selectedLazure != null or item.selectedRoofColor != null or item.selectedDesign != null}">
                                 <span th:if="${item.selectedLazure != null and !item.selectedLazure.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">Lazura: <span th:text="${item.selectedLazure}"></span></span>
                                 <span th:if="${item.selectedRoofColor != null and !item.selectedRoofColor.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">Střecha: <span th:text="${item.selectedRoofColor}"></span></span>
                                 <span th:if="${item.selectedDesign != null and !item.selectedDesign.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">Design: <span th:text="${item.selectedDesign}"></span></span>
                             </div>
-
-                            <span th:if="${@cart.taxMode.name() == 'REDUCED'}" class="text-[9px] font-black text-blue-500 uppercase tracking-widest mt-1">DPH 12 % (Bydlení)</span>
+                            <span th:if="${@cart.taxMode.name() == 'REDUCED'}" class="text-[9px] font-black text-amber-500 uppercase tracking-widest mt-1">DPH 12 % (Bydlení)</span>
                             <span th:unless="${@cart.taxMode.name() == 'REDUCED'}" class="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1" th:text="'DPH ' + ${#numbers.formatDecimal(item.taxRateValue, 1, 0)} + ' % (Standard)'"></span>
                         </div>
                         <span th:if="${@cart.taxMode.name() == 'REDUCED'}"
                               th:text="${#numbers.formatDecimal(item.basePrice * 1.12 * item.quantity, 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč'"
-                              class="font-black text-blue-600 whitespace-nowrap"></span>
+                              class="font-black text-amber-600 whitespace-nowrap"></span>
                         <span th:unless="${@cart.taxMode.name() == 'REDUCED'}"
                               th:text="${#numbers.formatDecimal(item.price * item.quantity, 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč'"
                               class="font-black text-gray-900 whitespace-nowrap"></span>
                     </div>
                 </div>
-
                 <div class="pt-6 border-t border-gray-200 space-y-2.5">
                     <div class="flex justify-between text-xs font-bold text-gray-400 uppercase tracking-widest">
                         <span>Základ daně (Zboží)</span>
                         <span th:text="${#numbers.formatDecimal(@cart.getTotalBasePrice(), 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč'"></span>
                     </div>
-
                     <div th:each="entry : ${@cart.getTaxBreakdown()}"
                          class="flex justify-between text-xs font-bold uppercase tracking-widest"
-                         th:classappend="${@cart.taxMode.name() == 'REDUCED'} ? 'text-blue-400' : 'text-gray-400'">
+                         th:classappend="${@cart.taxMode.name() == 'REDUCED'} ? 'text-amber-500' : 'text-gray-400'">
                         <span th:text="'DPH Zboží ' + ${#numbers.formatDecimal(entry.key, 1, 0)} + ' %'"></span>
                         <span th:text="${#numbers.formatDecimal(entry.value, 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč'"></span>
                     </div>
-
                     <div class="flex justify-between text-xs font-bold text-gray-400 uppercase tracking-widest mt-2 pt-2 border-t border-gray-200/50">
                         <span>Základ daně (Doprava)</span>
                         <span>150 Kč</span>
                     </div>
                     <div class="flex justify-between text-xs font-bold uppercase tracking-widest"
-                         th:classappend="${@cart.taxMode.name() == 'REDUCED'} ? 'text-blue-400' : 'text-gray-400'">
+                         th:classappend="${@cart.taxMode.name() == 'REDUCED'} ? 'text-amber-500' : 'text-gray-400'">
                         <span th:text="'DPH Doprava ' + ${@cart.taxMode.name() == 'REDUCED' ? '(12 %)' : '(21 %)'}"></span>
                         <span th:text="${#numbers.formatDecimal(@cart.taxMode.name() == 'REDUCED' ? 150 * 0.12 : 150 * 0.21, 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč'"></span>
                     </div>
-
                     <div class="flex justify-between text-xs font-black uppercase tracking-widest pt-2"
-                         th:classappend="${@cart.taxMode.name() == 'REDUCED'} ? 'text-blue-600' : 'text-gray-700'">
+                         th:classappend="${@cart.taxMode.name() == 'REDUCED'} ? 'text-amber-600' : 'text-gray-700'">
                         <span>Doprava celkem s DPH</span>
                         <span th:text="${#numbers.formatDecimal(@cart.taxMode.name() == 'REDUCED' ? 150 * 1.12 : 150 * 1.21, 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč'"></span>
                     </div>
-
                     <div class="flex justify-between text-2xl font-black pt-4 mt-4 border-t border-gray-200"
-                         th:classappend="${@cart.taxMode.name() == 'REDUCED'} ? 'text-blue-600' : 'text-slate-900'">
+                         th:classappend="${@cart.taxMode.name() == 'REDUCED'} ? 'text-amber-600' : 'text-slate-900'">
                         <span class="uppercase tracking-tighter">Celkem</span>
                         <span th:text="${#numbers.formatDecimal(cartTotal + (@cart.taxMode.name() == 'REDUCED' ? 150 * 1.12 : 150 * 1.21), 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč'"></span>
                     </div>
@@ -201,10 +177,8 @@
             </div>
         </div>
     </form>
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Togglování doručovací adresy
             const toggle = document.getElementById('toggle-delivery');
             const section = document.getElementById('shippingSection');
             if (toggle && section) {
@@ -218,26 +192,19 @@
                 toggle.addEventListener('change', updateVisibility);
                 updateVisibility();
             }
-
-            // Logika pro daňový režim (12% DPH s montáží vs 21%)
             const taxModeValue = document.getElementById('taxModeInput').value;
             const companySection = document.getElementById('companySection');
             const affidavitSection = document.getElementById('affidavitSection');
             const icoInput = document.getElementById('ico');
             const dicInput = document.getElementById('dic');
             const companyInput = document.getElementById('companyName');
-
             if (taxModeValue === 'REDUCED') {
-                // Skrytí a vymazání firemních IČO a DIČ nejsou pro sníženou sazbu bydlení povoleny)
                 companySection.style.display = 'none';
                 if(icoInput) icoInput.value = '';
                 if(dicInput) dicInput.value = '';
                 if(companyInput) companyInput.value = '';
-
-                // Zobrazení povinného čestného prohlášení
                 if(affidavitSection) affidavitSection.classList.remove('hidden');
             } else {
-                // Standardní režim - zobrazení firemních a skrytí prohlášení
                 companySection.style.display = 'block';
                 if(affidavitSection) affidavitSection.classList.add('hidden');
             }

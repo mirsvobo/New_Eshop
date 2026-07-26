@@ -2,67 +2,54 @@
 <html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('O nás', ~{::div.content-wrapper})}">
 <body>
 <div class="content-wrapper w-full flex flex-col gap-12 sm:gap-16 py-6 sm:py-8">
-
     <section class="relative bg-slate-900 text-white overflow-hidden rounded-[2rem] shadow-2xl">
         <div class="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1588854337221-4cf9fa96059c?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center"></div>
         <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-slate-900/40"></div>
-
         <div class="relative z-10 px-8 py-16 sm:px-14 sm:py-24 text-center max-w-4xl mx-auto">
-            <span class="text-blue-400 font-black tracking-widest uppercase text-xs sm:text-sm mb-4 block">Náš příběh</span>
-            <h1 class="text-4xl sm:text-5xl md:text-6xl font-black leading-tight mb-6">Tradiční řemeslo,<br>moderní
-                myšlení</h1>
+            <span class="text-amber-400 font-black tracking-widest uppercase text-xs sm:text-sm mb-4 block">Náš příběh</span>
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-black leading-tight mb-6">Tradiční řemeslo,<br>moderní mysl.</h1>
             <p class="text-lg text-slate-300 leading-relaxed font-medium">
                 Věříme, že poctivá práce rukama a špičkové digitální technologie se nevylučují. Naopak. Díky našemu
                 modernímu přístupu se truhláři mohou soustředit jen na to podstatné – na dokonalý produkt pro vás.
             </p>
         </div>
     </section>
-
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center px-4 sm:px-8">
         <div class="order-2 lg:order-1">
             <div class="aspect-w-4 aspect-h-5 rounded-[2rem] overflow-hidden shadow-xl border border-slate-100">
                 <img src="https://images.unsplash.com/photo-1533090161767-e6ffed986c88?q=80&w=2069&auto=format&fit=crop"
-                     alt="Truhlář při práci v dílně" class="w-full h-full object-cover"/>
+                     alt="Truhláři při práci ve dřevovýrobě" class="w-full h-full object-cover"/>
             </div>
         </div>
         <div class="order-1 lg:order-2 flex flex-col gap-6">
             <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Konec ztracených papírků</h2>
             <div class="prose prose-slate prose-lg text-slate-600 leading-relaxed">
-                <p>
-                    Začínali jsme jako klasická malá dílna. S rostoucím počtem zakázek, B2B partnerů a e-shopových
+                <p>Začínali jsme jako klasická malá truhlárna. S rostoucím počtem zakázek, B2B partnerů a e-shopových
                     objednávek jsme ale brzy narazili na limit. Objednávky se psaly na papírky, skladové zásoby se
-                    počítaly od oka a občas se stalo, že jsme slíbili termín, který nešlo splnit.
-                </p>
-                <p>
-                    <strong>Rozhodli jsme se to změnit.</strong> Nechtěli jsme slevit z kvality naší ruční práce, proto
-                    jsme museli zefektivnit všechno okolo.
-                </p>
-                <p>
-                    Prošli jsme kompletní digitalizací. Vyvinuli jsme a nasadili vlastní ERP systém, který dnes řídí
-                    chod celé firmy. Od naskladnění hrubého masivu, přes plánování směn našich truhlářů, až po finální
-                    expedici k vám domů.
-                </p>
+                    počítaly od oka a občas se stalo, že jsme slíbili termín, který nešlo splnit.</p>
+                <p><strong>Rozhodli jsme se to změnit.</strong> Nechtěli jsme slevit z kvality naší práce, proto
+                    jsme museli zefektivnit všechno okolo.</p>
+                <p>Prošli jsme kompletní digitalizací. Vyvinuli jsme a nasadili vlastní ERP systém, který dnes
+                    řídí chod celé firmy. Od naskladnění hrubého masivu, přes plány našich truhlářů, až po finální
+                    expedici k vám domů.</p>
             </div>
-
-            <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100 mt-4">
+            <div class="bg-amber-50 p-6 rounded-2xl border border-amber-100 mt-4">
                 <h4 class="font-bold text-slate-900 mb-2 flex items-center gap-2">
-                    <i data-lucide="check-circle-2" class="w-5 h-5 text-blue-600"></i> Co to znamená pro zákazníka?
+                    <i data-lucide="check-circle-2" class="w-5 h-5 text-amber-600"></i> Co to znamená pro zákazníka?
                 </h4>
                 <p class="text-sm text-slate-600">
                     Absolutní spolehlivost. Když na e-shopu svítí "Skladem", znamená to, že fyzicky leží v našem regálu.
-                    Když slíbíme termín dodání B2B zakázky, dodržíme ho, protože máme detailní přehled o kapacitách naší
+                    Když potvrdíme termín dodání B2B zakázky, dodržíme ho, protože máme detailní přehled o kapacitách naší
                     výroby.
                 </p>
             </div>
         </div>
     </section>
-
     <section>
         <div class="text-center max-w-2xl mx-auto mb-12 px-4">
             <h2 class="text-3xl font-black text-slate-900 mb-4 tracking-tight">Na čem FajnDřevo stojí</h2>
             <p class="text-slate-500">Tři pilíře, které definují naši každodenní práci na dílně i v kanceláři.</p>
         </div>
-
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-lg transition-all">
                 <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-6">
@@ -71,13 +58,11 @@
                 <h3 class="text-xl font-black text-slate-900 mb-4">Úcta k materiálu</h3>
                 <p class="text-slate-500 text-sm leading-relaxed">
                     Dřevo je živý materiál. Zpracováváme ho tak, aby vynikla jeho přirozená kresba a charakter.
-                    Nevyhazujeme odřezky, snažíme se o maximální udržitelnost a efektivní využití každého kusu masivu,
-                    který do dílny dorazí.
+                    Nevyhazujeme odřezky, snažíme se o maximální udržitelnost a efektivní využití každého kusu masivu.
                 </p>
             </div>
-
             <div class="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-lg transition-all">
-                <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6">
+                <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-6">
                     <i data-lucide="cpu" class="w-7 h-7"></i>
                 </div>
                 <h3 class="text-xl font-black text-slate-900 mb-4">Technologická přesnost</h3>
@@ -86,33 +71,29 @@
                     nevzala duši řemesla, naopak nám rozvázala ruce od byrokracie, abychom mohli tvořit.
                 </p>
             </div>
-
             <div class="bg-white p-8 sm:p-10 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-lg transition-all">
-                <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6">
+                <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-6">
                     <i data-lucide="users" class="w-7 h-7"></i>
                 </div>
                 <h3 class="text-xl font-black text-slate-900 mb-4">Lidé na prvním místě</h3>
                 <p class="text-slate-500 text-sm leading-relaxed">
                     Za ERP systémem a krásným e-shopem vždy stojí konkrétní lidé. Jsme hrdí na náš tým truhlářů,
-                    expedice i podpory. Dobré vztahy v dílně se přímo promítají do kvality nábytku, který si kupujete
-                    domů.
+                    expedice i podpory. Dobré vztahy v dílně se přímo promítají do kvality výrobků.
                 </p>
             </div>
         </div>
     </section>
-
-    <section
-            class="bg-slate-100 rounded-[2rem] p-8 sm:p-16 flex flex-col md:flex-row items-center justify-between gap-8 border border-slate-200/60">
+    <section class="bg-slate-100 rounded-[2rem] p-8 sm:p-16 flex flex-col md:flex-row items-center justify-between gap-8 border border-slate-200/60">
         <div class="md:w-2/3">
             <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-4">Zaujal vás náš přístup?</h2>
             <p class="text-slate-600 text-lg">
-                Ať už si chcete udělat radost novým doplňkem z našeho e-shopu, nebo hledáte spolehlivého dodavatele pro
-                vybavení vaší kanceláře či kavárny, jsme připraveni.
+                Ať si chcete udělat radost novým doplňkem z našeho e-shopu, nebo hledáte spolehlivého dodavatele pro
+                vybavení kanceláří či kavárny, jsme připraveni.
             </p>
         </div>
         <div class="md:w-1/3 flex flex-col w-full gap-4">
             <a th:href="@{/produkty}"
-               class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-xl text-center transition-all shadow-md text-sm uppercase tracking-widest flex items-center justify-center gap-2">
+               class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-4 px-8 rounded-xl text-center transition-all shadow-md text-sm uppercase tracking-widest flex items-center justify-center gap-2">
                 <i data-lucide="shopping-cart" class="w-5 h-5"></i> Do E-shopu
             </a>
             <a th:href="@{/kontakt}"
@@ -121,7 +102,6 @@
             </a>
         </div>
     </section>
-
 </div>
 </body>
 </html>

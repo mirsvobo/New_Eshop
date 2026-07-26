@@ -1,62 +1,55 @@
 <!DOCTYPE html>
 <html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Přihlášení', ~{::section})}">
 <body>
-
 <section class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
         <div>
-            <div class="flex justify-center text-primary">
+            <div class="flex justify-center text-amber-500">
                 <i data-lucide="lock" class="w-12 h-12"></i>
             </div>
             <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
                 Přihlášení do systému
             </h2>
         </div>
-
         <div th:if="${param.error}" class="bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
             <div class="flex">
                 <div class="flex-shrink-0">
                     <i data-lucide="alert-circle" class="h-5 w-5 text-red-400"></i>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm text-red-700">
-                        Neplatný e-mail nebo heslo.
-                    </p>
+                    <p class="text-sm text-red-700">Neplatný e-mail nebo heslo.</p>
                 </div>
             </div>
         </div>
-
         <form class="mt-8 space-y-6" th:action="@{/login}" method="POST">
             <div class="rounded-md shadow-sm -space-y-px">
                 <div>
                     <label for="username" class="sr-only">E-mailová adresa</label>
                     <input id="username" name="username" type="email" autocomplete="email" required
-                           class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                           class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-amber-500 focus:border-amber-500 focus:z-10 sm:text-sm"
                            placeholder="E-mailová adresa">
                 </div>
                 <div>
                     <label for="password" class="sr-only">Heslo</label>
                     <input id="password" name="password" type="password" autocomplete="current-password" required
-                           class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                           class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-amber-500 focus:border-amber-500 focus:z-10 sm:text-sm"
                            placeholder="Heslo">
                 </div>
             </div>
-
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
                     <input id="remember-me" name="remember-me" type="checkbox"
-                           class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                           class="h-4 w-4 text-amber-500 focus:ring-amber-500 border-gray-300 rounded">
                     <label for="remember-me" class="ml-2 block text-sm text-gray-900">
                         Pamatovat si mě
                     </label>
                 </div>
             </div>
-
             <div>
                 <button type="submit"
-                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors">
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-slate-900 hover:bg-amber-500 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors">
                     <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                        <i data-lucide="log-in" class="h-5 w-5 text-gray-500 group-hover:text-gray-400"></i>
+                        <i data-lucide="log-in" class="h-5 w-5 text-gray-500 group-hover:text-slate-900"></i>
                     </span>
                     Přihlásit se
                 </button>
@@ -64,6 +57,5 @@
         </form>
     </div>
 </section>
-
 </body>
 </html>

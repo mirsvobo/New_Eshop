@@ -11,7 +11,7 @@
             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Řadit podle:</label>
             <label>
                 <select onchange="window.location.href='?sort=' + this.value"
-                        class="border-slate-200 rounded-xl py-3 px-4 font-bold text-sm bg-white uppercase tracking-widest focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer shadow-sm">
+                        class="border-slate-200 rounded-xl py-3 px-4 font-bold text-sm bg-white uppercase tracking-widest focus:ring-2 focus:ring-amber-500 outline-none cursor-pointer shadow-sm">
                     <option value="newest" th:selected="${currentSort == 'newest'}">Nejnovější</option>
                     <option value="price_asc" th:selected="${currentSort == 'price_asc'}">Od nejlevnějšího</option>
                     <option value="price_desc" th:selected="${currentSort == 'price_desc'}">Od nejdražšího</option>
@@ -36,16 +36,14 @@
             <div class="p-6 flex flex-col flex-1">
                 <div class="mb-4 flex-1">
                     <a th:href="@{/produkty/{id}(id=${product.id})}"
-                       class="text-lg font-black text-slate-900 hover:text-blue-600 transition-colors line-clamp-2"
+                       class="text-lg font-black text-slate-900 hover:text-amber-600 transition-colors line-clamp-2"
                        th:text="${product.name}">Název</a>
 
-                    <!-- Kompaktní rozměr pod názvem (Zobrazí se pouze pokud jsou vyplněny) -->
                     <div th:if="${product.width != null and product.depth != null and product.height != null}"
                          class="text-xs font-bold text-slate-400 mt-1"
                          th:text="'Š x H x V: ' + ${#numbers.formatDecimal(product.width, 1, 0)} + ' x ' + ${#numbers.formatDecimal(product.depth, 1, 0)} + ' x ' + ${#numbers.formatDecimal(product.height, 1, 0)} + ' cm'">
                     </div>
 
-                    <!-- Indikátor stavu skladu -->
                     <div class="mt-3 flex items-center gap-2">
                         <div th:if="${product.stockQuantity > 0}" class="flex items-center gap-1.5 text-[10px] font-black text-green-700 uppercase tracking-widest bg-green-50 px-2 py-1 rounded-md border border-green-100">
                             <i data-lucide="check-circle" class="w-3 h-3"></i> Ihned k odběru
@@ -63,7 +61,7 @@
                             <span th:if="${product.isOnSale()}" class="text-xs font-bold text-slate-400 line-through"
                                   th:text="${#numbers.formatInteger(product.price * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
                         </div>
-                        <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest mt-0.5">Pro bydlení (soukromé, 12 % DPH)</span>
+                        <span class="text-[9px] font-black text-amber-600 uppercase tracking-widest mt-0.5">Pro bydlení (soukromé, 12 % DPH)</span>
                         <span class="text-xs text-slate-400 mt-0.5"
                               th:text="'Firma / rekreace: ' + ${#numbers.formatInteger(product.getPriceWithTax(), 1, 'WHITESPACE')} + ' Kč  (21 %)'"></span>
                     </div>
@@ -71,7 +69,7 @@
                         <input type="hidden" name="productId" th:value="${product.id}">
                         <input type="hidden" name="quantity" value="1">
                         <button type="submit"
-                                class="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-blue-600 transition-colors shadow-md">
+                                class="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-amber-500 hover:text-slate-900 transition-colors shadow-md">
                             <i data-lucide="shopping-cart" class="w-4 h-4"></i>
                         </button>
                     </form>

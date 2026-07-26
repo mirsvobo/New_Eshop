@@ -9,55 +9,38 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #e2e8f0;
-            border-radius: 10px;
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
     </style>
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen text-slate-800">
-
 <header class="bg-white shadow-sm sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         <div class="flex items-center gap-8">
             <a href="/" class="text-2xl font-black text-gray-900 tracking-tighter uppercase flex items-center gap-2">
                 <div class="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
-                    <i data-lucide="box" class="text-white w-5 h-5"></i>
+                    <i data-lucide="box" class="text-amber-500 w-5 h-5"></i>
                 </div>
                 <span>FajnDřevo</span>
             </a>
             <nav class="hidden md:flex space-x-6 text-sm font-bold text-gray-500 uppercase tracking-widest">
-                <a href="/produkty" class="hover:text-gray-900 transition-colors">E-shop</a>
-                <a href="/o-nas" class="hover:text-gray-900 transition-colors">O nás</a>
-                <a href="/kontakt" class="hover:text-gray-900 transition-colors">Kontakt</a>
+                <a href="/produkty" class="hover:text-amber-600 transition-colors">E-shop</a>
+                <a href="/o-nas" class="hover:text-amber-600 transition-colors">O nás</a>
+                <a href="/kontakt" class="hover:text-amber-600 transition-colors">Kontakt</a>
             </nav>
         </div>
-
         <div class="flex items-center space-x-3 sm:space-x-6">
-
             <div sec:authorize="isAnonymous()"
                  class="flex items-center gap-2 sm:gap-4 text-[10px] sm:text-xs font-black uppercase tracking-widest">
-                <a href="/login" class="text-gray-500 hover:text-gray-900">Přihlásit</a>
+                <a href="/login" class="text-gray-500 hover:text-amber-600 transition-colors">Přihlásit</a>
                 <a href="/registrace"
-                   class="bg-slate-100 px-4 py-2 rounded-xl text-gray-900 hover:bg-slate-200 transition-all">Registrace</a>
+                   class="bg-amber-500 text-slate-900 px-4 py-2 rounded-xl hover:bg-amber-400 transition-all">Registrace</a>
             </div>
-
             <div sec:authorize="hasRole('CUSTOMER')"
                  class="flex items-center gap-4 text-xs font-black uppercase tracking-widest">
-                <a href="/muj-ucet" class="text-blue-600 hover:text-blue-800 flex items-center gap-1.5">
+                <a href="/muj-ucet" class="text-amber-600 hover:text-amber-700 flex items-center gap-1.5 transition-colors">
                     <i data-lucide="user" class="w-4 h-4"></i> <span class="hidden sm:inline">Můj účet</span>
                 </a>
                 <form th:action="@{/logout}" method="post" class="inline">
@@ -65,19 +48,16 @@
                             data-lucide="log-out" class="w-4 h-4"></i></button>
                 </form>
             </div>
-
             <div sec:authorize="hasAnyRole('ADMIN', 'EMPLOYEE')"
                  class="flex items-center gap-2 sm:gap-4 text-xs font-black uppercase tracking-widest">
                 <a href="/admin" class="text-indigo-600 hover:text-indigo-800 flex items-center gap-1.5">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> <span
                         class="hidden sm:inline">Dashboard</span>
                 </a>
-
                 <div class="hidden lg:flex items-center gap-4 border-l border-slate-200 ml-2 pl-4">
                     <a href="/dochazka" class="text-slate-500 hover:text-emerald-600 flex items-center gap-1.5">
                         <i data-lucide="fingerprint" class="w-4 h-4"></i> Docházka
                     </a>
-
                     <th:block sec:authorize="hasRole('ADMIN')">
                         <a href="/admin/uzivatele"
                            class="text-slate-500 hover:text-indigo-600 flex items-center gap-1.5">
@@ -88,43 +68,38 @@
                         </a>
                     </th:block>
                 </div>
-
                 <form th:action="@{/logout}" method="post" class="inline ml-1 sm:ml-2">
                     <button type="submit" class="text-gray-400 hover:text-red-500 transition-colors"><i
                             data-lucide="log-out" class="w-4 h-4"></i></button>
                 </form>
             </div>
-
             <a href="/kosik" class="relative group ml-2">
-                <div class="bg-slate-50 p-2.5 rounded-xl group-hover:bg-blue-50 transition-colors">
+                <div class="bg-slate-50 p-2.5 rounded-xl group-hover:bg-amber-50 transition-colors">
                     <i data-lucide="shopping-cart"
-                       class="w-5 h-5 sm:w-6 sm:h-6 text-gray-600 group-hover:text-blue-600"></i>
+                       class="w-5 h-5 sm:w-6 sm:h-6 text-gray-600 group-hover:text-amber-600 transition-colors"></i>
                 </div>
-                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white"
+                <span class="absolute -top-1 -right-1 bg-amber-500 text-slate-900 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white"
                       th:text="${@cart.getTotalItems()}">0</span>
             </a>
         </div>
     </div>
 </header>
-
 <main class="flex-grow flex flex-col w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <th:block th:replace="${content}"></th:block>
 </main>
-
 <footer class="bg-white border-t border-gray-100 py-10 mt-12">
     <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
         <div class="text-sm font-black text-gray-400 uppercase tracking-widest">
             &copy; 2026 ERP FajnDřevo System
         </div>
         <div class="flex flex-wrap gap-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-            <a href="/o-nas" class="hover:text-gray-900 transition-colors">O nás</a>
-            <a href="/kontakt" class="hover:text-gray-900 transition-colors">Kontakt</a>
-            <a href="#" class="hover:text-gray-900 transition-colors">Ochrana údajů</a>
-            <a href="#" class="hover:text-gray-900 transition-colors">Obchodní podmínky</a>
+            <a href="/o-nas" class="hover:text-amber-600 transition-colors">O nás</a>
+            <a href="/kontakt" class="hover:text-amber-600 transition-colors">Kontakt</a>
+            <a href="#" class="hover:text-amber-600 transition-colors">Ochrana údajů</a>
+            <a href="#" class="hover:text-amber-600 transition-colors">Obchodní podmínky</a>
         </div>
     </div>
 </footer>
-
 <script>
     lucide.createIcons();
 </script>

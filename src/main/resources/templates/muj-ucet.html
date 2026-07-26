@@ -1,23 +1,18 @@
 <!DOCTYPE html>
 <html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Můj účet', ~{::section})}">
 <body>
-
 <section class="py-12 sm:py-20 w-full max-w-5xl mx-auto px-4">
     <div class="mb-10 text-center sm:text-left">
         <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter uppercase mb-2">Můj účet</h1>
         <p class="text-sm font-bold text-slate-500">Přehled vašich osobních údajů a historie objednávek.</p>
     </div>
-
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-
         <div class="md:col-span-1">
             <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 sticky top-8">
-                <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6">
+                <div class="w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-6">
                     <i data-lucide="user" class="w-8 h-8"></i>
                 </div>
-                <h2 class="text-lg font-black text-slate-900 mb-6 uppercase tracking-widest border-b border-slate-100 pb-4">
-                    Osobní údaje</h2>
-
+                <h2 class="text-lg font-black text-slate-900 mb-6 uppercase tracking-widest border-b border-slate-100 pb-4">Osobní údaje</h2>
                 <div class="space-y-4">
                     <div>
                         <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Jméno a příjmení</span>
@@ -32,7 +27,6 @@
                         <span class="text-sm font-bold text-slate-800" th:text="${user.phone}"></span>
                     </div>
                 </div>
-
                 <div class="mt-8 pt-6 border-t border-slate-100">
                     <form th:action="@{/logout}" method="post">
                         <button type="submit"
@@ -43,7 +37,6 @@
                 </div>
             </div>
         </div>
-
         <div class="md:col-span-2">
             <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
                 <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
@@ -51,42 +44,32 @@
                         <i data-lucide="shopping-bag" class="w-4 h-4 text-slate-400"></i> Historie objednávek
                     </h2>
                 </div>
-
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-slate-100">
                         <thead class="bg-slate-50/30">
                         <tr>
-                            <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                Objednávka
-                            </th>
-                            <th class="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                Stav
-                            </th>
-                            <th class="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                Celkem
-                            </th>
+                            <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Objednávka</th>
+                            <th class="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Stav</th>
+                            <th class="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Celkem</th>
                         </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50">
                         <tr th:each="order : ${orders}" class="hover:bg-slate-50/50 transition-colors group">
                             <td class="px-6 py-5 whitespace-nowrap">
                                 <a th:href="@{/muj-ucet/objednavka/{id}(id=${order.id})}"
-                                   class="text-sm font-black text-blue-600 hover:text-blue-800 transition-colors block mb-1"
+                                   class="text-sm font-black text-amber-600 hover:text-amber-700 transition-colors block mb-1"
                                    th:text="${order.orderNumber}">ORD-123</a>
                                 <span class="text-[10px] font-bold text-slate-400 flex items-center gap-1.5">
-                                        <i data-lucide="calendar" class="w-3 h-3"></i> <span
-                                        th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy')}"></span>
-                                    </span>
+                                    <i data-lucide="calendar" class="w-3 h-3"></i> <span th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy')}"></span>
+                                </span>
                             </td>
                             <td class="px-6 py-5 whitespace-nowrap text-center">
-                                <span th:class="${order.status.getBadgeClass()}"
-                                      th:text="${order.status.name}">STAV</span>
+                                <span th:class="${order.status.getBadgeClass()}" th:text="${order.status.name}">STAV</span>
                             </td>
                             <td class="px-6 py-5 whitespace-nowrap text-right">
-                                <div class="text-sm font-black text-slate-900"
-                                     th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'WHITESPACE', 0, 'POINT')} + ' Kč'"></div>
+                                <div class="text-sm font-black text-slate-900" th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'WHITESPACE', 0, 'POINT')} + ' Kč'"></div>
                                 <a th:href="@{/muj-ucet/objednavka/{id}(id=${order.id})}"
-                                   class="text-[9px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 mt-1 inline-block transition-colors">
+                                   class="text-[9px] font-black text-slate-400 uppercase tracking-widest hover:text-amber-600 mt-1 inline-block transition-colors">
                                     Detail
                                 </a>
                             </td>
@@ -94,8 +77,7 @@
                         <tr th:if="${#lists.isEmpty(orders)}">
                             <td colspan="3" class="px-6 py-16 text-center">
                                 <i data-lucide="package" class="w-12 h-12 text-slate-200 mx-auto mb-4"></i>
-                                <p class="text-sm font-bold text-slate-400 uppercase tracking-widest">Zatím nemáte žádné
-                                    objednávky.</p>
+                                <p class="text-sm font-bold text-slate-400 uppercase tracking-widest">Zatím nemáte žádné objednávky.</p>
                             </td>
                         </tr>
                         </tbody>
@@ -103,9 +85,7 @@
                 </div>
             </div>
         </div>
-
     </div>
 </section>
-
 </body>
 </html>
