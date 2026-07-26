@@ -19,3 +19,5 @@ local-storage/
 *.log
 .DS_Store
 Thumbs.db
+
+repomix-output.*

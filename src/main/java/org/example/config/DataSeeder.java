@@ -29,6 +29,7 @@ public class DataSeeder implements CommandLineRunner {
     private final StockMovementRepository stockMovementRepository;
     private final RecipeItemRepository recipeItemRepository;
     private final AuditLogRepository auditLogRepository;
+    private final InstallationPostRepository installationPostRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -50,6 +51,7 @@ public class DataSeeder implements CommandLineRunner {
         seedInitialStockMovements(products, materials, employees.get("ceo"));
         seedAttendanceHistory(employees);
         seedOrders(customers, products, statuses);
+        seedInstallationPosts();
         seedFinalAudit(employees.get("ceo"));
 
         log.info("Seedování dokončeno. Databáze obsahuje pevně definovanou sadu testovacích dat.");
@@ -58,6 +60,7 @@ public class DataSeeder implements CommandLineRunner {
     private void clearDatabase() {
         log.debug("Čistím databázi...");
         auditLogRepository.deleteAll();
+        installationPostRepository.deleteAll();
         stockMovementRepository.deleteAll();
         attendanceRepository.deleteAll();
         recipeItemRepository.deleteAll();
@@ -322,6 +325,39 @@ public class DataSeeder implements CommandLineRunner {
 
         order.getStatusHistory().add(history);
         orderRepository.save(order);
+    }
+
+    private void seedInstallationPosts() {
+        InstallationPost xxlPost = InstallationPost.builder()
+                .title("Montáž Dřevníku XXL v moderní zahradě")
+                .productName("Dřevník XXL")
+                .assemblyDate(LocalDate.of(2026, 7, 18))
+                .content("Dokončili jsme montáž prostorného Dřevníku XXL u rodinného domu. Dřevník byl usazen na připravený pevný podklad a zákazník zvolil lazuru Ořech s antracitovou střešní krytinou.")
+                .active(true)
+                .images(new ArrayList<>())
+                .build();
+
+        xxlPost.addImage(InstallationImage.builder().imageUrl("realizace/6.webp").displayOrder(0).build());
+        xxlPost.addImage(InstallationImage.builder().imageUrl("realizace/7.webp").displayOrder(1).build());
+        xxlPost.addImage(InstallationImage.builder().imageUrl("realizace/8.webp").displayOrder(2).build());
+        xxlPost.addImage(InstallationImage.builder().imageUrl("realizace/9.webp").displayOrder(3).build());
+
+        installationPostRepository.save(xxlPost);
+
+        InstallationPost klasikPost = InstallationPost.builder()
+                .title("Dřevník Klasik na připraveném podkladu")
+                .productName("Dřevník Klasik")
+                .assemblyDate(LocalDate.of(2026, 7, 11))
+                .content("Dokončili jsme montáž Dřevníku Klasik na zákazníkem připravené betonové ploše. Součástí realizace bylo kompletní sestavení a bezpečné ukotvení konstrukce.")
+                .active(true)
+                .images(new ArrayList<>())
+                .build();
+
+        klasikPost.addImage(InstallationImage.builder().imageUrl("realizace/1.webp").displayOrder(0).build());
+        klasikPost.addImage(InstallationImage.builder().imageUrl("realizace/2.webp").displayOrder(1).build());
+        klasikPost.addImage(InstallationImage.builder().imageUrl("realizace/3.webp").displayOrder(2).build());
+
+        installationPostRepository.save(klasikPost);
     }
 
     private void seedFinalAudit(User admin) {
