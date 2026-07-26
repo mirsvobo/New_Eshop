@@ -34,6 +34,7 @@ public class InstallationPost {
 
     @Builder.Default
     @OneToMany(mappedBy = "installationPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("displayOrder ASC")
     private List<InstallationImage> images = new ArrayList<>();
 
     public void addImage(InstallationImage image) {
