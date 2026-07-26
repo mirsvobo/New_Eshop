@@ -15,11 +15,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class AuditServiceTest {
 
@@ -55,91 +58,211 @@ class AuditServiceTest {
         String details = "Created product: Test";
         String username = "admin@test.cz";
 
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getPrincipal()).thenReturn(username);
-        when(authentication.getName()).thenReturn(username);
+        SecurityContextHolder.setContext(
+                securityContext
+        );
+
+        when(
+                securityContext.getAuthentication()
+        ).thenReturn(authentication);
+
+        when(
+                authentication.isAuthenticated()
+        ).thenReturn(true);
+
+        when(
+                authentication.getPrincipal()
+        ).thenReturn(username);
+
+        when(
+                authentication.getName()
+        ).thenReturn(username);
 
         User mockUser = new User();
         mockUser.setEmail(username);
-        when(userRepository.findByEmail(username)).thenReturn(Optional.of(mockUser));
 
-        auditService.log(module, action, details);
+        when(
+                userRepository.findByEmail(username)
+        ).thenReturn(
+                Optional.of(mockUser)
+        );
 
-        ArgumentCaptor<AuditLog> captor = ArgumentCaptor.forClass(AuditLog.class);
+        auditService.log(
+                module,
+                action,
+                details
+        );
 
-        verify(auditLogRepository, timeout(2000)).save(captor.capture());
+        ArgumentCaptor<AuditLog> captor =
+                ArgumentCaptor.forClass(
+                        AuditLog.class
+                );
 
-        AuditLog savedLog = captor.getValue();
-        assertEquals(module, savedLog.getModule());
-        assertEquals(action, savedLog.getAction());
-        assertEquals(details, savedLog.getDetails());
-        assertEquals(username, savedLog.getUser().getEmail());
+        verify(
+                auditLogRepository,
+                timeout(2000)
+        ).save(
+                captor.capture()
+        );
+
+        AuditLog savedLog =
+                captor.getValue();
+
+        assertEquals(
+                module,
+                savedLog.getModule()
+        );
+
+        assertEquals(
+                action,
+                savedLog.getAction()
+        );
+
+        assertEquals(
+                details,
+                savedLog.getDetails()
+        );
+
+        assertEquals(
+                username,
+                savedLog.getUser().getEmail()
+        );
     }
 
     @Test
-    void log_WithoutAuthenticatedUser_ShouldSaveLogWithSystemUsername() {
+    void log_WithoutAuthenticatedUser_ShouldSaveLogWithoutUser() {
         String module = "Order";
         String action = "UPDATE";
-        String details = "Updated order status";
+        String details =
+                "Updated order status";
 
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(null);
+        SecurityContextHolder.setContext(
+                securityContext
+        );
 
-        auditService.log(module, action, details);
+        when(
+                securityContext.getAuthentication()
+        ).thenReturn(null);
 
-        ArgumentCaptor<AuditLog> captor = ArgumentCaptor.forClass(AuditLog.class);
+        auditService.log(
+                module,
+                action,
+                details
+        );
 
-        verify(auditLogRepository, timeout(2000)).save(captor.capture());
+        ArgumentCaptor<AuditLog> captor =
+                ArgumentCaptor.forClass(
+                        AuditLog.class
+                );
 
-        AuditLog savedLog = captor.getValue();
-        assertEquals(module, savedLog.getModule());
-        assertEquals(action, savedLog.getAction());
-        assertEquals(details, savedLog.getDetails());
-        assertNull(savedLog.getUser());
+        verify(
+                auditLogRepository,
+                timeout(2000)
+        ).save(
+                captor.capture()
+        );
+
+        AuditLog savedLog =
+                captor.getValue();
+
+        assertEquals(
+                module,
+                savedLog.getModule()
+        );
+
+        assertEquals(
+                action,
+                savedLog.getAction()
+        );
+
+        assertEquals(
+                details,
+                savedLog.getDetails()
+        );
+
+        assertNull(
+                savedLog.getUser()
+        );
     }
+
     @Test
     void getFilteredLogs_WithUserAndModule_ReturnsFiltered() {
         Long userId = 1L;
         String module = "PRODUKTY";
 
-        auditService.getFilteredLogs(userId, module);
+        auditService.getFilteredLogs(
+                userId,
+                module
+        );
 
-        verify(auditLogRepository).findByUserIdAndModuleOrderByTimestampDesc(userId, module);
+        verify(
+                auditLogRepository
+        ).findByUserIdAndModuleOrderByTimestampDesc(
+                userId,
+                module
+        );
     }
 
     @Test
     void getFilteredLogs_WithOnlyUser_ReturnsFiltered() {
         Long userId = 1L;
 
-        auditService.getFilteredLogs(userId, null);
+        auditService.getFilteredLogs(
+                userId,
+                null
+        );
 
-        verify(auditLogRepository).findByUserIdOrderByTimestampDesc(userId);
+        verify(
+                auditLogRepository
+        ).findByUserIdOrderByTimestampDesc(
+                userId
+        );
     }
 
     @Test
     void getFilteredLogs_WithOnlyModule_ReturnsFiltered() {
         String module = "PRODUKTY";
 
-        auditService.getFilteredLogs(null, module);
+        auditService.getFilteredLogs(
+                null,
+                module
+        );
 
-        verify(auditLogRepository).findByModuleOrderByTimestampDesc(module);
+        verify(
+                auditLogRepository
+        ).findByModuleOrderByTimestampDesc(
+                module
+        );
     }
 
     @Test
     void getFilteredLogs_WithoutFilters_ReturnsAllLogs() {
-        auditService.getFilteredLogs(null, null);
+        auditService.getFilteredLogs(
+                null,
+                null
+        );
 
-        verify(auditLogRepository).findAllByOrderByTimestampDesc();
+        verify(
+                auditLogRepository
+        ).findAllByOrderByTimestampDesc();
     }
 
     @Test
-    void getAllModules_ReturnsExpectedList() {
-        java.util.List<String> modules = auditService.getAllModules();
+    void getAllModules_ReturnsAllSupportedModulesIncludingInstallations() {
+        List<String> modules =
+                auditService.getAllModules();
 
-        org.junit.jupiter.api.Assertions.assertEquals(6, modules.size());
-        org.junit.jupiter.api.Assertions.assertTrue(modules.contains("DOCHÁZKA"));
-        org.junit.jupiter.api.Assertions.assertTrue(modules.contains("SYSTÉM"));
+        assertEquals(
+                List.of(
+                        "DOCHÁZKA",
+                        "SKLAD",
+                        "OBJEDNÁVKY",
+                        "PRODUKTY",
+                        "MONTÁŽE",
+                        "UŽIVATELÉ",
+                        "SYSTÉM"
+                ),
+                modules
+        );
     }
 }

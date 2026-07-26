@@ -19,12 +19,17 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class InstallationPostService {
 
-    private static final int MAX_IMAGES_PER_POST = 12;
+    private static final String MODULE_NAME =
+            "MONTÁŽE";
+
+    private static final int MAX_IMAGES_PER_POST =
+            12;
 
     private static final long MAX_IMAGE_SIZE_BYTES =
             10L * 1024L * 1024L;
 
-    private static final Set<String> ALLOWED_CONTENT_TYPES =
+    private static final Set<String>
+            ALLOWED_CONTENT_TYPES =
             Set.of(
                     "image/jpeg",
                     "image/png",
@@ -37,6 +42,9 @@ public class InstallationPostService {
     private final FileStorageService
             fileStorageService;
 
+    private final AuditService
+            auditService;
+
     @Transactional
     public InstallationPost savePostWithImages(
             InstallationPost submittedPost,
@@ -47,9 +55,12 @@ public class InstallationPostService {
                 "Příspěvek nesmí být null."
         );
 
+        boolean newPost =
+                submittedPost.getId() == null;
+
         InstallationPost postToSave;
 
-        if (submittedPost.getId() == null) {
+        if (newPost) {
             postToSave = submittedPost;
 
             ensureImageCollectionExists(
@@ -81,7 +92,7 @@ public class InstallationPostService {
          * Existující entitu aktualizujeme až po
          * úspěšné validaci všech souborů.
          */
-        if (submittedPost.getId() != null) {
+        if (!newPost) {
             updatePostFields(
                     postToSave,
                     submittedPost
@@ -93,9 +104,30 @@ public class InstallationPostService {
                 nonEmptyFiles
         );
 
-        return installationPostRepository.save(
-                postToSave
-        );
+        InstallationPost savedPost =
+                installationPostRepository.save(
+                        postToSave
+                );
+
+        if (newPost) {
+            auditService.log(
+                    MODULE_NAME,
+                    "VYTVOŘENÍ",
+                    "Vytvořen příspěvek z montáže: "
+                            + postToSave.getTitle()
+                            + "."
+            );
+        } else {
+            auditService.log(
+                    MODULE_NAME,
+                    "ÚPRAVA",
+                    "Upraven příspěvek z montáže: "
+                            + postToSave.getTitle()
+                            + "."
+            );
+        }
+
+        return savedPost;
     }
 
     @Transactional
@@ -109,9 +141,30 @@ public class InstallationPostService {
                 !post.isActive()
         );
 
-        return installationPostRepository.save(
-                post
-        );
+        InstallationPost savedPost =
+                installationPostRepository.save(
+                        post
+                );
+
+        if (post.isActive()) {
+            auditService.log(
+                    MODULE_NAME,
+                    "ZVEŘEJNĚNÍ",
+                    "Příspěvek z montáže '"
+                            + post.getTitle()
+                            + "' byl zveřejněn."
+            );
+        } else {
+            auditService.log(
+                    MODULE_NAME,
+                    "SKRYTÍ",
+                    "Příspěvek z montáže '"
+                            + post.getTitle()
+                            + "' byl skryt."
+            );
+        }
+
+        return savedPost;
     }
 
     @Transactional
@@ -120,6 +173,14 @@ public class InstallationPostService {
     ) {
         InstallationPost post =
                 findPostById(postId);
+
+        String postTitle =
+                post.getTitle();
+
+        int imageCount =
+                post.getImages() == null
+                        ? 0
+                        : post.getImages().size();
 
         List<String> imageFileNames =
                 post.getImages() == null
@@ -154,6 +215,16 @@ public class InstallationPostService {
                     imageFileName
             );
         }
+
+        auditService.log(
+                MODULE_NAME,
+                "SMAZÁNÍ",
+                "Smazán příspěvek z montáže: "
+                        + postTitle
+                        + " (fotografií: "
+                        + imageCount
+                        + ")."
+        );
     }
 
     @Transactional
@@ -186,6 +257,9 @@ public class InstallationPostService {
                                 )
                         );
 
+        String postTitle =
+                post.getTitle();
+
         String imageFileName =
                 imageToDelete.getImageUrl();
 
@@ -205,6 +279,16 @@ public class InstallationPostService {
                     imageFileName
             );
         }
+
+        auditService.log(
+                MODULE_NAME,
+                "SMAZÁNÍ FOTOGRAFIE",
+                "Z příspěvku z montáže '"
+                        + postTitle
+                        + "' byla smazána fotografie: "
+                        + imageFileName
+                        + "."
+        );
     }
 
     private void validateImageUploads(
