@@ -1,6 +1,8 @@
 package org.example.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -20,12 +22,16 @@ public class InstallationPost {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Název příspěvku je povinný.")
     private String title;
 
+    @NotBlank(message = "Název produktu je povinný.")
     private String productName;
 
+    @NotNull(message = "Datum montáže je povinné.")
     private LocalDate assemblyDate;
 
+    @NotBlank(message = "Popis montáže je povinný.")
     @Column(columnDefinition = "TEXT")
     private String content;
 
@@ -33,7 +39,11 @@ public class InstallationPost {
     private boolean active = true;
 
     @Builder.Default
-    @OneToMany(mappedBy = "installationPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(
+            mappedBy = "installationPost",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     @OrderBy("displayOrder ASC")
     private List<InstallationImage> images = new ArrayList<>();
 

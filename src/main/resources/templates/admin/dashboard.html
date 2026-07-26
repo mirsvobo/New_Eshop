@@ -112,6 +112,20 @@
                 </div>
             </div>
         </a>
+
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/installation-posts}"
+           class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:border-orange-500 hover:shadow-xl hover:-translate-y-1 transition-all group">
+            <div class="flex items-center gap-5">
+                <div class="bg-orange-50 p-4 rounded-2xl group-hover:bg-orange-600 transition-colors">
+                    <i data-lucide="images" class="w-6 h-6 text-orange-600 group-hover:text-white"></i>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Živě z montáží</span>
+                    <span class="text-2xl font-black text-gray-900" th:text="${installationPostsCount}">0</span>
+                </div>
+            </div>
+        </a>
+
         <a sec:authorize="hasRole('ADMIN')" href="/admin/logs"
            class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:border-red-500 hover:shadow-xl hover:-translate-y-1 transition-all group">
             <div class="flex items-center gap-5">

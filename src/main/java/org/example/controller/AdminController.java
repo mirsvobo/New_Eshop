@@ -4,6 +4,7 @@ import org.example.model.Order;
 import org.example.model.OrderStatus;
 import org.example.model.OrderStatusHistory;
 import org.example.model.User;
+import org.example.repository.InstallationPostRepository;
 import org.example.repository.OrderRepository;
 import org.example.service.*;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ import java.util.List;
 public class AdminController {
 
     private final OrderRepository orderRepository;
+    private final InstallationPostRepository installationPostRepository;
     private final OrderStatusService orderStatusService;
     private final ProductService productService;
     private final UserService userService;
@@ -48,98 +50,216 @@ public class AdminController {
         model.addAttribute("totalProducts", productService.count());
 
         model.addAttribute("recentOrders", orderRepository.findAll(
-                PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt"))
+                PageRequest.of(
+                        0,
+                        5,
+                        Sort.by(Sort.Direction.DESC, "createdAt")
+                )
         ).getContent());
 
         BigDecimal totalRevenue = orderRepository.sumTotalRevenue();
-        model.addAttribute("totalRevenue", totalRevenue != null ? totalRevenue : BigDecimal.ZERO);
+
+        model.addAttribute(
+                "totalRevenue",
+                totalRevenue != null ? totalRevenue : BigDecimal.ZERO
+        );
+
         model.addAttribute("totalUsers", userService.count());
-        model.addAttribute("activeCouponsCount", couponService.countActive());
-        model.addAttribute("taxRatesCount", taxRateService.count());
+        model.addAttribute(
+                "activeCouponsCount",
+                couponService.countActive()
+        );
+        model.addAttribute(
+                "taxRatesCount",
+                taxRateService.count()
+        );
+        model.addAttribute(
+                "installationPostsCount",
+                installationPostRepository.count()
+        );
 
         return "admin/dashboard";
     }
 
     @GetMapping("/objednavky")
     public String orderList(Model model) {
-        model.addAttribute("orders", orderRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")));
+        model.addAttribute(
+                "orders",
+                orderRepository.findAll(
+                        Sort.by(
+                                Sort.Direction.DESC,
+                                "createdAt"
+                        )
+                )
+        );
+
         return "admin/objednavky";
     }
 
     @GetMapping("/objednavky/{id}")
-    public String orderDetail(@PathVariable Long id, Model model) {
+    public String orderDetail(
+            @PathVariable Long id,
+            Model model
+    ) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Objednávka nenalezena"));
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Objednávka nenalezena"
+                        )
+                );
+
         model.addAttribute("order", order);
-        model.addAttribute("allStatuses", orderStatusService.getAllOrdered());
+        model.addAttribute(
+                "allStatuses",
+                orderStatusService.getAllOrdered()
+        );
+
         return "admin/objednavka-detail";
     }
 
     @PostMapping("/objednavky/status")
-    public String updateOrderStatus(@RequestParam Long orderId,
-                                    @RequestParam Long statusId,
-                                    @RequestParam(required = false) String note,
-                                    Principal principal,
-                                    RedirectAttributes ra) {
-        Order order = orderRepository.findById(orderId).orElseThrow();
-        OrderStatus newStatus = orderStatusService.findById(statusId);
-        User currentUser = (principal != null) ? userService.findByEmail(principal.getName()).orElse(null) : null;
+    public String updateOrderStatus(
+            @RequestParam Long orderId,
+            @RequestParam Long statusId,
+            @RequestParam(required = false) String note,
+            Principal principal,
+            RedirectAttributes ra
+    ) {
+        Order order = orderRepository
+                .findById(orderId)
+                .orElseThrow();
+
+        OrderStatus newStatus =
+                orderStatusService.findById(statusId);
+
+        User currentUser = principal != null
+                ? userService.findByEmail(
+                principal.getName()
+        ).orElse(null)
+                : null;
 
         order.setStatus(newStatus);
 
-        OrderStatusHistory history = OrderStatusHistory.builder()
-                .order(order)
-                .status(newStatus)
-                .note(note)
-                .changedBy(currentUser)
-                .createdAt(LocalDateTime.now())
-                .build();
+        OrderStatusHistory history =
+                OrderStatusHistory.builder()
+                        .order(order)
+                        .status(newStatus)
+                        .note(note)
+                        .changedBy(currentUser)
+                        .createdAt(LocalDateTime.now())
+                        .build();
 
         order.getStatusHistory().add(history);
         orderRepository.save(order);
 
-        auditService.log("OBJEDNÁVKY", "ZMENA_STAVU",
-                "Stav objednávky " + order.getOrderNumber() + " změněn na: " + newStatus.getName());
+        auditService.log(
+                "OBJEDNÁVKY",
+                "ZMENA_STAVU",
+                "Stav objednávky "
+                        + order.getOrderNumber()
+                        + " změněn na: "
+                        + newStatus.getName()
+        );
 
-        ra.addFlashAttribute("success", "Stav objednávky byl úspěšně změněn.");
+        ra.addFlashAttribute(
+                "success",
+                "Stav objednávky byl úspěšně změněn."
+        );
+
         return "redirect:/admin/objednavky/" + orderId;
     }
 
     @GetMapping("/objednavky/{id}/export-excel")
-    public ResponseEntity<InputStreamResource> exportInvoiceExcel(@PathVariable Long id) throws IOException {
-        Order order = orderRepository.findById(id).orElseThrow();
-        ByteArrayInputStream in = localInvoiceService.exportInvoiceToExcel(order);
+    public ResponseEntity<InputStreamResource> exportInvoiceExcel(
+            @PathVariable Long id
+    ) throws IOException {
+        Order order = orderRepository
+                .findById(id)
+                .orElseThrow();
 
-        String filename = "Faktura_" + order.getOrderNumber() + ".xlsx";
+        ByteArrayInputStream in =
+                localInvoiceService.exportInvoiceToExcel(order);
+
+        String filename =
+                "Faktura_" + order.getOrderNumber() + ".xlsx";
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=" + filename
+                )
+                .contentType(
+                        MediaType.parseMediaType(
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        )
+                )
                 .body(new InputStreamResource(in));
     }
 
     @GetMapping("/objednavky/export-excel")
-    public ResponseEntity<InputStreamResource> exportAllOrdersExcel() throws IOException {
-        List<Order> orders = orderRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
-        ByteArrayInputStream in = localInvoiceService.exportOrdersToExcel(orders);
+    public ResponseEntity<InputStreamResource>
+    exportAllOrdersExcel() throws IOException {
+        List<Order> orders = orderRepository.findAll(
+                Sort.by(
+                        Sort.Direction.DESC,
+                        "createdAt"
+                )
+        );
 
-        String filename = "Export_Objednavek_" + LocalDate.now().toString() + ".xlsx";
+        ByteArrayInputStream in =
+                localInvoiceService.exportOrdersToExcel(orders);
+
+        String filename =
+                "Export_Objednavek_"
+                        + LocalDate.now()
+                        + ".xlsx";
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=" + filename
+                )
+                .contentType(
+                        MediaType.parseMediaType(
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        )
+                )
                 .body(new InputStreamResource(in));
     }
 
     @GetMapping("/logs")
-    public String auditLogs(@RequestParam(required = false) Long userId,
-                            @RequestParam(required = false) String module,
-                            Model model) {
-        model.addAttribute("logs", auditService.getFilteredLogs(userId, module));
-        model.addAttribute("users", userService.findAll());
-        model.addAttribute("modules", auditService.getAllModules());
-        model.addAttribute("selectedUserId", userId);
-        model.addAttribute("selectedModule", module);
+    public String auditLogs(
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) String module,
+            Model model
+    ) {
+        model.addAttribute(
+                "logs",
+                auditService.getFilteredLogs(
+                        userId,
+                        module
+                )
+        );
+
+        model.addAttribute(
+                "users",
+                userService.findAll()
+        );
+
+        model.addAttribute(
+                "modules",
+                auditService.getAllModules()
+        );
+
+        model.addAttribute(
+                "selectedUserId",
+                userId
+        );
+
+        model.addAttribute(
+                "selectedModule",
+                module
+        );
 
         return "admin/audit-logs";
     }

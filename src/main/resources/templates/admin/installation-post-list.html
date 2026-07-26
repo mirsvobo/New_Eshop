@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="cs"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{main :: layout('Živě z montáží', ~{::section})}">
+<body>
+
+<section class="py-8"
+         data-testid="installation-post-list">
+
+    <div class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight uppercase">
+                Živě z montáží
+            </h1>
+
+            <p class="mt-1 text-sm text-gray-500">
+                Správa příspěvků a fotografií zobrazovaných na úvodní stránce.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+            <a th:href="@{/admin}"
+               class="inline-flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-widest">
+                <i data-lucide="arrow-left"
+                   class="w-4 h-4"></i>
+                Zpět
+            </a>
+
+            <a th:href="@{/admin/installation-posts/create}"
+               class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 text-white text-sm font-black uppercase tracking-widest shadow-lg hover:bg-amber-500 hover:text-slate-900 transition-all">
+                <i data-lucide="plus"
+                   class="w-4 h-4"></i>
+                Nový příspěvek
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${success}"
+         class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-bold text-emerald-800 flex items-center gap-3">
+        <i data-lucide="check-circle-2"
+           class="w-5 h-5"></i>
+
+        <span th:text="${success}"></span>
+    </div>
+
+    <div th:if="${#lists.isEmpty(posts)}"
+         class="bg-white rounded-3xl border border-slate-100 shadow-sm px-8 py-16 text-center">
+
+        <i data-lucide="images"
+           class="w-14 h-14 mx-auto text-slate-200 mb-4"></i>
+
+        <h2 class="text-lg font-black text-slate-900 uppercase tracking-tight">
+            Zatím nebyl vytvořen žádný příspěvek
+        </h2>
+
+        <p class="mt-2 text-sm text-slate-500">
+            Vytvořte první příspěvek z dokončené montáže.
+        </p>
+    </div>
+
+    <div th:unless="${#lists.isEmpty(posts)}"
+         class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-100">
+
+                <thead class="bg-slate-50/80">
+                <tr>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Realizace
+                    </th>
+
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Produkt a datum
+                    </th>
+
+                    <th class="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Fotografie
+                    </th>
+
+                    <th class="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Stav
+                    </th>
+
+                    <th class="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Akce
+                    </th>
+                </tr>
+                </thead>
+
+                <tbody class="divide-y divide-slate-100">
+
+                <tr th:each="post : ${posts}"
+                    data-testid="installation-post-row"
+                    class="hover:bg-slate-50/60 transition-colors">
+
+                    <td class="px-6 py-5">
+                        <div class="flex items-center gap-4 min-w-[260px]">
+
+                            <div class="w-20 h-16 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+
+                                <img th:if="${post.images != null and !#lists.isEmpty(post.images)}"
+                                     th:src="${'/images/' + post.images[0].imageUrl}"
+                                     th:alt="${post.title}"
+                                     class="w-full h-full object-cover">
+
+                                <div th:unless="${post.images != null and !#lists.isEmpty(post.images)}"
+                                     class="w-full h-full flex items-center justify-center text-slate-300">
+                                    <i data-lucide="image-off"
+                                       class="w-6 h-6"></i>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="text-sm font-black text-slate-900"
+                                     th:text="${post.title}">
+                                    Název realizace
+                                </div>
+
+                                <div class="mt-1 text-xs text-slate-500 line-clamp-2 max-w-sm"
+                                     th:text="${post.content}">
+                                    Popis realizace
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="px-6 py-5 whitespace-nowrap">
+
+                        <div class="text-sm font-bold text-slate-800"
+                             th:text="${post.productName}">
+                            Dřevník XXL
+                        </div>
+
+                        <div class="mt-1 inline-flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            <i data-lucide="calendar-days"
+                               class="w-3.5 h-3.5"></i>
+
+                            <span th:text="${post.assemblyDate != null
+                                    ? #temporals.format(post.assemblyDate, 'dd.MM.yyyy')
+                                    : 'Bez data'}">
+                                18.07.2026
+                            </span>
+                        </div>
+                    </td>
+
+                    <td class="px-6 py-5 text-center">
+
+                        <span class="inline-flex min-w-9 items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700"
+                              th:text="${post.images != null
+                                    ? #lists.size(post.images)
+                                    : 0}">
+                            0
+                        </span>
+                    </td>
+
+                    <td class="px-6 py-5 text-center whitespace-nowrap">
+
+                        <span th:if="${post.active}"
+                              class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-100 px-3 py-1.5 text-[10px] font-black text-emerald-700 uppercase tracking-widest">
+
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            Aktivní
+                        </span>
+
+                        <span th:unless="${post.active}"
+                              class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 px-3 py-1.5 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+
+                            <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                            Skrytý
+                        </span>
+                    </td>
+
+                    <td class="px-6 py-5 whitespace-nowrap text-right">
+
+                        <div class="inline-flex items-center gap-2">
+
+                            <a th:href="@{/admin/installation-posts/edit/{id}(id=${post.id})}"
+                               class="inline-flex items-center gap-1.5 rounded-xl bg-blue-50 px-3 py-2 text-[10px] font-black text-blue-700 uppercase tracking-widest hover:bg-blue-100 transition-colors">
+
+                                <i data-lucide="pencil"
+                                   class="w-3.5 h-3.5"></i>
+
+                                Upravit
+                            </a>
+
+                            <form th:action="@{/admin/installation-posts/delete/{id}(id=${post.id})}"
+                                  method="post"
+                                  class="inline"
+                                  onsubmit="return confirm('Opravdu chcete tento příspěvek smazat?');">
+
+                                <button type="submit"
+                                        class="inline-flex items-center gap-1.5 rounded-xl bg-red-50 px-3 py-2 text-[10px] font-black text-red-700 uppercase tracking-widest hover:bg-red-100 transition-colors">
+
+                                    <i data-lucide="trash-2"
+                                       class="w-3.5 h-3.5"></i>
+
+                                    Smazat
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

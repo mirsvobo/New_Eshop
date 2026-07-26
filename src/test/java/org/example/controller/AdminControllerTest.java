@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import org.example.repository.InstallationPostRepository;
 import org.example.repository.OrderRepository;
 import org.example.service.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,18 +23,29 @@ class AdminControllerTest {
 
     @Mock
     private OrderRepository orderRepository;
+
+    @Mock
+    private InstallationPostRepository
+            installationPostRepository;
+
     @Mock
     private OrderStatusService orderStatusService;
+
     @Mock
     private ProductService productService;
+
     @Mock
     private UserService userService;
+
     @Mock
     private AuditService auditService;
+
     @Mock
     private LocalInvoiceService localInvoiceService;
+
     @Mock
     private CouponService couponService;
+
     @Mock
     private TaxRateService taxRateService;
 
@@ -50,107 +62,313 @@ class AdminControllerTest {
 
     @Test
     void dashboard_ShouldReturnDashboardView() {
-        when(orderRepository.count()).thenReturn(10L);
-        when(productService.count()).thenReturn(5L);
-        when(orderRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(Collections.emptyList()));
-        when(orderRepository.sumTotalRevenue()).thenReturn(BigDecimal.ZERO);
-        when(userService.count()).thenReturn(2L);
-        when(couponService.countActive()).thenReturn(1L);
-        when(taxRateService.count()).thenReturn(3L);
+        when(orderRepository.count())
+                .thenReturn(10L);
 
-        String viewName = adminController.dashboard(model);
+        when(productService.count())
+                .thenReturn(5L);
 
-        assertEquals("admin/dashboard", viewName);
-        verify(model).addAttribute(eq("totalOrders"), anyLong());
+        when(orderRepository.findAll(
+                any(Pageable.class)
+        )).thenReturn(
+                new PageImpl<>(
+                        Collections.emptyList()
+                )
+        );
+
+        when(orderRepository.sumTotalRevenue())
+                .thenReturn(BigDecimal.ZERO);
+
+        when(userService.count())
+                .thenReturn(2L);
+
+        when(couponService.countActive())
+                .thenReturn(1L);
+
+        when(taxRateService.count())
+                .thenReturn(3L);
+
+        when(installationPostRepository.count())
+                .thenReturn(2L);
+
+        String viewName =
+                adminController.dashboard(model);
+
+        assertEquals(
+                "admin/dashboard",
+                viewName
+        );
+
+        verify(model).addAttribute(
+                eq("totalOrders"),
+                anyLong()
+        );
     }
+
     @Test
     void orderList_ShouldReturnOrderListView() {
-        when(orderRepository.findAll(any(Sort.class))).thenReturn(Collections.emptyList());
+        when(orderRepository.findAll(
+                any(Sort.class)
+        )).thenReturn(
+                Collections.emptyList()
+        );
 
-        String viewName = adminController.orderList(model);
+        String viewName =
+                adminController.orderList(model);
 
-        assertEquals("admin/objednavky", viewName);
-        verify(model).addAttribute(eq("orders"), any());
+        assertEquals(
+                "admin/objednavky",
+                viewName
+        );
+
+        verify(model).addAttribute(
+                eq("orders"),
+                any()
+        );
     }
 
     @Test
     void orderDetail_ShouldReturnOrderDetailView() {
-        org.example.model.Order order = new org.example.model.Order();
-        when(orderRepository.findById(1L)).thenReturn(java.util.Optional.of(order));
-        when(orderStatusService.getAllOrdered()).thenReturn(Collections.emptyList());
+        org.example.model.Order order =
+                new org.example.model.Order();
 
-        String viewName = adminController.orderDetail(1L, model);
+        when(orderRepository.findById(1L))
+                .thenReturn(
+                        java.util.Optional.of(order)
+                );
 
-        assertEquals("admin/objednavka-detail", viewName);
-        verify(model).addAttribute("order", order);
-        verify(model).addAttribute(eq("allStatuses"), any());
+        when(orderStatusService.getAllOrdered())
+                .thenReturn(
+                        Collections.emptyList()
+                );
+
+        String viewName =
+                adminController.orderDetail(
+                        1L,
+                        model
+                );
+
+        assertEquals(
+                "admin/objednavka-detail",
+                viewName
+        );
+
+        verify(model).addAttribute(
+                "order",
+                order
+        );
+
+        verify(model).addAttribute(
+                eq("allStatuses"),
+                any()
+        );
     }
 
     @Test
     void updateOrderStatus_ShouldRedirectAndLog() {
-        org.example.model.Order order = new org.example.model.Order();
-        order.setOrderNumber("ORD-123");
-        order.setStatusHistory(new java.util.ArrayList<>());
+        org.example.model.Order order =
+                new org.example.model.Order();
 
-        org.example.model.OrderStatus status = new org.example.model.OrderStatus();
+        order.setOrderNumber("ORD-123");
+        order.setStatusHistory(
+                new java.util.ArrayList<>()
+        );
+
+        org.example.model.OrderStatus status =
+                new org.example.model.OrderStatus();
+
         status.setName("Odesláno");
 
-        when(orderRepository.findById(1L)).thenReturn(java.util.Optional.of(order));
-        when(orderStatusService.findById(2L)).thenReturn(status);
+        when(orderRepository.findById(1L))
+                .thenReturn(
+                        java.util.Optional.of(order)
+                );
 
-        java.security.Principal principal = mock(java.security.Principal.class);
-        when(principal.getName()).thenReturn("admin@test.cz");
+        when(orderStatusService.findById(2L))
+                .thenReturn(status);
 
-        org.example.model.User user = new org.example.model.User();
-        when(userService.findByEmail("admin@test.cz")).thenReturn(java.util.Optional.of(user));
+        java.security.Principal principal =
+                mock(java.security.Principal.class);
 
-        org.springframework.web.servlet.mvc.support.RedirectAttributes ra = mock(org.springframework.web.servlet.mvc.support.RedirectAttributes.class);
+        when(principal.getName())
+                .thenReturn("admin@test.cz");
 
-        String viewName = adminController.updateOrderStatus(1L, 2L, "Zkušební poznámka", principal, ra);
+        org.example.model.User user =
+                new org.example.model.User();
 
-        assertEquals("redirect:/admin/objednavky/1", viewName);
-        assertEquals(status, order.getStatus());
-        assertFalse(order.getStatusHistory().isEmpty());
+        when(userService.findByEmail(
+                "admin@test.cz"
+        )).thenReturn(
+                java.util.Optional.of(user)
+        );
+
+        org.springframework.web.servlet.mvc.support
+                .RedirectAttributes ra =
+                mock(
+                        org.springframework.web.servlet.mvc
+                                .support.RedirectAttributes.class
+                );
+
+        String viewName =
+                adminController.updateOrderStatus(
+                        1L,
+                        2L,
+                        "Zkušební poznámka",
+                        principal,
+                        ra
+                );
+
+        assertEquals(
+                "redirect:/admin/objednavky/1",
+                viewName
+        );
+
+        assertEquals(
+                status,
+                order.getStatus()
+        );
+
+        assertFalse(
+                order.getStatusHistory().isEmpty()
+        );
+
         verify(orderRepository).save(order);
-        verify(auditService).log(eq("OBJEDNÁVKY"), eq("ZMENA_STAVU"), anyString());
-        verify(ra).addFlashAttribute(eq("success"), anyString());
+
+        verify(auditService).log(
+                eq("OBJEDNÁVKY"),
+                eq("ZMENA_STAVU"),
+                anyString()
+        );
+
+        verify(ra).addFlashAttribute(
+                eq("success"),
+                anyString()
+        );
     }
 
     @Test
     void auditLogs_ShouldReturnAuditLogsView() {
-        when(auditService.getFilteredLogs(1L, "PRODUKTY")).thenReturn(Collections.emptyList());
-        when(userService.findAll()).thenReturn(Collections.emptyList());
-        when(auditService.getAllModules()).thenReturn(Collections.emptyList());
+        when(auditService.getFilteredLogs(
+                1L,
+                "PRODUKTY"
+        )).thenReturn(
+                Collections.emptyList()
+        );
 
-        String viewName = adminController.auditLogs(1L, "PRODUKTY", model);
+        when(userService.findAll())
+                .thenReturn(
+                        Collections.emptyList()
+                );
 
-        assertEquals("admin/audit-logs", viewName);
-        verify(model).addAttribute(eq("logs"), any());
-        verify(model).addAttribute("selectedUserId", 1L);
-        verify(model).addAttribute("selectedModule", "PRODUKTY");
+        when(auditService.getAllModules())
+                .thenReturn(
+                        Collections.emptyList()
+                );
+
+        String viewName =
+                adminController.auditLogs(
+                        1L,
+                        "PRODUKTY",
+                        model
+                );
+
+        assertEquals(
+                "admin/audit-logs",
+                viewName
+        );
+
+        verify(model).addAttribute(
+                eq("logs"),
+                any()
+        );
+
+        verify(model).addAttribute(
+                "selectedUserId",
+                1L
+        );
+
+        verify(model).addAttribute(
+                "selectedModule",
+                "PRODUKTY"
+        );
     }
+
     @Test
-    void exportInvoiceExcel_ShouldReturnFile() throws Exception {
-        org.example.model.Order order = new org.example.model.Order();
+    void exportInvoiceExcel_ShouldReturnFile()
+            throws Exception {
+        org.example.model.Order order =
+                new org.example.model.Order();
+
         order.setOrderNumber("123");
 
-        when(orderRepository.findById(1L)).thenReturn(java.util.Optional.of(order));
-        when(localInvoiceService.exportInvoiceToExcel(order)).thenReturn(new java.io.ByteArrayInputStream(new byte[0]));
+        when(orderRepository.findById(1L))
+                .thenReturn(
+                        java.util.Optional.of(order)
+                );
 
-        org.springframework.http.ResponseEntity<org.springframework.core.io.InputStreamResource> response = adminController.exportInvoiceExcel(1L);
+        when(localInvoiceService
+                .exportInvoiceToExcel(order))
+                .thenReturn(
+                        new java.io.ByteArrayInputStream(
+                                new byte[0]
+                        )
+                );
 
-        assertEquals(200, response.getStatusCodeValue());
-        assertTrue(response.getHeaders().containsKey(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION));
+        org.springframework.http.ResponseEntity<
+                org.springframework.core.io.InputStreamResource
+                > response =
+                adminController.exportInvoiceExcel(1L);
+
+        assertEquals(
+                200,
+                response.getStatusCodeValue()
+        );
+
+        assertTrue(
+                response.getHeaders().containsKey(
+                        org.springframework.http
+                                .HttpHeaders
+                                .CONTENT_DISPOSITION
+                )
+        );
     }
 
     @Test
-    void exportAllOrdersExcel_ShouldReturnFile() throws Exception {
-        when(orderRepository.findAll(any(org.springframework.data.domain.Sort.class))).thenReturn(java.util.Collections.emptyList());
-        when(localInvoiceService.exportOrdersToExcel(anyList())).thenReturn(new java.io.ByteArrayInputStream(new byte[0]));
+    void exportAllOrdersExcel_ShouldReturnFile()
+            throws Exception {
+        when(orderRepository.findAll(
+                any(
+                        org.springframework.data.domain
+                                .Sort.class
+                )
+        )).thenReturn(
+                java.util.Collections.emptyList()
+        );
 
-        org.springframework.http.ResponseEntity<org.springframework.core.io.InputStreamResource> response = adminController.exportAllOrdersExcel();
+        when(localInvoiceService.exportOrdersToExcel(
+                anyList()
+        )).thenReturn(
+                new java.io.ByteArrayInputStream(
+                        new byte[0]
+                )
+        );
 
-        assertEquals(200, response.getStatusCodeValue());
-        assertTrue(response.getHeaders().containsKey(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION));
+        org.springframework.http.ResponseEntity<
+                org.springframework.core.io.InputStreamResource
+                > response =
+                adminController.exportAllOrdersExcel();
+
+        assertEquals(
+                200,
+                response.getStatusCodeValue()
+        );
+
+        assertTrue(
+                response.getHeaders().containsKey(
+                        org.springframework.http
+                                .HttpHeaders
+                                .CONTENT_DISPOSITION
+                )
+        );
     }
 }
