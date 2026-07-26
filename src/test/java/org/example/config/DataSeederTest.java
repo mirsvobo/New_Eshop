@@ -45,7 +45,7 @@ class DataSeederTest {
     @Test
     void seedProducts_DatabaseIsPopulated() {
         long productCount = productRepository.count();
-        assertEquals(11, productCount, "Celkový počet položek v katalogu by měl být 11");
+        assertEquals(10, productCount, "Celkový počet položek v katalogu by měl být 10 (6x materiál + 4x dřevníky)");
     }
 
     @Test
@@ -67,7 +67,7 @@ class DataSeederTest {
     @Test
     void seedStockMovements_DatabaseIsPopulated() {
         long movementCount = stockMovementRepository.count();
-        assertTrue(movementCount >= 11, "Měl by existovat pohyb skladu pro každý vygenerovaný produkt");
+        assertTrue(movementCount >= 10, "Měl by existovat pohyb skladu pro každý vygenerovaný produkt a materiál");
 
         boolean auditExists = auditLogRepository.findAll().stream()
                 .anyMatch(log -> "INITIAL_SEED".equals(log.getAction()));
@@ -89,7 +89,7 @@ class DataSeederTest {
     @Test
     void seedRecipes_DatabaseIsPopulated() {
         long recipeCount = recipeItemRepository.count();
-        assertEquals(17, recipeCount, "Počet položek receptur v databázi nesouhlasí");
+        assertEquals(24, recipeCount, "Počet položek receptur v databázi nesouhlasí (4 produkty x 6 surovin)");
     }
 
     @Test
@@ -112,6 +112,6 @@ class DataSeederTest {
         boolean hasOrderVariants = orders.stream()
                 .flatMap(o -> o.getItems().stream())
                 .anyMatch(item -> item.getSelectedLazure() != null);
-        assertTrue(hasOrderVariants, "Seeder by měl vytvořit alespoň jednu položku objednávky s vybranou variantou (např. Lazurou).");
+        assertTrue(hasOrderVariants, "Seeder by měl vytvořit alespoň jednu položku objednávky s vybranou lazurou.");
     }
 }

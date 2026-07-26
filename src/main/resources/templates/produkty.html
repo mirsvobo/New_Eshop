@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Produkty', ~{::section})}">
 <body>
-
 <section class="py-12 sm:py-20 max-w-7xl mx-auto px-4">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div>
-            <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter uppercase mb-2">Katalog
-                produktů</h1>
+            <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter uppercase mb-2">Katalog produktů</h1>
             <p class="text-sm font-bold text-slate-500">Prohlédněte si naši nabídku poctivých dřevěných výrobků.</p>
         </div>
-
         <div class="flex items-center gap-3">
             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Řadit podle:</label>
             <label>
@@ -23,12 +20,9 @@
             </label>
         </div>
     </div>
-
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         <div th:each="product : ${products}"
              class="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group overflow-hidden flex flex-col">
-
-            <!-- FOTOGRAFIE v katalogu (Upraveno pro různé poměry stran) -->
             <a th:href="@{/produkty/{id}(id=${product.id})}"
                class="block aspect-square bg-slate-50 relative overflow-hidden">
                 <div th:if="${product.isOnSale()}"
@@ -39,12 +33,17 @@
                      th:alt="${product.name}"
                      class="w-full h-full object-contain p-6 mix-blend-multiply group-hover:scale-110 transition-transform duration-500">
             </a>
-
             <div class="p-6 flex flex-col flex-1">
                 <div class="mb-4 flex-1">
                     <a th:href="@{/produkty/{id}(id=${product.id})}"
                        class="text-lg font-black text-slate-900 hover:text-blue-600 transition-colors line-clamp-2"
                        th:text="${product.name}">Název</a>
+
+                    <!-- Kompaktní rozměr pod názvem (Zobrazí se pouze pokud jsou vyplněny) -->
+                    <div th:if="${product.width != null and product.depth != null and product.height != null}"
+                         class="text-xs font-bold text-slate-400 mt-1"
+                         th:text="'Š x H x V: ' + ${#numbers.formatDecimal(product.width, 1, 0)} + ' x ' + ${#numbers.formatDecimal(product.depth, 1, 0)} + ' x ' + ${#numbers.formatDecimal(product.height, 1, 0)} + ' cm'">
+                    </div>
 
                     <!-- Indikátor stavu skladu -->
                     <div class="mt-3 flex items-center gap-2">
@@ -56,7 +55,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="flex items-end justify-between mt-auto pt-4 border-t border-slate-100">
                     <div class="flex flex-col">
                         <div class="flex items-center gap-2">
@@ -65,9 +63,9 @@
                             <span th:if="${product.isOnSale()}" class="text-xs font-bold text-slate-400 line-through"
                                   th:text="${#numbers.formatInteger(product.price * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
                         </div>
-                        <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest mt-0.5">Pro bydlení (soukromě, 12 % DPH)</span>
+                        <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest mt-0.5">Pro bydlení (soukromé, 12 % DPH)</span>
                         <span class="text-xs text-slate-400 mt-0.5"
-                              th:text="'Firma / rekreace: ' + ${#numbers.formatInteger(product.getPriceWithTax(), 1, 'WHITESPACE')} + ' Kč (21 %)'"></span>
+                              th:text="'Firma / rekreace: ' + ${#numbers.formatInteger(product.getPriceWithTax(), 1, 'WHITESPACE')} + ' Kč  (21 %)'"></span>
                     </div>
                     <form th:action="@{/kosik/pridat}" method="post">
                         <input type="hidden" name="productId" th:value="${product.id}">
@@ -79,15 +77,12 @@
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
-
     <div th:if="${#lists.isEmpty(products)}" class="text-center py-20 bg-slate-50 rounded-3xl border border-slate-100">
         <i data-lucide="package-x" class="w-12 h-12 text-slate-300 mx-auto mb-4"></i>
         <p class="text-sm font-bold text-slate-500 uppercase tracking-widest">Katalog je momentálně prázdný.</p>
     </div>
 </section>
-
 </body>
 </html>

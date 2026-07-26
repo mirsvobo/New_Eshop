@@ -114,37 +114,57 @@ public class DataSeeder implements CommandLineRunner {
 
     private Map<String, Product> seedMaterials(TaxRate vat) {
         Map<String, Product> map = new HashMap<>();
-        map.put("dub", productRepository.save(createItem("Dubová fošna 50x200x2000mm", 1450, "ks", Product.ProductType.MATERIAL, vat, 50)));
-        map.put("buk", productRepository.save(createItem("Bukový hranol 80x80x1000mm", 450, "ks", Product.ProductType.MATERIAL, vat, 80)));
-        map.put("olej", productRepository.save(createItem("Tvrdý voskový olej Osmo 0.5l", 750, "ks", Product.ProductType.MATERIAL, vat, 25)));
-        map.put("lepidlo", productRepository.save(createItem("Lepidlo Titebond III 250ml", 180, "ks", Product.ProductType.MATERIAL, vat, 30)));
-        map.put("vruty", productRepository.save(createItem("Vruty do dřeva 4x40 (balení 100ks)", 120, "bal", Product.ProductType.MATERIAL, vat, 15)));
-        map.put("podnoz", productRepository.save(createItem("Kovová podnož 'X' černá", 4200, "pár", Product.ProductType.MATERIAL, vat, 10)));
+        map.put("ocel", productRepository.save(createItem("Ocelový jekl 40x40x2mm (1m)", 150, "m", Product.ProductType.MATERIAL, vat, 500)));
+        map.put("prkna", productRepository.save(createItem("Dřevěné smrkové prkno 20x100mm (1m)", 45, "m", Product.ProductType.MATERIAL, vat, 1000)));
+        map.put("strecha", productRepository.save(createItem("Plechová krytina - trapéz", 450, "m2", Product.ProductType.MATERIAL, vat, 100)));
+        map.put("lazura", productRepository.save(createItem("Ochranná lazura Remmers 2.5l", 1250, "ks", Product.ProductType.MATERIAL, vat, 40)));
+        map.put("vruty", productRepository.save(createItem("Konstrukční vruty s úpravou (bal. 500ks)", 350, "bal", Product.ProductType.MATERIAL, vat, 50)));
+        map.put("patky", productRepository.save(createItem("Výškově nastavitelná patka žárový zinek", 180, "ks", Product.ProductType.MATERIAL, vat, 200)));
         return map;
     }
 
     private Map<String, Product> seedFinishedProducts(TaxRate vat) {
         Map<String, Product> map = new HashMap<>();
 
-        Product stul = createItem("Jídelní stůl 'FajnDub' - Masiv", 34500, "ks", Product.ProductType.PRODUCT, vat, 3);
-        stul.setAvailableLazures("Bezbarvý lak, Olejovaný dub, Tmavý ořech");
-        stul.setAvailableDesigns("Rovná hrana, Přírodní hrana (Live Edge)");
-        stul.setWidth(250.0);
-        stul.setDepth(300.0);
-        stul.setHeight(220.5);
-        stul.setVolume(16.5);
-        stul.setAdditionalDimensions("Přesah střechy: 15 cm boční");
-        map.put("stul", productRepository.save(stul));
+        Product kompakt = createItem("Dřevník Kompakt", 16898, "ks", Product.ProductType.PRODUCT, vat, 5);
+        kompakt.setAvailableLazures("Pinie, Dub, Ořech, Palisandr, Bezbarvý lak");
+        kompakt.setAvailableRoofColors("Černá, Antracit, Červenohnědá");
+        kompakt.setWidth(100.0);
+        kompakt.setDepth(73.0);
+        kompakt.setHeight(220.0);
+        kompakt.setVolume(1.6);
+        kompakt.setAdditionalDimensions("Kompaktní dřevník z kovové konstrukce, který se hodí i na ty nejmenší zahrady.");
+        map.put("kompakt", productRepository.save(kompakt));
 
-        Product stolek = createItem("Konferenční stolek 'Industriál'", 14200, "ks", Product.ProductType.PRODUCT, vat, 5);
-        stolek.setAvailableLazures("Olejovaný dub, Mahagon");
-        map.put("stolek", productRepository.save(stolek));
+        Product klasik = createItem("Dřevník Klasik", 23171, "ks", Product.ProductType.PRODUCT, vat, 3);
+        klasik.setAvailableLazures("Pinie, Dub, Ořech, Palisandr, Bezbarvý lak");
+        klasik.setAvailableRoofColors("Černá, Antracit, Červenohnědá");
+        klasik.setWidth(160.0);
+        klasik.setDepth(73.0);
+        klasik.setHeight(220.0);
+        klasik.setVolume(2.5);
+        klasik.setAdditionalDimensions("Robustní řešení pro střední zahrady. Spojuje kompaktnost Dřevníku Klasik s větší kapacitou.");
+        map.put("klasik", productRepository.save(klasik));
 
-        map.put("prkenko", productRepository.save(createItem("Dubové prkénko PRO", 1650, "ks", Product.ProductType.PRODUCT, vat, 15)));
+        Product elko = createItem("Dřevník L", 25696, "ks", Product.ProductType.PRODUCT, vat, 2);
+        elko.setAvailableLazures("Pinie, Dub, Ořech, Palisandr, Bezbarvý lak");
+        elko.setAvailableRoofColors("Černá, Antracit, Červenohnědá");
+        elko.setWidth(160.0);
+        elko.setDepth(109.0);
+        elko.setHeight(220.0);
+        elko.setVolume(2.9);
+        elko.setAdditionalDimensions("Odolné řešení pro uskladnění až 2,90 m³ dříví. Dřevník L je vyráběn z kvalitní oceli.");
+        map.put("elko", productRepository.save(elko));
 
-        map.put("police", productRepository.save(createItem("Nástěnná police 'Minimalist'", 2400, "ks", Product.ProductType.PRODUCT, vat, 10)));
-
-        map.put("podtacky", productRepository.save(createItem("Sada dubových podtácků (6ks)", 550, "sada", Product.ProductType.PRODUCT, vat, 20)));
+        Product xxl = createItem("Dřevník XXL", 33224, "ks", Product.ProductType.PRODUCT, vat, 2);
+        xxl.setAvailableLazures("Pinie, Dub, Ořech, Palisandr, Bezbarvý lak");
+        xxl.setAvailableRoofColors("Černá, Antracit, Červenohnědá");
+        xxl.setWidth(260.0);
+        xxl.setDepth(109.0);
+        xxl.setHeight(220.0);
+        xxl.setVolume(6.2);
+        xxl.setAdditionalDimensions("Prémiové řešení ochrany velkého množství dříví pro větší zahrady. Před vnějšími vlivy chrání stříška.");
+        map.put("xxl", productRepository.save(xxl));
 
         return map;
     }
@@ -162,27 +182,37 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void seedRecipes(Map<String, Product> p, Map<String, Product> m) {
-        saveRecipe(p.get("stul"), m.get("dub"), 4);
-        saveRecipe(p.get("stul"), m.get("podnoz"), 1);
-        saveRecipe(p.get("stul"), m.get("olej"), 2);
-        saveRecipe(p.get("stul"), m.get("lepidlo"), 1);
-        saveRecipe(p.get("stul"), m.get("vruty"), 1);
+        // Dřevník Kompakt
+        saveRecipe(p.get("kompakt"), m.get("ocel"), 18);
+        saveRecipe(p.get("kompakt"), m.get("prkna"), 25);
+        saveRecipe(p.get("kompakt"), m.get("strecha"), 1);
+        saveRecipe(p.get("kompakt"), m.get("lazura"), 1);
+        saveRecipe(p.get("kompakt"), m.get("vruty"), 1);
+        saveRecipe(p.get("kompakt"), m.get("patky"), 4);
 
-        saveRecipe(p.get("stolek"), m.get("buk"), 3);
-        saveRecipe(p.get("stolek"), m.get("podnoz"), 1);
-        saveRecipe(p.get("stolek"), m.get("olej"), 1);
-        saveRecipe(p.get("stolek"), m.get("lepidlo"), 1);
-        saveRecipe(p.get("stolek"), m.get("vruty"), 1);
+        // Dřevník Klasik
+        saveRecipe(p.get("klasik"), m.get("ocel"), 22);
+        saveRecipe(p.get("klasik"), m.get("prkna"), 35);
+        saveRecipe(p.get("klasik"), m.get("strecha"), 2);
+        saveRecipe(p.get("klasik"), m.get("lazura"), 1);
+        saveRecipe(p.get("klasik"), m.get("vruty"), 2);
+        saveRecipe(p.get("klasik"), m.get("patky"), 4);
 
-        saveRecipe(p.get("prkenko"), m.get("dub"), 1);
-        saveRecipe(p.get("prkenko"), m.get("olej"), 1);
+        // Dřevník L
+        saveRecipe(p.get("elko"), m.get("ocel"), 26);
+        saveRecipe(p.get("elko"), m.get("prkna"), 40);
+        saveRecipe(p.get("elko"), m.get("strecha"), 2);
+        saveRecipe(p.get("elko"), m.get("lazura"), 2);
+        saveRecipe(p.get("elko"), m.get("vruty"), 2);
+        saveRecipe(p.get("elko"), m.get("patky"), 4);
 
-        saveRecipe(p.get("police"), m.get("buk"), 1);
-        saveRecipe(p.get("police"), m.get("olej"), 1);
-        saveRecipe(p.get("police"), m.get("vruty"), 1);
-
-        saveRecipe(p.get("podtacky"), m.get("dub"), 1);
-        saveRecipe(p.get("podtacky"), m.get("olej"), 1);
+        // Dřevník XXL
+        saveRecipe(p.get("xxl"), m.get("ocel"), 34);
+        saveRecipe(p.get("xxl"), m.get("prkna"), 60);
+        saveRecipe(p.get("xxl"), m.get("strecha"), 4);
+        saveRecipe(p.get("xxl"), m.get("lazura"), 3);
+        saveRecipe(p.get("xxl"), m.get("vruty"), 3);
+        saveRecipe(p.get("xxl"), m.get("patky"), 6);
     }
 
     private void saveRecipe(Product product, Product material, int quantity) {
@@ -195,7 +225,7 @@ public class DataSeeder implements CommandLineRunner {
 
     private void seedInitialStockMovements(Map<String, Product> products, Map<String, Product> materials, User admin) {
         products.values().forEach(p -> stockMovementRepository.save(StockMovement.builder().product(p).performedBy(admin).quantity(p.getStockQuantity()).type(StockMovement.MovementType.ADJUSTMENT_PLUS).note("Počáteční stav - hotové výrobky").build()));
-        materials.values().forEach(m -> stockMovementRepository.save(StockMovement.builder().product(m).performedBy(admin).quantity(m.getStockQuantity()).type(StockMovement.MovementType.RECEIPT).note("Příjem materiálu - dodavatel DřevoSklad a.s.").build()));
+        materials.values().forEach(m -> stockMovementRepository.save(StockMovement.builder().product(m).performedBy(admin).quantity(m.getStockQuantity()).type(StockMovement.MovementType.RECEIPT).note("Příjem materiálu - dodavatel Kovohutě a Pila a.s.").build()));
     }
 
     private void seedAttendanceHistory(Map<String, User> employees) {
@@ -226,17 +256,17 @@ public class DataSeeder implements CommandLineRunner {
         LocalDateTime now = LocalDateTime.now();
 
         createOrder("ORD-2024-00001", customers.get("c1"), s.get("DONE"), now.minusDays(14),
-                Map.of(p.get("stul"), 2, p.get("podtacky"), 4));
+                Map.of(p.get("xxl"), 1, p.get("kompakt"), 1));
         createOrder("ORD-2024-00002", customers.get("c2"), s.get("SHIP"), now.minusDays(5),
-                Map.of(p.get("stolek"), 5));
+                Map.of(p.get("klasik"), 2));
         createOrder("ORD-2024-00003", customers.get("c4"), s.get("PROD"), now.minusDays(2),
-                Map.of(p.get("stul"), 1, p.get("prkenko"), 1));
+                Map.of(p.get("elko"), 1));
         createOrder("ORD-2024-00004", customers.get("c5"), s.get("PAY"), now.minusDays(1),
-                Map.of(p.get("police"), 3));
+                Map.of(p.get("kompakt"), 1));
         createOrder("ORD-2024-00005", customers.get("c6"), s.get("NEW"), now.minusHours(4),
-                Map.of(p.get("podtacky"), 2, p.get("prkenko"), 2));
+                Map.of(p.get("klasik"), 1, p.get("elko"), 1));
         createOrder("ORD-2024-00006", customers.get("c3"), s.get("CANCEL"), now.minusDays(10),
-                Map.of(p.get("stul"), 1));
+                Map.of(p.get("xxl"), 2));
     }
 
     private void createOrder(String orderNumber, User customer, OrderStatus status, LocalDateTime createdAt, Map<Product, Integer> items) {
@@ -272,11 +302,9 @@ public class DataSeeder implements CommandLineRunner {
                     .build();
 
             // Automatické navolení variant u testovacích objednávek pro ukázku
-            if (p.getName().contains("Jídelní stůl")) {
-                item.setSelectedLazure("Olejovaný dub");
-                item.setSelectedDesign("Přírodní hrana (Live Edge)");
-            } else if (p.getName().contains("stolek")) {
-                item.setSelectedLazure("Mahagon");
+            if (p.getName().contains("Dřevník")) {
+                item.setSelectedLazure("Ořech");
+                item.setSelectedRoofColor("Antracit");
             }
 
             order.getItems().add(item);
@@ -301,7 +329,7 @@ public class DataSeeder implements CommandLineRunner {
                 .user(admin)
                 .module("SYSTÉM")
                 .action("INITIAL_SEED")
-                .details("Založena deterministická datová sada - pevně definovaní zákazníci, kusovníky, produkty s variantami a 6 objednávek.")
+                .details("Založena deterministická datová sada - pevně definovaní zákazníci, 6x surovina, 4x dřevník, kusovníky a 6 objednávek.")
                 .timestamp(LocalDateTime.now())
                 .ipAddress("127.0.0.1")
                 .build());
