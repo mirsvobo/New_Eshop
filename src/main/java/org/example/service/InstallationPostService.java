@@ -24,12 +24,12 @@ public class InstallationPostService {
     private static final long MAX_IMAGE_SIZE_BYTES =
             10L * 1024L * 1024L;
 
-    private static final Set<String>
-            ALLOWED_CONTENT_TYPES = Set.of(
-            "image/jpeg",
-            "image/png",
-            "image/webp"
-    );
+    private static final Set<String> ALLOWED_CONTENT_TYPES =
+            Set.of(
+                    "image/jpeg",
+                    "image/png",
+                    "image/webp"
+            );
 
     private final InstallationPostRepository
             installationPostRepository;
@@ -52,27 +52,25 @@ public class InstallationPostService {
         if (submittedPost.getId() == null) {
             postToSave = submittedPost;
 
-            ensureImageCollectionExists(postToSave);
+            ensureImageCollectionExists(
+                    postToSave
+            );
         } else {
             postToSave = findPostById(
                     submittedPost.getId()
             );
 
-            ensureImageCollectionExists(postToSave);
+            ensureImageCollectionExists(
+                    postToSave
+            );
         }
 
-        /*
-         * Nejprve odstraníme prázdné položky, které
-         * prohlížeč běžně posílá, když uživatel
-         * nevybere žádný soubor.
-         */
         List<MultipartFile> nonEmptyFiles =
                 getNonEmptyFiles(imageFiles);
 
         /*
-         * Celá dávka se ověří před uložením prvního
-         * fyzického souboru. Neplatná dávka proto
-         * nezanechá částečně uložené fotografie.
+         * Celá dávka se ověří před uložením
+         * prvního fyzického souboru.
          */
         validateImageUploads(
                 postToSave,
@@ -80,8 +78,8 @@ public class InstallationPostService {
         );
 
         /*
-         * Formulářová pole existující entity měníme
-         * až po úspěšné validaci souborů.
+         * Existující entitu aktualizujeme až po
+         * úspěšné validaci všech souborů.
          */
         if (submittedPost.getId() != null) {
             updatePostFields(
@@ -101,10 +99,27 @@ public class InstallationPostService {
     }
 
     @Transactional
-    public void deletePost(Long postId) {
-        InstallationPost post = findPostById(
-                postId
+    public InstallationPost toggleActive(
+            Long postId
+    ) {
+        InstallationPost post =
+                findPostById(postId);
+
+        post.setActive(
+                !post.isActive()
         );
+
+        return installationPostRepository.save(
+                post
+        );
+    }
+
+    @Transactional
+    public void deletePost(
+            Long postId
+    ) {
+        InstallationPost post =
+                findPostById(postId);
 
         List<String> imageFileNames =
                 post.getImages() == null
@@ -120,15 +135,14 @@ public class InstallationPostService {
                         )
                         .filter(
                                 fileName ->
-                                        !fileName
-                                                .isBlank()
+                                        !fileName.isBlank()
                         )
                         .toList();
 
         /*
-         * Nejprve odstraníme databázovou entitu
-         * a vynutíme provedení SQL. Teprve potom
-         * mažeme fyzické soubory.
+         * Nejdříve odstraníme databázovou entitu
+         * a vynutíme provedení SQL. Fyzické soubory
+         * smažeme až poté.
          */
         installationPostRepository.delete(post);
         installationPostRepository.flush();
@@ -147,12 +161,13 @@ public class InstallationPostService {
             Long postId,
             Long imageId
     ) {
-        InstallationPost post = findPostById(
-                postId
-        );
+        InstallationPost post =
+                findPostById(postId);
 
         if (post.getImages() == null) {
-            throw imageNotFoundException(imageId);
+            throw imageNotFoundException(
+                    imageId
+            );
         }
 
         InstallationImage imageToDelete =
@@ -174,7 +189,9 @@ public class InstallationPostService {
         String imageFileName =
                 imageToDelete.getImageUrl();
 
-        post.removeImage(imageToDelete);
+        post.removeImage(
+                imageToDelete
+        );
 
         resequenceImages(post);
 
@@ -298,7 +315,9 @@ public class InstallationPostService {
                                 )
                 );
 
-        if (!isSupportedExtension(extension)) {
+        if (!isSupportedExtension(
+                extension
+        )) {
             throw new IllegalArgumentException(
                     "Soubor "
                             + originalFileName
@@ -344,7 +363,9 @@ public class InstallationPostService {
 
         return contentType
                 .trim()
-                .toLowerCase(Locale.ROOT);
+                .toLowerCase(
+                        Locale.ROOT
+                );
     }
 
     private String normalizeExtension(
@@ -356,7 +377,9 @@ public class InstallationPostService {
 
         return extension
                 .trim()
-                .toLowerCase(Locale.ROOT);
+                .toLowerCase(
+                        Locale.ROOT
+                );
     }
 
     private boolean isSupportedExtension(
@@ -404,7 +427,9 @@ public class InstallationPostService {
     }
 
     private IllegalArgumentException
-    imageNotFoundException(Long imageId) {
+    imageNotFoundException(
+            Long imageId
+    ) {
         return new IllegalArgumentException(
                 "Obrázek s ID "
                         + imageId
@@ -416,7 +441,9 @@ public class InstallationPostService {
             InstallationPost post
     ) {
         if (post.getImages() == null) {
-            post.setImages(new ArrayList<>());
+            post.setImages(
+                    new ArrayList<>()
+            );
         }
     }
 
@@ -454,7 +481,9 @@ public class InstallationPostService {
         }
 
         int nextDisplayOrder =
-                determineNextDisplayOrder(post);
+                determineNextDisplayOrder(
+                        post
+                );
 
         for (MultipartFile file : imageFiles) {
             String storedFileName =
@@ -491,7 +520,9 @@ public class InstallationPostService {
                                 ::getDisplayOrder
                 )
                 .filter(Objects::nonNull)
-                .mapToInt(Integer::intValue)
+                .mapToInt(
+                        Integer::intValue
+                )
                 .max()
                 .orElse(-1)
                 + 1;
@@ -510,7 +541,9 @@ public class InstallationPostService {
 
             post.getImages()
                     .get(index)
-                    .setDisplayOrder(index);
+                    .setDisplayOrder(
+                            index
+                    );
         }
     }
 }

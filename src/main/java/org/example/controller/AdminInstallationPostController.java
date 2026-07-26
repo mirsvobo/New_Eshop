@@ -84,6 +84,22 @@ public class AdminInstallationPostController {
         return FORM_VIEW;
     }
 
+    @GetMapping("/edit/{id}")
+    public String showEditForm(
+            @PathVariable Long id,
+            Model model
+    ) {
+        InstallationPost post =
+                findPostById(id);
+
+        model.addAttribute(
+                "installationPost",
+                post
+        );
+
+        return FORM_VIEW;
+    }
+
     @PostMapping("/save")
     public String savePost(
             @Valid
@@ -113,12 +129,6 @@ public class AdminInstallationPostController {
                             imageFiles
                     );
         } catch (IllegalArgumentException exception) {
-            /*
-             * Service odmítla neplatný upload.
-             * Zachováme údaje odeslané formulářem
-             * a při editaci znovu doplníme existující
-             * obrázky z databáze.
-             */
             restoreExistingImages(
                     installationPost
             );
@@ -139,20 +149,27 @@ public class AdminInstallationPostController {
         return LIST_REDIRECT;
     }
 
-    @GetMapping("/edit/{id}")
-    public String showEditForm(
+    @PostMapping("/{id}/toggle-active")
+    public String toggleActive(
             @PathVariable Long id,
-            Model model
+            RedirectAttributes redirectAttributes
     ) {
-        InstallationPost post =
-                findPostById(id);
+        InstallationPost updatedPost =
+                installationPostService.toggleActive(
+                        id
+                );
 
-        model.addAttribute(
-                "installationPost",
-                post
+        String successMessage =
+                updatedPost.isActive()
+                        ? "Příspěvek byl zveřejněn."
+                        : "Příspěvek byl skryt.";
+
+        redirectAttributes.addFlashAttribute(
+                "success",
+                successMessage
         );
 
-        return FORM_VIEW;
+        return LIST_REDIRECT;
     }
 
     @PostMapping("/delete/{id}")
