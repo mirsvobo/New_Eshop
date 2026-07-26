@@ -34,6 +34,9 @@ class InstallationPostActivationTest {
     private FileStorageService
             fileStorageService;
 
+    @Mock
+    private AuditService auditService;
+
     @InjectMocks
     private InstallationPostService
             installationPostService;

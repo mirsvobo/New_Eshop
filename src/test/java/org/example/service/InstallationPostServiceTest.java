@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
-
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -31,6 +30,9 @@ class InstallationPostServiceTest {
 
     @Mock
     private FileStorageService fileStorageService;
+
+    @Mock
+    private AuditService auditService;
 
     @InjectMocks
     private InstallationPostService installationPostService;
@@ -374,6 +376,7 @@ class InstallationPostServiceTest {
         post.addImage(image);
         return image;
     }
+
     @Test
     void deletePost_ExistingPost_DeletesDatabaseEntityAndAllPhysicalFiles() {
         InstallationPost existingPost = createExistingPost(30L);
