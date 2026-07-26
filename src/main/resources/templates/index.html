@@ -1,19 +1,24 @@
 <!DOCTYPE html>
 <html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Úvod', ~{::div.content-wrapper})}">
 <body>
-<div class="content-wrapper w-full flex flex-col gap-16 sm:gap-24 py-6 sm:py-8">
+<!-- Utažení globálního gapu na gap-12 sm:gap-16 -->
+<div class="content-wrapper w-full flex flex-col gap-12 sm:gap-16 py-6 sm:py-8">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 
     <!-- 1. HERO SEKCE -->
     <section class="relative bg-slate-900 text-white overflow-hidden rounded-[2rem] shadow-2xl flex items-center min-h-[80vh] lg:min-h-[600px]">
+
+        <!-- OBRÁZEK -->
         <div class="absolute inset-0 lg:left-auto lg:right-0 lg:w-[60%]">
             <img th:src="@{/images/Hero-background.jpg}" alt="Prémiové dřevníky Kolář"
                  class="w-full h-full object-cover object-center lg:object-left">
+
             <div class="absolute inset-0 bg-slate-900/60 lg:hidden pointer-events-none"></div>
             <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/70 to-transparent hidden lg:block w-[60%] pointer-events-none"></div>
         </div>
 
+        <!-- KONTEJNER PRO TEXT -->
         <div class="relative z-10 px-6 py-16 sm:px-14 w-full max-w-7xl mx-auto flex flex-col items-center text-center lg:items-start lg:text-left">
             <div class="max-w-2xl w-full lg:w-[60%] xl:w-[55%] pt-4 lg:pt-0">
                 <span class="text-amber-400 font-black tracking-widest uppercase text-xs sm:text-sm mb-3 sm:mb-4 block drop-shadow-md">Dřevníky Kolář</span>
@@ -26,11 +31,13 @@
                     pro <span id="typed-output" class="text-amber-400"></span>
                 </div>
 
+                <!-- TLAČÍTKA -->
                 <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2 lg:mt-6 w-full sm:w-auto justify-center lg:justify-start">
                     <a th:href="@{/produkt/na-miru}"
                        class="w-full sm:w-auto whitespace-nowrap bg-amber-500 hover:bg-amber-400 text-slate-900 font-black py-3.5 sm:py-4 px-6 sm:px-8 rounded-xl text-center transition-all shadow-lg shadow-amber-500/30 flex items-center justify-center gap-2 uppercase tracking-widest text-xs sm:text-sm">
                         <i data-lucide="pen-tool" class="w-4 h-4 sm:w-5 sm:h-5"></i> Navrhnout na míru
                     </a>
+
                     <a th:href="@{/produkty}"
                        class="w-full sm:w-auto whitespace-nowrap bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white font-bold py-3.5 sm:py-4 px-6 sm:px-8 rounded-xl text-center transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs sm:text-sm">
                         <i data-lucide="shopping-bag" class="w-4 h-4 sm:w-5 sm:h-5"></i> Prohlédnout nabídku
@@ -107,7 +114,7 @@
 
     <!-- 4. PRODUKTY IHNED K ODBĚRU (CAROUSEL) -->
     <section th:with="inStockProducts=${featuredProducts.?[stockQuantity > 0]}">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 sm:mb-10 border-b border-emerald-100 pb-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 border-b border-emerald-100 pb-4">
             <div>
                 <div class="flex items-center gap-2 mb-2">
                     <span class="text-emerald-500 text-[10px] font-black uppercase tracking-widest bg-emerald-50 px-2.5 py-1 rounded-md">Blesková expedice</span>
@@ -121,6 +128,7 @@
             </a>
         </div>
 
+        <!-- Empty State - Vyprodáno -->
         <div th:if="${#lists.isEmpty(inStockProducts)}" class="bg-slate-50 rounded-[2rem] p-10 text-center border border-slate-100 flex flex-col items-center justify-center min-h-[300px]">
             <i data-lucide="package-open" class="w-16 h-16 text-slate-300 mb-4"></i>
             <h3 class="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">Všechny skladové zásoby jsou vyprodané</h3>
@@ -130,48 +138,48 @@
             </a>
         </div>
 
+        <!-- Swiper Carousel Obal s prostorem pro šipky -->
         <div th:unless="${#lists.isEmpty(inStockProducts)}" class="w-full relative group sm:px-14">
             <div class="swiper productSwiper !pb-14 pt-2">
                 <div class="swiper-wrapper">
                     <div th:each="product : ${inStockProducts}" class="swiper-slide h-auto">
                         <div class="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all flex flex-col h-full overflow-hidden">
-                            <a th:href="@{/produkty/{id}(id=${product.id})}" class="block relative h-64 bg-slate-50 border-b border-slate-100 p-6 flex items-center justify-center group/img">
+                            <!-- Obrázek a Štítky -->
+                            <a th:href="@{/produkty/{id}(id=${product.id})}" class="block relative h-56 sm:h-64 bg-slate-50 border-b border-slate-100 p-6 flex items-center justify-center group/img">
                                 <div th:if="${product.isOnSale()}" class="absolute top-4 right-4 bg-rose-600 text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg shadow-sm z-10">
                                     Akce
                                 </div>
-                                <div class="absolute top-4 left-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 z-10">
+                                <div class="absolute top-4 left-4 bg-emerald-50/90 backdrop-blur-sm border border-emerald-200 text-emerald-800 text-[10px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 z-10">
                                     <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Skladem
                                 </div>
                                 <img th:src="${product.displayImageUrl}" th:alt="${product.name}" class="w-full h-full object-contain mix-blend-multiply group-hover/img:scale-105 transition-transform duration-500"/>
                             </a>
 
+                            <!-- Tělo karty (bez popisu) -->
                             <div class="flex flex-col flex-grow p-6">
                                 <a th:href="@{/produkty/{id}(id=${product.id})}" class="text-xl font-black text-slate-900 hover:text-amber-600 transition-colors line-clamp-2 mb-1" th:text="${product.name}">Název</a>
 
+                                <!-- Rozměry -->
                                 <div th:if="${product.width != null and product.depth != null and product.height != null}"
                                      class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 mb-4">
                                     <i data-lucide="ruler" class="w-3.5 h-3.5 text-slate-300"></i>
                                     <span th:text="${#numbers.formatDecimal(product.width, 1, 0)} + ' x ' + ${#numbers.formatDecimal(product.depth, 1, 0)} + ' x ' + ${#numbers.formatDecimal(product.height, 1, 0)} + ' cm'"></span>
                                 </div>
 
+                                <!-- Spodní nákupní blok natěsno k názvu -->
                                 <div class="mt-auto flex flex-col">
-                                    <!-- Štítek Montáž -->
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <i data-lucide="wrench" class="w-4 h-4 text-emerald-500"></i>
-                                        <span class="text-xs font-black text-emerald-600">Montáž do týdne</span>
-                                    </div>
-
                                     <div class="flex items-end gap-3">
                                         <span class="text-3xl font-black text-slate-900 tracking-tighter whitespace-nowrap" th:text="${#numbers.formatInteger(product.getActiveBasePrice() * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
                                         <span th:if="${product.isOnSale()}" class="text-sm font-bold text-slate-400 line-through mb-1 whitespace-nowrap" th:text="${#numbers.formatInteger(product.price * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
                                     </div>
                                     <span class="text-[9px] font-black text-amber-600 uppercase tracking-widest mt-1">Pro bydlení (soukromě, <span class="whitespace-nowrap">12 % DPH</span>)</span>
 
+                                    <!-- B2B Cena -->
                                     <div class="mt-4 bg-slate-50/80 rounded-xl p-3 border border-slate-100 flex items-center justify-between">
                                         <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Firma / rekreace</span>
-                                        <span class="text-xs font-black text-slate-900 whitespace-nowrap">
+                                        <span class="text-xs font-black text-slate-900">
                                             <span th:text="${#numbers.formatInteger(product.getPriceWithTax(), 1, 'WHITESPACE')} + ' Kč'"></span>
-                                            <span class="text-[9px] font-bold text-slate-400 ml-0.5 whitespace-nowrap">(21 %)</span>
+                                            <span class="font-bold text-[9px] text-slate-400 ml-0.5">(21 %)</span>
                                         </span>
                                     </div>
 
@@ -190,6 +198,7 @@
                 <div class="swiper-pagination"></div>
             </div>
 
+            <!-- Vnější šipky - viditelné jen na desktopu -->
             <div class="swiper-button-prev !hidden sm:flex !w-12 !h-12 !bg-white border border-slate-200 !text-slate-800 rounded-full shadow-lg absolute top-[40%] -translate-y-1/2 -left-3 lg:-left-5 z-10 hover:scale-105 transition-transform after:!text-lg"></div>
             <div class="swiper-button-next !hidden sm:flex !w-12 !h-12 !bg-white border border-slate-200 !text-slate-800 rounded-full shadow-lg absolute top-[40%] -translate-y-1/2 -right-3 lg:-right-5 z-10 hover:scale-105 transition-transform after:!text-lg"></div>
         </div>
@@ -197,7 +206,7 @@
 
     <!-- 5. PRODUKTY NA ZAKÁZKU (CAROUSEL) -->
     <section id="na-zakazku" th:with="customProducts=${featuredProducts.?[stockQuantity <= 0]}">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 sm:mb-10 border-b border-amber-100 pb-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 border-b border-amber-100 pb-4">
             <div>
                 <div class="flex items-center gap-2 mb-2">
                     <span class="text-amber-600 bg-amber-50 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md">Poctivá ruční tesařina</span>
@@ -215,12 +224,14 @@
             <p class="text-slate-500 font-medium">Momentálně nemáme v nabídce žádné produkty čistě na zakázku.</p>
         </div>
 
+        <!-- Swiper Carousel Obal s prostorem pro šipky -->
         <div th:unless="${#lists.isEmpty(customProducts)}" class="w-full relative group sm:px-14">
             <div class="swiper productSwiper !pb-14 pt-2">
                 <div class="swiper-wrapper">
                     <div th:each="product : ${customProducts}" class="swiper-slide h-auto">
                         <div class="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all flex flex-col h-full overflow-hidden">
-                            <a th:href="@{/produkty/{id}(id=${product.id})}" class="block relative h-64 bg-slate-50 border-b border-slate-100 p-6 flex items-center justify-center group/img">
+                            <!-- Obrázek a Štítky -->
+                            <a th:href="@{/produkty/{id}(id=${product.id})}" class="block relative h-56 sm:h-64 bg-slate-50 border-b border-slate-100 p-6 flex items-center justify-center group/img">
                                 <div th:if="${product.isOnSale()}" class="absolute top-4 right-4 bg-rose-600 text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg shadow-sm z-10">
                                     Akce
                                 </div>
@@ -230,15 +241,18 @@
                                 <img th:src="${product.displayImageUrl}" th:alt="${product.name}" class="w-full h-full object-contain mix-blend-multiply group-hover/img:scale-105 transition-transform duration-500"/>
                             </a>
 
+                            <!-- Tělo karty (bez popisu) -->
                             <div class="flex flex-col flex-grow p-6">
                                 <a th:href="@{/produkty/{id}(id=${product.id})}" class="text-xl font-black text-slate-900 hover:text-amber-600 transition-colors line-clamp-2 mb-1" th:text="${product.name}">Název</a>
 
+                                <!-- Rozměry -->
                                 <div th:if="${product.width != null and product.depth != null and product.height != null}"
                                      class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 mb-4">
                                     <i data-lucide="ruler" class="w-3.5 h-3.5 text-slate-300"></i>
                                     <span th:text="${#numbers.formatDecimal(product.width, 1, 0)} + ' x ' + ${#numbers.formatDecimal(product.depth, 1, 0)} + ' x ' + ${#numbers.formatDecimal(product.height, 1, 0)} + ' cm'"></span>
                                 </div>
 
+                                <!-- Spodní nákupní blok -->
                                 <div class="mt-auto flex flex-col">
                                     <div class="flex items-center gap-2 mb-2">
                                         <i data-lucide="hammer" class="w-4 h-4 text-amber-500"></i>
@@ -250,11 +264,12 @@
                                     </div>
                                     <span class="text-[9px] font-black text-amber-600 uppercase tracking-widest mt-1">Pro bydlení (soukromě, <span class="whitespace-nowrap">12 % DPH</span>)</span>
 
+                                    <!-- B2B Cena -->
                                     <div class="mt-4 bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center justify-between">
                                         <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Firma / rekreace</span>
                                         <span class="text-xs font-black text-slate-900 whitespace-nowrap">
                                             <span th:text="${#numbers.formatInteger(product.getPriceWithTax(), 1, 'WHITESPACE')} + ' Kč'"></span>
-                                            <span class="text-[9px] font-bold text-slate-400 ml-0.5 whitespace-nowrap">(21 %)</span>
+                                            <span class="font-bold text-[9px] text-slate-400 ml-0.5">(21 %)</span>
                                         </span>
                                     </div>
 
@@ -273,13 +288,14 @@
                 <div class="swiper-pagination"></div>
             </div>
 
+            <!-- Vnější šipky - viditelné jen na desktopu -->
             <div class="swiper-button-prev !hidden sm:flex !w-12 !h-12 !bg-white border border-slate-200 !text-slate-800 rounded-full shadow-md absolute top-[40%] -translate-y-1/2 -left-3 lg:-left-5 z-10 hover:scale-105 transition-transform after:!text-lg"></div>
             <div class="swiper-button-next !hidden sm:flex !w-12 !h-12 !bg-white border border-slate-200 !text-slate-800 rounded-full shadow-md absolute top-[40%] -translate-y-1/2 -right-3 lg:-right-5 z-10 hover:scale-105 transition-transform after:!text-lg"></div>
         </div>
     </section>
 
     <!-- GALERIE REALIZACÍ -->
-    <section class="max-w-7xl mx-auto px-4 mt-16">
+    <section class="max-w-7xl mx-auto px-4 w-full">
         <div class="text-center max-w-2xl mx-auto mb-10">
             <h2 class="text-3xl font-black text-slate-900 mb-4 tracking-tight">Ukázky našich realizací</h2>
             <p class="text-slate-500">Inspirujte se prací naší dílny ve skutečných zahradách.</p>
@@ -288,7 +304,7 @@
         <div class="w-full overflow-hidden">
             <div class="swiper gallerySwiper pb-12">
                 <div class="swiper-wrapper">
-                    <!-- Snímky -->
+                    <!-- Snímky do galerie -->
                     <div class="swiper-slide">
                         <a th:href="@{/images/realizace/1.webp}" aria-label="Dřevník Kompakt" class="block aspect-square rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group relative">
                             <picture>
@@ -377,7 +393,7 @@
     </section>
 
     <!-- RECENZE ZÁKAZNÍKŮ -->
-    <section class="bg-slate-50 py-16 px-6 sm:px-14 rounded-[2rem] border border-slate-100 mt-8">
+    <section class="bg-slate-50 py-16 px-6 sm:px-14 rounded-[2rem] border border-slate-100">
         <div class="text-center max-w-2xl mx-auto mb-12">
             <h2 class="text-3xl font-black text-slate-900 mb-4 tracking-tight">Co o nás říkají zákazníci</h2>
             <p class="text-slate-500">Skutečné recenze z našeho Google profilu.</p>
@@ -395,6 +411,7 @@
                 </div>
                 <p class="text-sm text-slate-500 mb-4">Na základě <strong>18 hodnocení</strong></p>
                 <a href="https://g.page/r/CclukMw6zlf4EBM/review" target="_blank" title="Vyplnit Google recenzi" class="opacity-80 hover:opacity-100 transition-opacity">
+                    <!-- Použit zástupný znak pro Google logo (či text pokud není logo nahráno) -->
                     <span class="font-black text-slate-800 text-lg flex items-center gap-2">
                         <i data-lucide="message-square-quote" class="text-amber-500"></i> Google Recenze
                     </span>
@@ -465,6 +482,7 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Swiper Pagination -->
                     <div class="swiper-pagination"></div>
                 </div>
             </div>
@@ -472,7 +490,7 @@
     </section>
 
     <!-- ČASTO KLADENÉ OTÁZKY -->
-    <section class="max-w-3xl mx-auto w-full mt-10">
+    <section class="max-w-3xl mx-auto w-full">
         <div class="text-center mb-10">
             <h2 class="text-3xl font-black text-slate-900 tracking-tight">Často kladené otázky</h2>
         </div>
@@ -516,6 +534,7 @@
         </div>
     </section>
 
+    <!-- Skripty umístěné uvnitř content-wrapper -->
     <script src="https://unpkg.com/typeit@8.7.1/dist/index.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
@@ -577,10 +596,11 @@
                 }
             });
 
-            // 4. Inicializace Swiperu pro Produkty
+            // 4. Inicializace Swiperu pro Produkty (Mobil centered, Desktop Šipky)
             const productSwipers = document.querySelectorAll('.productSwiper');
             productSwipers.forEach(function(swiperElement) {
                 new Swiper(swiperElement, {
+                    // Mobil (default): ukáže právě 1 kartu a bude perfektě uprostřed bez přesahů.
                     slidesPerView: 1,
                     spaceBetween: 16,
                     navigation: {
