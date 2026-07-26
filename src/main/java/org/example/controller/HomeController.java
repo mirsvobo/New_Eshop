@@ -21,10 +21,12 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Model model) {
+
+        // Odstraněno .limit(4), aby se načetly všechny produkty
+        // a mohly se rozdělit do obou carouselů
         List<Product> featuredProducts = productRepository.findAll().stream()
                 .filter(Product::isActive)
                 .filter(product -> product.getType() == Product.ProductType.PRODUCT)
-                .limit(4)
                 .collect(Collectors.toList());
 
         List<InstallationPost> installationPosts =

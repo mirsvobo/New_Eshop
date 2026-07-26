@@ -20,11 +20,12 @@
             </label>
         </div>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
         <div th:each="product : ${products}"
-             class="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group overflow-hidden flex flex-col">
+             class="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group overflow-hidden flex flex-col h-full">
             <a th:href="@{/produkty/{id}(id=${product.id})}"
-               class="block relative h-64 bg-slate-50 overflow-hidden border-b border-slate-100 p-6 flex items-center justify-center group/img">
+               class="block relative h-56 sm:h-64 bg-slate-50 overflow-hidden border-b border-slate-100 p-5 sm:p-6 flex items-center justify-center group/img">
                 <div th:if="${product.isOnSale()}"
                      class="absolute top-4 right-4 bg-pink-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg shadow-sm z-10">
                     Akce
@@ -39,40 +40,40 @@
                      th:alt="${product.name}"
                      class="w-full h-full object-contain mix-blend-multiply group-hover/img:scale-105 transition-transform duration-500">
             </a>
-            <div class="p-6 flex flex-col flex-1">
-                <div class="mb-4 flex-1">
-                    <a th:href="@{/produkty/{id}(id=${product.id})}"
-                       class="text-xl font-black text-slate-900 hover:text-amber-600 transition-colors line-clamp-2 mb-1"
-                       th:text="${product.name}">Název</a>
 
-                    <div th:if="${product.width != null and product.depth != null and product.height != null}"
-                         class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 mb-4">
-                        <i data-lucide="ruler" class="w-3.5 h-3.5 text-slate-300"></i>
-                        <span th:text="${#numbers.formatDecimal(product.width, 1, 0)} + ' x ' + ${#numbers.formatDecimal(product.depth, 1, 0)} + ' x ' + ${#numbers.formatDecimal(product.height, 1, 0)} + ' cm'"></span>
-                    </div>
+            <div class="flex flex-col flex-grow p-5 sm:p-6">
+                <a th:href="@{/produkty/{id}(id=${product.id})}"
+                   class="text-xl font-black text-slate-900 hover:text-amber-600 transition-colors line-clamp-2 mb-1"
+                   th:text="${product.name}">Název</a>
+
+                <div th:if="${product.width != null and product.depth != null and product.height != null}"
+                     class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 mb-2">
+                    <i data-lucide="ruler" class="w-3.5 h-3.5 text-slate-300"></i>
+                    <span th:text="${#numbers.formatDecimal(product.width, 1, 0)} + ' x ' + ${#numbers.formatDecimal(product.depth, 1, 0)} + ' x ' + ${#numbers.formatDecimal(product.height, 1, 0)} + ' cm'"></span>
                 </div>
+
+                <div th:if="${product.stockQuantity > 0}" class="flex items-center gap-2 mt-1 mb-4">
+                    <i data-lucide="wrench" class="w-4 h-4 text-emerald-500"></i>
+                    <span class="text-xs font-black text-emerald-600">Montáž do týdne</span>
+                </div>
+                <div th:unless="${product.stockQuantity > 0}" class="flex items-center gap-2 mt-1 mb-4">
+                    <i data-lucide="hammer" class="w-4 h-4 text-amber-500"></i>
+                    <span class="text-xs font-black text-amber-600">Montáž do 5 týdnů</span>
+                </div>
+
                 <div class="mt-auto flex flex-col">
-
-                    <div th:if="${product.stockQuantity > 0}" class="flex items-center gap-2 mb-2">
-                        <i data-lucide="wrench" class="w-4 h-4 text-emerald-500"></i>
-                        <span class="text-xs font-black text-emerald-600">Montáž do týdne</span>
-                    </div>
-                    <div th:unless="${product.stockQuantity > 0}" class="flex items-center gap-2 mb-2">
-                        <i data-lucide="hammer" class="w-4 h-4 text-amber-500"></i>
-                        <span class="text-xs font-black text-amber-600">Montáž do 5 týdnů</span>
-                    </div>
-
                     <div class="flex items-end gap-3">
-                        <span class="text-3xl font-black text-slate-900 tracking-tighter whitespace-nowrap" th:text="${#numbers.formatInteger(product.getActiveBasePrice() * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
+                        <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tighter whitespace-nowrap" th:text="${#numbers.formatInteger(product.getActiveBasePrice() * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
                         <span th:if="${product.isOnSale()}" class="text-sm font-bold text-slate-400 line-through mb-1 whitespace-nowrap" th:text="${#numbers.formatInteger(product.price * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
                     </div>
-                    <span class="text-[9px] font-black text-amber-600 uppercase tracking-widest mt-1">Pro bydlení (soukromě, <span class="whitespace-nowrap">12 % DPH</span>)</span>
+                    <span class="text-[8px] sm:text-[9px] font-black text-amber-600 uppercase tracking-widest mt-1">Pro bydlení (soukromě, <span class="whitespace-nowrap">12 % DPH</span>)</span>
 
-                    <div class="mt-4 bg-slate-50/80 rounded-xl p-3 border border-slate-100 flex items-center justify-between">
-                        <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Firma / rekreace</span>
-                        <span class="text-xs font-black text-slate-900 whitespace-nowrap">
+                    <!-- B2B Cena (Těsnější uspořádání na jeden řádek) -->
+                    <div class="mt-4 bg-slate-50 rounded-xl p-2.5 sm:p-3 border border-slate-100 flex items-baseline justify-between gap-1">
+                        <span class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Firma / rekreace</span>
+                        <span class="text-[11px] lg:text-xs font-black text-slate-900 whitespace-nowrap leading-none flex items-baseline gap-1">
                             <span th:text="${#numbers.formatInteger(product.getPriceWithTax(), 1, 'WHITESPACE')} + ' Kč'"></span>
-                            <span class="text-[9px] font-bold text-slate-400 ml-0.5 whitespace-nowrap">(21 %)</span>
+                            <span class="font-bold text-[8px] sm:text-[9px] text-slate-400 whitespace-nowrap">(21 % DPH)</span>
                         </span>
                     </div>
 
@@ -94,6 +95,7 @@
             </div>
         </div>
     </div>
+
     <div th:if="${#lists.isEmpty(products)}" class="text-center py-20 bg-slate-50 rounded-3xl border border-slate-100">
         <i data-lucide="package-x" class="w-12 h-12 text-slate-300 mx-auto mb-4"></i>
         <p class="text-sm font-bold text-slate-500 uppercase tracking-widest">Katalog je momentálně prázdný.</p>

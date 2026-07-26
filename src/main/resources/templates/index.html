@@ -21,7 +21,10 @@
         <!-- KONTEJNER PRO TEXT -->
         <div class="relative z-10 px-6 py-16 sm:px-14 w-full max-w-7xl mx-auto flex flex-col items-center text-center lg:items-start lg:text-left">
             <div class="max-w-2xl w-full lg:w-[60%] xl:w-[55%] pt-4 lg:pt-0">
-                <span class="text-amber-400 font-black tracking-widest uppercase text-xs sm:text-sm mb-3 sm:mb-4 block drop-shadow-md">Dřevníky Kolář</span>
+                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/80 text-slate-300 text-xs font-black uppercase tracking-widest border border-slate-700 mb-6">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    Dřevníky Kolář
+                </span>
 
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-4 text-white drop-shadow-lg lg:drop-shadow-none">
                     Prémiové dřevníky a zahradní domky
@@ -49,21 +52,21 @@
 
     <!-- 2. KONKURENČNÍ VÝHODY -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm text-center hover:-translate-y-1 transition-transform duration-300">
+        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm text-center hover:-translate-y-1 transition-transform duration-300">
             <div class="w-14 h-14 mx-auto bg-slate-50 text-slate-800 rounded-2xl flex items-center justify-center mb-6">
                 <i data-lucide="ruler" class="w-7 h-7"></i>
             </div>
             <h3 class="text-lg font-black text-slate-900 mb-3 uppercase tracking-wide">Výroba na míru</h3>
             <p class="text-slate-500 text-sm leading-relaxed">Přizpůsobíme rozměry, barvu i doplňky přesně vašim potřebám a prostoru vaší zahrady.</p>
         </div>
-        <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm text-center hover:-translate-y-1 transition-transform duration-300">
+        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm text-center hover:-translate-y-1 transition-transform duration-300">
             <div class="w-14 h-14 mx-auto bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6">
                 <i data-lucide="shield-check" class="w-7 h-7"></i>
             </div>
             <h3 class="text-lg font-black text-slate-900 mb-3 uppercase tracking-wide">Bezúdržbové provedení</h3>
             <p class="text-slate-500 text-sm leading-relaxed">Používáme certifikované a odolné materiály s precizní povrchovou úpravou pro dlouhou životnost.</p>
         </div>
-        <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm text-center hover:-translate-y-1 transition-transform duration-300">
+        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm text-center hover:-translate-y-1 transition-transform duration-300">
             <div class="w-14 h-14 mx-auto bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-6">
                 <i data-lucide="truck" class="w-7 h-7"></i>
             </div>
@@ -113,8 +116,8 @@
     </section>
 
     <!-- 4. PRODUKTY IHNED K ODBĚRU (CAROUSEL) -->
-    <section th:with="inStockProducts=${featuredProducts.?[stockQuantity > 0]}">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 border-b border-emerald-100 pb-4">
+    <section th:with="inStockProducts=${featuredProducts.?[stockQuantity != null && stockQuantity > 0]}">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 border-b border-emerald-100 pb-4 gap-4">
             <div>
                 <div class="flex items-center gap-2 mb-2">
                     <span class="text-emerald-500 text-[10px] font-black uppercase tracking-widest bg-emerald-50 px-2.5 py-1 rounded-md">Blesková expedice</span>
@@ -122,10 +125,13 @@
                 <h2 class="text-3xl font-black text-slate-900 tracking-tight">Ihned k odběru</h2>
                 <p class="text-slate-500 mt-1">To nejlepší z naší dílny připravené k odeslání. Odborná montáž u vás doma je vždy v ceně.</p>
             </div>
-            <a th:href="@{/produkty}"
-               class="mt-4 sm:mt-0 flex items-center gap-2 font-bold text-sm uppercase tracking-widest text-slate-900 hover:text-amber-600 transition-colors bg-white border border-slate-200 px-5 py-2.5 rounded-xl hover:shadow-sm">
-                Zobrazit e-shop <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-            </a>
+
+            <div class="flex items-center gap-4 w-full sm:w-auto">
+                <a th:href="@{/produkty}"
+                   class="flex-1 sm:flex-none flex justify-center items-center gap-2 font-bold text-sm uppercase tracking-widest text-slate-900 hover:text-amber-600 transition-colors bg-white border border-slate-200 px-5 py-3 rounded-xl hover:shadow-sm">
+                    E-shop <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                </a>
+            </div>
         </div>
 
         <!-- Empty State - Vyprodáno -->
@@ -138,14 +144,14 @@
             </a>
         </div>
 
-        <!-- Swiper Carousel Obal s prostorem pro šipky -->
-        <div th:unless="${#lists.isEmpty(inStockProducts)}" class="w-full relative group sm:px-14">
-            <div class="swiper productSwiper !pb-14 pt-2">
+        <!-- Swiper Carousel Obal (md:px-14 pro šipky od tabletu výše) -->
+        <div th:unless="${#lists.isEmpty(inStockProducts)}" class="w-full relative md:px-14">
+            <div class="swiper productSwiperStock pb-2 pt-2">
                 <div class="swiper-wrapper">
                     <div th:each="product : ${inStockProducts}" class="swiper-slide h-auto">
                         <div class="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all flex flex-col h-full overflow-hidden">
                             <!-- Obrázek a Štítky -->
-                            <a th:href="@{/produkty/{id}(id=${product.id})}" class="block relative h-56 sm:h-64 bg-slate-50 border-b border-slate-100 p-6 flex items-center justify-center group/img">
+                            <a th:href="@{/produkty/{id}(id=${product.id})}" class="block relative h-56 sm:h-64 bg-slate-50 border-b border-slate-100 p-5 sm:p-6 flex items-center justify-center group/img">
                                 <div th:if="${product.isOnSale()}" class="absolute top-4 right-4 bg-rose-600 text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg shadow-sm z-10">
                                     Akce
                                 </div>
@@ -155,8 +161,8 @@
                                 <img th:src="${product.displayImageUrl}" th:alt="${product.name}" class="w-full h-full object-contain mix-blend-multiply group-hover/img:scale-105 transition-transform duration-500"/>
                             </a>
 
-                            <!-- Tělo karty (bez popisu) -->
-                            <div class="flex flex-col flex-grow p-6">
+                            <!-- Tělo karty -->
+                            <div class="flex flex-col flex-grow p-5 sm:p-6">
                                 <a th:href="@{/produkty/{id}(id=${product.id})}" class="text-xl font-black text-slate-900 hover:text-amber-600 transition-colors line-clamp-2 mb-1" th:text="${product.name}">Název</a>
 
                                 <!-- Rozměry -->
@@ -169,17 +175,17 @@
                                 <!-- Spodní nákupní blok natěsno k názvu -->
                                 <div class="mt-auto flex flex-col">
                                     <div class="flex items-end gap-3">
-                                        <span class="text-3xl font-black text-slate-900 tracking-tighter whitespace-nowrap" th:text="${#numbers.formatInteger(product.getActiveBasePrice() * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
+                                        <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tighter whitespace-nowrap" th:text="${#numbers.formatInteger(product.getActiveBasePrice() * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
                                         <span th:if="${product.isOnSale()}" class="text-sm font-bold text-slate-400 line-through mb-1 whitespace-nowrap" th:text="${#numbers.formatInteger(product.price * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
                                     </div>
-                                    <span class="text-[9px] font-black text-amber-600 uppercase tracking-widest mt-1">Pro bydlení (soukromě, <span class="whitespace-nowrap">12 % DPH</span>)</span>
+                                    <span class="text-[8px] sm:text-[9px] font-black text-amber-600 uppercase tracking-widest mt-1">Pro bydlení (soukromě, <span class="whitespace-nowrap">12 % DPH</span>)</span>
 
-                                    <!-- B2B Cena -->
-                                    <div class="mt-4 bg-slate-50/80 rounded-xl p-3 border border-slate-100 flex items-center justify-between">
-                                        <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Firma / rekreace</span>
-                                        <span class="text-xs font-black text-slate-900">
+                                    <!-- B2B Cena (Těsnější uspořádání na jeden řádek) -->
+                                    <div class="mt-4 bg-slate-50 rounded-xl p-2.5 sm:p-3 border border-slate-100 flex items-baseline justify-between gap-1">
+                                        <span class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Firma / rekreace</span>
+                                        <span class="text-[11px] lg:text-xs font-black text-slate-900 whitespace-nowrap leading-none flex items-baseline gap-1">
                                             <span th:text="${#numbers.formatInteger(product.getPriceWithTax(), 1, 'WHITESPACE')} + ' Kč'"></span>
-                                            <span class="font-bold text-[9px] text-slate-400 ml-0.5">(21 %)</span>
+                                            <span class="font-bold text-[8px] sm:text-[9px] text-slate-400 whitespace-nowrap">(21 % DPH)</span>
                                         </span>
                                     </div>
 
@@ -195,18 +201,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="swiper-pagination"></div>
             </div>
 
-            <!-- Vnější šipky - viditelné jen na desktopu -->
-            <div class="swiper-button-prev !hidden sm:flex !w-12 !h-12 !bg-white border border-slate-200 !text-slate-800 rounded-full shadow-lg absolute top-[40%] -translate-y-1/2 -left-3 lg:-left-5 z-10 hover:scale-105 transition-transform after:!text-lg"></div>
-            <div class="swiper-button-next !hidden sm:flex !w-12 !h-12 !bg-white border border-slate-200 !text-slate-800 rounded-full shadow-lg absolute top-[40%] -translate-y-1/2 -right-3 lg:-right-5 z-10 hover:scale-105 transition-transform after:!text-lg"></div>
+            <!-- Vlastní statické šipky do padding zóny md:px-14 -->
+            <button class="swiper-button-prev-stock hidden md:flex w-12 h-12 bg-white border border-slate-200 text-slate-800 rounded-full shadow-md absolute top-[40%] -translate-y-1/2 left-0 z-10 hover:scale-105 transition-all items-center justify-center focus:outline-none disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100">
+                <i data-lucide="chevron-left" class="w-6 h-6"></i>
+            </button>
+            <button class="swiper-button-next-stock hidden md:flex w-12 h-12 bg-white border border-slate-200 text-slate-800 rounded-full shadow-md absolute top-[40%] -translate-y-1/2 right-0 z-10 hover:scale-105 transition-all items-center justify-center focus:outline-none disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100">
+                <i data-lucide="chevron-right" class="w-6 h-6"></i>
+            </button>
         </div>
     </section>
 
     <!-- 5. PRODUKTY NA ZAKÁZKU (CAROUSEL) -->
-    <section id="na-zakazku" th:with="customProducts=${featuredProducts.?[stockQuantity <= 0]}">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 border-b border-amber-100 pb-4">
+    <section id="na-zakazku" th:with="customProducts=${featuredProducts.?[stockQuantity == null || stockQuantity <= 0]}">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 border-b border-amber-100 pb-4 gap-4">
             <div>
                 <div class="flex items-center gap-2 mb-2">
                     <span class="text-amber-600 bg-amber-50 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md">Poctivá ruční tesařina</span>
@@ -214,24 +223,27 @@
                 <h2 class="text-3xl font-black text-slate-900 tracking-tight">Na zakázku s montáží do 5 týdnů</h2>
                 <p class="text-slate-500 mt-1">Kousky, které pro vás vyrobíme zcela od nuly. Odborná montáž u vás doma je vždy v ceně.</p>
             </div>
-            <a th:href="@{/kontakt}"
-               class="mt-4 sm:mt-0 flex items-center gap-2 font-bold text-sm uppercase tracking-widest text-slate-900 hover:text-amber-600 transition-colors bg-white border border-slate-200 px-5 py-2.5 rounded-xl hover:shadow-sm">
-                Napište nám <i data-lucide="mail" class="w-4 h-4"></i>
-            </a>
+
+            <div class="flex items-center gap-4 w-full sm:w-auto">
+                <a th:href="@{/kontakt}"
+                   class="flex-1 sm:flex-none flex justify-center items-center gap-2 font-bold text-sm uppercase tracking-widest text-slate-900 hover:text-amber-600 transition-colors bg-white border border-slate-200 px-5 py-3 rounded-xl hover:shadow-sm">
+                    Napište nám <i data-lucide="mail" class="w-4 h-4"></i>
+                </a>
+            </div>
         </div>
 
         <div th:if="${#lists.isEmpty(customProducts)}" class="bg-slate-50 rounded-[2rem] p-10 text-center border border-slate-100">
             <p class="text-slate-500 font-medium">Momentálně nemáme v nabídce žádné produkty čistě na zakázku.</p>
         </div>
 
-        <!-- Swiper Carousel Obal s prostorem pro šipky -->
-        <div th:unless="${#lists.isEmpty(customProducts)}" class="w-full relative group sm:px-14">
-            <div class="swiper productSwiper !pb-14 pt-2">
+        <!-- Swiper Carousel Obal -->
+        <div th:unless="${#lists.isEmpty(customProducts)}" class="w-full relative md:px-14">
+            <div class="swiper productSwiperCustom pb-2 pt-2">
                 <div class="swiper-wrapper">
                     <div th:each="product : ${customProducts}" class="swiper-slide h-auto">
                         <div class="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all flex flex-col h-full overflow-hidden">
                             <!-- Obrázek a Štítky -->
-                            <a th:href="@{/produkty/{id}(id=${product.id})}" class="block relative h-56 sm:h-64 bg-slate-50 border-b border-slate-100 p-6 flex items-center justify-center group/img">
+                            <a th:href="@{/produkty/{id}(id=${product.id})}" class="block relative h-56 sm:h-64 bg-slate-50 border-b border-slate-100 p-5 sm:p-6 flex items-center justify-center group/img">
                                 <div th:if="${product.isOnSale()}" class="absolute top-4 right-4 bg-rose-600 text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg shadow-sm z-10">
                                     Akce
                                 </div>
@@ -241,35 +253,36 @@
                                 <img th:src="${product.displayImageUrl}" th:alt="${product.name}" class="w-full h-full object-contain mix-blend-multiply group-hover/img:scale-105 transition-transform duration-500"/>
                             </a>
 
-                            <!-- Tělo karty (bez popisu) -->
-                            <div class="flex flex-col flex-grow p-6">
+                            <!-- Tělo karty -->
+                            <div class="flex flex-col flex-grow p-5 sm:p-6">
                                 <a th:href="@{/produkty/{id}(id=${product.id})}" class="text-xl font-black text-slate-900 hover:text-amber-600 transition-colors line-clamp-2 mb-1" th:text="${product.name}">Název</a>
 
                                 <!-- Rozměry -->
                                 <div th:if="${product.width != null and product.depth != null and product.height != null}"
-                                     class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 mb-4">
+                                     class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 mb-2">
                                     <i data-lucide="ruler" class="w-3.5 h-3.5 text-slate-300"></i>
                                     <span th:text="${#numbers.formatDecimal(product.width, 1, 0)} + ' x ' + ${#numbers.formatDecimal(product.depth, 1, 0)} + ' x ' + ${#numbers.formatDecimal(product.height, 1, 0)} + ' cm'"></span>
                                 </div>
 
+                                <div class="flex items-center gap-2 mt-1 mb-4">
+                                    <i data-lucide="hammer" class="w-4 h-4 text-amber-500"></i>
+                                    <span class="text-xs font-black text-amber-600">Montáž do 5 týdnů</span>
+                                </div>
+
                                 <!-- Spodní nákupní blok -->
                                 <div class="mt-auto flex flex-col">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <i data-lucide="hammer" class="w-4 h-4 text-amber-500"></i>
-                                        <span class="text-xs font-black text-amber-600">Montáž do 5 týdnů</span>
-                                    </div>
                                     <div class="flex items-end gap-3">
-                                        <span class="text-3xl font-black text-slate-900 tracking-tighter whitespace-nowrap" th:text="${#numbers.formatInteger(product.getActiveBasePrice() * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
+                                        <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tighter whitespace-nowrap" th:text="${#numbers.formatInteger(product.getActiveBasePrice() * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
                                         <span th:if="${product.isOnSale()}" class="text-sm font-bold text-slate-400 line-through mb-1 whitespace-nowrap" th:text="${#numbers.formatInteger(product.price * 1.12, 1, 'WHITESPACE')} + ' Kč'"></span>
                                     </div>
-                                    <span class="text-[9px] font-black text-amber-600 uppercase tracking-widest mt-1">Pro bydlení (soukromě, <span class="whitespace-nowrap">12 % DPH</span>)</span>
+                                    <span class="text-[8px] sm:text-[9px] font-black text-amber-600 uppercase tracking-widest mt-1">Pro bydlení (soukromě, <span class="whitespace-nowrap">12 % DPH</span>)</span>
 
                                     <!-- B2B Cena -->
-                                    <div class="mt-4 bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center justify-between">
-                                        <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Firma / rekreace</span>
-                                        <span class="text-xs font-black text-slate-900 whitespace-nowrap">
+                                    <div class="mt-4 bg-slate-50 rounded-xl p-2.5 sm:p-3 border border-slate-100 flex items-baseline justify-between gap-1">
+                                        <span class="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Firma / rekreace</span>
+                                        <span class="text-[11px] lg:text-xs font-black text-slate-900 whitespace-nowrap leading-none flex items-baseline gap-1">
                                             <span th:text="${#numbers.formatInteger(product.getPriceWithTax(), 1, 'WHITESPACE')} + ' Kč'"></span>
-                                            <span class="font-bold text-[9px] text-slate-400 ml-0.5">(21 %)</span>
+                                            <span class="font-bold text-[8px] sm:text-[9px] text-slate-400 whitespace-nowrap">(21 % DPH)</span>
                                         </span>
                                     </div>
 
@@ -285,12 +298,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="swiper-pagination"></div>
             </div>
 
-            <!-- Vnější šipky - viditelné jen na desktopu -->
-            <div class="swiper-button-prev !hidden sm:flex !w-12 !h-12 !bg-white border border-slate-200 !text-slate-800 rounded-full shadow-md absolute top-[40%] -translate-y-1/2 -left-3 lg:-left-5 z-10 hover:scale-105 transition-transform after:!text-lg"></div>
-            <div class="swiper-button-next !hidden sm:flex !w-12 !h-12 !bg-white border border-slate-200 !text-slate-800 rounded-full shadow-md absolute top-[40%] -translate-y-1/2 -right-3 lg:-right-5 z-10 hover:scale-105 transition-transform after:!text-lg"></div>
+            <!-- Vlastní statické šipky -->
+            <button class="swiper-button-prev-custom hidden md:flex w-12 h-12 bg-white border border-slate-200 text-slate-800 rounded-full shadow-md absolute top-[40%] -translate-y-1/2 left-0 z-10 hover:scale-105 transition-all items-center justify-center focus:outline-none disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100">
+                <i data-lucide="chevron-left" class="w-6 h-6"></i>
+            </button>
+            <button class="swiper-button-next-custom hidden md:flex w-12 h-12 bg-white border border-slate-200 text-slate-800 rounded-full shadow-md absolute top-[40%] -translate-y-1/2 right-0 z-10 hover:scale-105 transition-all items-center justify-center focus:outline-none disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100">
+                <i data-lucide="chevron-right" class="w-6 h-6"></i>
+            </button>
         </div>
     </section>
 
@@ -307,7 +323,7 @@
                         <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
                     </span>
 
-                    <span class="text-red-600 bg-red-50 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md">
+                    <span class="text-red-600 bg-red-50 border border-red-100 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md">
                         Aktuálně z terénu
                     </span>
                 </div>
@@ -321,90 +337,96 @@
                 </p>
             </div>
 
-            <a th:href="@{/kontakt}"
-               class="inline-flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest text-slate-900 hover:text-amber-600 bg-white border border-slate-200 px-5 py-3 rounded-xl hover:shadow-sm transition-all">
-                <i data-lucide="hammer" class="w-4 h-4"></i>
-                Chci vlastní realizaci
-            </a>
+            <div class="flex items-center gap-4 mt-4 sm:mt-0 w-full sm:w-auto">
+                <a th:href="@{/kontakt}"
+                   class="flex-1 sm:flex-none flex justify-center items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-900 hover:text-amber-600 bg-white border border-slate-200 px-5 py-3 rounded-xl hover:shadow-sm transition-all">
+                    <i data-lucide="hammer" class="w-4 h-4"></i>
+                    Vlastní realizace
+                </a>
+            </div>
         </div>
 
-        <div class="space-y-10">
-            <article th:each="post : ${installationPosts}"
-                     data-testid="installation-post-card"
-                     class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+        <div class="w-full relative md:px-14">
+            <div class="swiper installationSwiper pb-2 pt-2 overflow-visible">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide h-auto" th:each="post : ${installationPosts}">
+                        <article data-testid="installation-post-card" class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden h-full flex flex-col mx-auto max-w-sm w-full hover:shadow-xl transition-all">
 
-                <!-- Hlavička příspěvku -->
-                <div class="p-6 sm:p-8 border-b border-slate-100">
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
-                            <i data-lucide="hard-hat" class="w-6 h-6 sm:w-7 sm:h-7"></i>
-                        </div>
-
-                        <div class="min-w-0 flex-grow">
-                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                                <div>
-                                    <h3 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight"
-                                        th:text="${post.title}">
-                                        Montáž dřevníku
-                                    </h3>
-
-                                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2">
-                                        <span class="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1.5 rounded-lg">
-                                            <i data-lucide="package" class="w-3.5 h-3.5"></i>
-                                            <span th:text="${post.productName}">Dřevník XXL</span>
-                                        </span>
-
-                                        <time class="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400"
-                                              th:datetime="${post.assemblyDate}"
-                                              th:text="${#temporals.format(post.assemblyDate, 'dd.MM.yyyy')}">
-                                            18.07.2026
-                                        </time>
+                            <!-- Hlavička příspěvku -->
+                            <div class="p-6 border-b border-slate-100">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
+                                        <i data-lucide="hard-hat" class="w-6 h-6"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <h4 class="font-black text-sm text-slate-900 leading-tight">FajnDřevo s.r.o.</h4>
+                                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 flex items-center gap-1.5">
+                                            <time th:datetime="${post.assemblyDate}" th:text="${#temporals.format(post.assemblyDate, 'dd.MM.yyyy')}"></time>
+                                            <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                                            <i data-lucide="globe" class="w-3 h-3"></i>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <span class="inline-flex items-center gap-1.5 self-start text-[10px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-full">
-                                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
-                                    Dokončeno
-                                </span>
                             </div>
 
-                            <p class="mt-5 text-sm sm:text-base text-slate-600 leading-relaxed whitespace-pre-line"
-                               th:text="${post.content}">
-                                Popis dokončené montáže.
-                            </p>
-                        </div>
+                            <!-- Text -->
+                            <div class="px-6 py-4">
+                                <h5 class="text-xs font-black text-slate-900 uppercase tracking-widest mb-1" th:text="${post.title}">Nadpis</h5>
+                                <p class="text-sm font-medium text-slate-600 leading-relaxed line-clamp-3" th:text="${post.content}">Popis...</p>
+                            </div>
+
+                            <!-- Facebook-style mřížka obrázků -->
+                            <div th:if="${post.images != null and !#lists.isEmpty(post.images)}"
+                                 data-testid="installation-post-gallery"
+                                 class="grid gap-1 bg-slate-100"
+                                 th:classappend="${#lists.size(post.images) == 1 ? 'grid-cols-1' : 'grid-cols-2'}">
+
+                                <a th:each="image, imageStat : ${post.images}"
+                                   th:href="${'/images/' + image.imageUrl}"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   data-testid="installation-post-image"
+                                   class="relative block overflow-hidden bg-slate-200 group"
+                                   th:classappend="${#lists.size(post.images) == 1 ? 'aspect-[16/9]' : (#lists.size(post.images) == 3 and imageStat.index == 0 ? 'row-span-2 min-h-[200px] sm:min-h-[240px]' : 'aspect-square')}">
+
+                                    <img th:src="${'/images/' + image.imageUrl}"
+                                         th:alt="${post.title + ' – fotografie ' + (imageStat.index + 1)}"
+                                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                         loading="lazy">
+
+                                    <div class="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors"></div>
+
+                                    <div class="absolute right-3 bottom-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <span class="w-8 h-8 bg-white/90 backdrop-blur-sm text-slate-900 rounded-full shadow-sm flex items-center justify-center">
+                                            <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+                                        </span>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <!-- Action bar -->
+                            <div class="px-6 py-4 flex items-center justify-between bg-white border-t border-slate-100 mt-auto">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="package" class="w-4 h-4 text-slate-400"></i>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-500" th:text="${post.productName}">Produkt</span>
+                                </div>
+                                <a th:href="@{/montaze/{id}(id=${post.id})}" class="text-xs font-black uppercase tracking-widest text-amber-600 hover:text-amber-700 transition-colors flex items-center gap-1">
+                                    Detail <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                                </a>
+                            </div>
+
+                        </article>
                     </div>
                 </div>
+                <div class="swiper-pagination"></div>
+            </div>
 
-                <!-- Facebook-style mřížka obrázků -->
-                <div th:if="${post.images != null and !#lists.isEmpty(post.images)}"
-                     data-testid="installation-post-gallery"
-                     class="grid gap-1.5 bg-slate-100"
-                     th:classappend="${#lists.size(post.images) == 1 ? 'grid-cols-1' : 'grid-cols-2'}">
-
-                    <a th:each="image, imageStat : ${post.images}"
-                       th:href="${'/images/' + image.imageUrl}"
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       data-testid="installation-post-image"
-                       class="relative block overflow-hidden bg-slate-200 group"
-                       th:classappend="${#lists.size(post.images) == 1 ? 'aspect-[16/9]' : (#lists.size(post.images) == 3 and imageStat.index == 0 ? 'row-span-2 min-h-[320px] sm:min-h-[480px]' : 'aspect-square')}">
-
-                        <img th:src="${'/images/' + image.imageUrl}"
-                             th:alt="${post.title + ' – fotografie ' + (imageStat.index + 1)}"
-                             class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                             loading="lazy">
-
-                        <div class="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors"></div>
-
-                        <div class="absolute right-3 bottom-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span class="w-9 h-9 bg-white/90 backdrop-blur-sm text-slate-900 rounded-full shadow-lg flex items-center justify-center">
-                                <i data-lucide="maximize-2" class="w-4 h-4"></i>
-                            </span>
-                        </div>
-                    </a>
-                </div>
-            </article>
+            <button class="swiper-button-prev-inst hidden md:flex w-12 h-12 bg-white border border-slate-200 text-slate-800 rounded-full shadow-md absolute top-[40%] -translate-y-1/2 left-0 z-10 hover:scale-105 transition-all items-center justify-center focus:outline-none disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100">
+                <i data-lucide="chevron-left" class="w-6 h-6"></i>
+            </button>
+            <button class="swiper-button-next-inst hidden md:flex w-12 h-12 bg-white border border-slate-200 text-slate-800 rounded-full shadow-md absolute top-[40%] -translate-y-1/2 right-0 z-10 hover:scale-105 transition-all items-center justify-center focus:outline-none disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100">
+                <i data-lucide="chevron-right" class="w-6 h-6"></i>
+            </button>
         </div>
     </section>
 
@@ -427,7 +449,6 @@
                 </div>
                 <p class="text-sm text-slate-500 mb-4">Na základě <strong>18 hodnocení</strong></p>
                 <a href="https://g.page/r/CclukMw6zlf4EBM/review" target="_blank" title="Vyplnit Google recenzi" class="opacity-80 hover:opacity-100 transition-opacity">
-                    <!-- Použit zástupný znak pro Google logo (či text pokud není logo nahráno) -->
                     <span class="font-black text-slate-800 text-lg flex items-center gap-2">
                         <i data-lucide="message-square-quote" class="text-amber-500"></i> Google Recenze
                     </span>
@@ -498,7 +519,6 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Swiper Pagination -->
                     <div class="swiper-pagination"></div>
                 </div>
             </div>
@@ -593,37 +613,54 @@
                 }
             });
 
-            // 3. Inicializace Swiperu pro Produkty (Mobil centered, Desktop Šipky)
-            const productSwipers = document.querySelectorAll('.productSwiper');
-            productSwipers.forEach(function(swiperElement) {
-                new Swiper(swiperElement, {
-                    // Mobil (default): ukáže právě 1 kartu a bude perfektě uprostřed bez přesahů.
-                    slidesPerView: 1,
-                    spaceBetween: 16,
-                    navigation: {
-                        nextEl: swiperElement.parentElement.querySelector('.swiper-button-next'),
-                        prevEl: swiperElement.parentElement.querySelector('.swiper-button-prev'),
-                    },
-                    pagination: {
-                        el: swiperElement.querySelector(".swiper-pagination"),
-                        clickable: true,
-                        dynamicBullets: true,
-                    },
-                    breakpoints: {
-                        640: {
-                            slidesPerView: 2.2,
-                            spaceBetween: 20,
-                        },
-                        1024: {
-                            slidesPerView: 3,
-                            spaceBetween: 24,
-                        },
-                        1280: {
-                            slidesPerView: 4,
-                            spaceBetween: 24,
-                        }
-                    }
-                });
+            // 3. Inicializace Swiperů (Oddělené objekty zajišťují korektní navázání šipek z hlavičky)
+
+            // Skladové produkty
+            new Swiper(".productSwiperStock", {
+                slidesPerView: 1,
+                spaceBetween: 16,
+                watchOverflow: true, // Zamezí padnutí karuselu pokud je málo slidů
+                navigation: {
+                    nextEl: '.swiper-button-next-stock',
+                    prevEl: '.swiper-button-prev-stock',
+                },
+                breakpoints: {
+                    640: { slidesPerView: 2, spaceBetween: 20 },
+                    1024: { slidesPerView: 3, spaceBetween: 24 },
+                    1280: { slidesPerView: 4, spaceBetween: 24 }
+                }
+            });
+
+            // Produkty na zakázku
+            new Swiper(".productSwiperCustom", {
+                slidesPerView: 1,
+                spaceBetween: 16,
+                watchOverflow: true,
+                navigation: {
+                    nextEl: '.swiper-button-next-custom',
+                    prevEl: '.swiper-button-prev-custom',
+                },
+                breakpoints: {
+                    640: { slidesPerView: 2, spaceBetween: 20 },
+                    1024: { slidesPerView: 3, spaceBetween: 24 },
+                    1280: { slidesPerView: 4, spaceBetween: 24 }
+                }
+            });
+
+            // Montáže
+            new Swiper(".installationSwiper", {
+                slidesPerView: 1,
+                spaceBetween: 16,
+                watchOverflow: true,
+                navigation: {
+                    nextEl: '.swiper-button-next-inst',
+                    prevEl: '.swiper-button-prev-inst',
+                },
+                breakpoints: {
+                    640: { slidesPerView: 2, spaceBetween: 20 },
+                    1024: { slidesPerView: 3, spaceBetween: 24 },
+                    1280: { slidesPerView: 3, spaceBetween: 24 }
+                }
             });
         });
     </script>
