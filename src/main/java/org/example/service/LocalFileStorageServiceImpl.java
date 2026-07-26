@@ -15,79 +15,207 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
-
 @Slf4j
 @Service
-public class LocalFileStorageServiceImpl implements FileStorageService {
+public class LocalFileStorageServiceImpl
+        implements FileStorageService {
 
     private final Path fileStorageLocation;
 
-    public LocalFileStorageServiceImpl(@Value("${app.storage.local-dir:./local-storage/}") String uploadDir) {
-        this.fileStorageLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
+    public LocalFileStorageServiceImpl(
+            @Value(
+                    "${app.storage.local-dir:./local-storage/}"
+            )
+            String baseStorageDirectory
+    ) {
+        this.fileStorageLocation = Paths
+                .get(baseStorageDirectory)
+                .resolve("images")
+                .toAbsolutePath()
+                .normalize();
     }
 
     @PostConstruct
     public void init() {
         try {
-            Files.createDirectories(this.fileStorageLocation);
-            log.info("Initialized local storage directory at: {}", this.fileStorageLocation);
-        } catch (Exception ex) {
-            log.error("Could not create the directory where the uploaded files will be stored.", ex);
-            throw new RuntimeException("Could not create the directory where the uploaded files will be stored.", ex);
+            Files.createDirectories(
+                    fileStorageLocation
+            );
+
+            log.info(
+                    "Initialized image storage directory at: {}",
+                    fileStorageLocation
+            );
+        } catch (IOException exception) {
+            log.error(
+                    "Could not create the directory where images will be stored.",
+                    exception
+            );
+
+            throw new IllegalStateException(
+                    "Nepodařilo se vytvořit adresář pro ukládání obrázků.",
+                    exception
+            );
         }
     }
 
     @Override
     public String storeFile(MultipartFile file) {
-        String originalFileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Nelze uložit prázdný soubor."
+            );
+        }
+
+        String originalFileName = StringUtils.cleanPath(
+                Objects.requireNonNullElse(
+                        file.getOriginalFilename(),
+                        ""
+                )
+        );
+
+        if (!StringUtils.hasText(originalFileName)) {
+            throw new IllegalArgumentException(
+                    "Soubor nemá platný název."
+            );
+        }
+
+        if (originalFileName.contains("..")) {
+            throw new IllegalArgumentException(
+                    "Název souboru obsahuje nepovolenou cestu: "
+                            + originalFileName
+            );
+        }
+
+        String extension = StringUtils
+                .getFilenameExtension(originalFileName);
+
+        if (!StringUtils.hasText(extension)) {
+            throw new IllegalArgumentException(
+                    "Soubor musí obsahovat příponu."
+            );
+        }
+
+        String targetFileName =
+                UUID.randomUUID()
+                        + "."
+                        + extension.toLowerCase(
+                        Locale.ROOT
+                );
+
+        Path targetLocation = resolveSafePath(
+                targetFileName
+        );
 
         try {
-            if (originalFileName.contains("..")) {
-                throw new RuntimeException("Sorry! Filename contains invalid path sequence " + originalFileName);
-            }
+            Files.copy(
+                    file.getInputStream(),
+                    targetLocation,
+                    StandardCopyOption.REPLACE_EXISTING
+            );
 
-            String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
-            String targetFileName = UUID.randomUUID().toString() + extension;
+            log.info(
+                    "Stored image locally: {}",
+                    targetFileName
+            );
 
-            Path targetLocation = this.fileStorageLocation.resolve(targetFileName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-
-            log.info("Stored file locally: {}", targetFileName);
             return targetFileName;
-
-        } catch (IOException ex) {
-            throw new RuntimeException("Could not store file " + originalFileName + ". Please try again!", ex);
+        } catch (IOException exception) {
+            throw new IllegalStateException(
+                    "Soubor "
+                            + originalFileName
+                            + " se nepodařilo uložit.",
+                    exception
+            );
         }
     }
 
     @Override
-    public Resource loadFileAsResource(String fileName) {
+    public Resource loadFileAsResource(
+            String fileName
+    ) {
+        Path filePath = resolveSafePath(fileName);
+
         try {
-            Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
-            Resource resource = new UrlResource(filePath.toUri());
-            if (resource.exists()) {
+            Resource resource = new UrlResource(
+                    filePath.toUri()
+            );
+
+            if (resource.exists()
+                    && resource.isReadable()) {
                 return resource;
-            } else {
-                throw new RuntimeException("File not found " + fileName);
             }
-        } catch (Exception ex) {
-            throw new RuntimeException("File not found " + fileName, ex);
+
+            throw new FileNotFoundException(
+                    "Soubor nebyl nalezen: "
+                            + fileName
+            );
+        } catch (IOException exception) {
+            throw new IllegalStateException(
+                    "Soubor nebyl nalezen: "
+                            + fileName,
+                    exception
+            );
         }
     }
 
     @Override
     public void deleteFile(String fileName) {
-        try {
-            Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
-            boolean deleted = Files.deleteIfExists(filePath);
-            if (deleted) {
-                log.info("Deleted file: {}", fileName);
-            }
-        } catch (IOException ex) {
-            throw new RuntimeException("Could not delete file " + fileName, ex);
+        if (!StringUtils.hasText(fileName)) {
+            return;
         }
+
+        Path filePath = resolveSafePath(fileName);
+
+        try {
+            boolean deleted =
+                    Files.deleteIfExists(filePath);
+
+            if (deleted) {
+                log.info(
+                        "Deleted image file: {}",
+                        fileName
+                );
+            } else {
+                log.warn(
+                        "Image file did not exist during deletion: {}",
+                        fileName
+                );
+            }
+        } catch (IOException exception) {
+            throw new IllegalStateException(
+                    "Soubor "
+                            + fileName
+                            + " se nepodařilo smazat.",
+                    exception
+            );
+        }
+    }
+
+    private Path resolveSafePath(String fileName) {
+        if (!StringUtils.hasText(fileName)) {
+            throw new IllegalArgumentException(
+                    "Název souboru nesmí být prázdný."
+            );
+        }
+
+        Path resolvedPath = fileStorageLocation
+                .resolve(fileName)
+                .normalize();
+
+        if (!resolvedPath.startsWith(
+                fileStorageLocation
+        )) {
+            throw new IllegalArgumentException(
+                    "Neplatná cesta k souboru: "
+                            + fileName
+            );
+        }
+
+        return resolvedPath;
     }
 }

@@ -21,6 +21,7 @@
     </a>
 
     <div class="mb-8">
+
         <h1 class="text-3xl font-black text-gray-900 tracking-tight uppercase"
             th:text="${installationPost.id == null
                 ? 'Nový příspěvek z montáže'
@@ -30,8 +31,27 @@
         </h1>
 
         <p class="mt-1 text-sm text-gray-500">
-            Příspěvek se po aktivaci zobrazí v sekci Živě z montáží na úvodní stránce.
+            Příspěvek se po aktivaci zobrazí v sekci
+            Živě z montáží na úvodní stránce.
         </p>
+    </div>
+
+    <div th:if="${success}"
+         class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-bold text-emerald-800 flex items-center gap-3">
+
+        <i data-lucide="check-circle-2"
+           class="w-5 h-5"></i>
+
+        <span th:text="${success}"></span>
+    </div>
+
+    <div th:if="${error}"
+         class="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-bold text-red-800 flex items-center gap-3">
+
+        <i data-lucide="circle-alert"
+           class="w-5 h-5"></i>
+
+        <span th:text="${error}"></span>
     </div>
 
     <form th:action="@{/admin/installation-posts/save}"
@@ -48,6 +68,7 @@
              class="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800">
 
             <div class="flex items-center gap-2 font-black uppercase tracking-widest text-xs mb-2">
+
                 <i data-lucide="circle-alert"
                    class="w-4 h-4"></i>
 
@@ -55,7 +76,8 @@
             </div>
 
             <p>
-                Zkontrolujte označená pole a zkuste formulář odeslat znovu.
+                Zkontrolujte označená pole a zkuste formulář
+                odeslat znovu.
             </p>
         </div>
 
@@ -64,11 +86,13 @@
             <div class="flex items-center gap-3 mb-7">
 
                 <div class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+
                     <i data-lucide="file-pen-line"
                        class="w-5 h-5"></i>
                 </div>
 
                 <div>
+
                     <h2 class="text-lg font-black text-slate-900 uppercase tracking-tight">
                         Informace o montáži
                     </h2>
@@ -85,6 +109,7 @@
 
                     <label for="title"
                            class="block mb-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+
                         Název příspěvku
                     </label>
 
@@ -99,13 +124,15 @@
 
                     <p th:if="${#fields.hasErrors('title')}"
                        th:errors="*{title}"
-                       class="mt-2 text-xs font-bold text-red-600"></p>
+                       class="mt-2 text-xs font-bold text-red-600">
+                    </p>
                 </div>
 
                 <div>
 
                     <label for="productName"
                            class="block mb-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+
                         Produkt
                     </label>
 
@@ -120,13 +147,15 @@
 
                     <p th:if="${#fields.hasErrors('productName')}"
                        th:errors="*{productName}"
-                       class="mt-2 text-xs font-bold text-red-600"></p>
+                       class="mt-2 text-xs font-bold text-red-600">
+                    </p>
                 </div>
 
                 <div>
 
                     <label for="assemblyDate"
                            class="block mb-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+
                         Datum montáže
                     </label>
 
@@ -140,13 +169,15 @@
 
                     <p th:if="${#fields.hasErrors('assemblyDate')}"
                        th:errors="*{assemblyDate}"
-                       class="mt-2 text-xs font-bold text-red-600"></p>
+                       class="mt-2 text-xs font-bold text-red-600">
+                    </p>
                 </div>
 
                 <div class="md:col-span-2">
 
                     <label for="content"
                            class="block mb-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+
                         Popis montáže
                     </label>
 
@@ -157,11 +188,13 @@
                               class="w-full resize-y rounded-xl border px-4 py-3 text-sm font-medium leading-relaxed text-slate-900 outline-none transition focus:ring-2 focus:ring-amber-500"
                               th:classappend="${#fields.hasErrors('content')}
                                 ? ' border-red-400 bg-red-50'
-                                : ' border-slate-200 bg-white'"></textarea>
+                                : ' border-slate-200 bg-white'">
+                    </textarea>
 
                     <p th:if="${#fields.hasErrors('content')}"
                        th:errors="*{content}"
-                       class="mt-2 text-xs font-bold text-red-600"></p>
+                       class="mt-2 text-xs font-bold text-red-600">
+                    </p>
                 </div>
             </div>
         </div>
@@ -171,11 +204,13 @@
             <div class="flex items-center gap-3 mb-7">
 
                 <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+
                     <i data-lucide="images"
                        class="w-5 h-5"></i>
                 </div>
 
                 <div>
+
                     <h2 class="text-lg font-black text-slate-900 uppercase tracking-tight">
                         Fotografie
                     </h2>
@@ -188,26 +223,64 @@
 
             <div th:if="${installationPost.images != null
                     and !#lists.isEmpty(installationPost.images)}"
-                 class="mb-7">
+                 class="mb-8">
 
-                <h3 class="mb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                    Aktuální fotografie
-                </h3>
+                <div class="mb-4 flex items-center justify-between gap-4">
+
+                    <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                        Aktuální fotografie
+                    </h3>
+
+                    <span class="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black text-slate-500 uppercase tracking-widest"
+                          th:text="${#lists.size(installationPost.images)} + ' fotografií'">
+
+                        0 fotografií
+                    </span>
+                </div>
 
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
 
                     <div th:each="image : ${installationPost.images}"
                          data-testid="existing-installation-image"
-                         class="aspect-square rounded-2xl overflow-hidden border border-slate-200 bg-slate-100">
+                         class="relative group rounded-2xl overflow-hidden border border-slate-200 bg-slate-100">
 
-                        <img th:src="${'/images/' + image.imageUrl}"
-                             th:alt="${installationPost.title}"
-                             class="w-full h-full object-cover">
+                        <div class="aspect-square">
+
+                            <img th:src="${'/images/' + image.imageUrl}"
+                                 th:alt="${installationPost.title}"
+                                 class="w-full h-full object-cover">
+                        </div>
+
+                        <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-slate-950/90 via-slate-950/60 to-transparent opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+
+                            <button type="submit"
+                                    formmethod="post"
+                                    formnovalidate
+                                    th:formaction="@{/admin/installation-posts/{postId}/images/{imageId}/delete(
+                                            postId=${installationPost.id},
+                                            imageId=${image.id}
+                                    )}"
+                                    onclick="return confirm('Opravdu chcete tuto fotografii trvale odstranit?');"
+                                    class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-3 py-2.5 text-[10px] font-black text-white uppercase tracking-widest hover:bg-red-700 transition-colors">
+
+                                <i data-lucide="trash-2"
+                                   class="w-3.5 h-3.5"></i>
+
+                                Odstranit
+                            </button>
+                        </div>
+
+                        <span class="absolute left-2 top-2 inline-flex min-w-7 h-7 items-center justify-center rounded-full bg-slate-950/75 px-2 text-[10px] font-black text-white"
+                              th:text="${image.displayOrder + 1}">
+
+                            1
+                        </span>
                     </div>
                 </div>
 
-                <p class="mt-3 text-xs text-slate-400">
-                    Nově vybrané fotografie budou přidány k existujícím obrázkům.
+                <p class="mt-4 text-xs text-slate-400">
+                    Nově vybrané fotografie budou přidány za
+                    existující obrázky.
                 </p>
             </div>
 
@@ -243,13 +316,15 @@
                        class="mt-1 h-5 w-5 rounded border-slate-300 text-amber-500 focus:ring-amber-500">
 
                 <span>
+
                     <span class="block text-sm font-black text-slate-900 uppercase tracking-tight">
                         Aktivní příspěvek
                     </span>
 
                     <span class="block mt-1 text-xs text-slate-500 leading-relaxed">
-                        Aktivní příspěvek bude veřejně zobrazen na úvodní stránce.
-                        Neaktivní příspěvek zůstane pouze v administraci.
+                        Aktivní příspěvek bude veřejně zobrazen
+                        na úvodní stránce. Neaktivní příspěvek
+                        zůstane pouze v administraci.
                     </span>
                 </span>
             </label>
@@ -259,6 +334,7 @@
 
             <a th:href="@{/admin/installation-posts}"
                class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-6 py-3 text-xs font-black text-slate-600 uppercase tracking-widest hover:bg-slate-50 transition-colors">
+
                 Zrušit
             </a>
 

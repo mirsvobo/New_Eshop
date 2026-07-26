@@ -15,46 +15,134 @@ class LocalFileStorageServiceImplTest {
 
     private LocalFileStorageServiceImpl storageService;
 
+    private Path imagesDirectory;
+
     @TempDir
-    Path tempDir;
+    Path tempDirectory;
 
     @BeforeEach
     void setUp() {
-        storageService = new LocalFileStorageServiceImpl(tempDir.toString());
+        imagesDirectory = tempDirectory.resolve(
+                "images"
+        );
+
+        storageService =
+                new LocalFileStorageServiceImpl(
+                        tempDirectory.toString()
+                );
+
         storageService.init();
     }
 
     @Test
-    void storeFile_SavesFileSuccessfully() throws IOException {
-        MockMultipartFile file = new MockMultipartFile(
-                "image", "test-image.jpg", "image/jpeg", "test data".getBytes()
+    void init_CreatesImagesDirectory() {
+        assertTrue(
+                Files.isDirectory(imagesDirectory)
         );
+    }
 
-        String savedName = storageService.storeFile(file);
+    @Test
+    void storeFile_SavesFileSuccessfully()
+            throws IOException {
+        MockMultipartFile file =
+                new MockMultipartFile(
+                        "image",
+                        "test-image.jpg",
+                        "image/jpeg",
+                        "test data".getBytes()
+                );
+
+        String savedName =
+                storageService.storeFile(file);
 
         assertNotNull(savedName);
         assertTrue(savedName.endsWith(".jpg"));
-        assertTrue(Files.exists(tempDir.resolve(savedName)));
+
+        assertTrue(
+                Files.exists(
+                        imagesDirectory.resolve(
+                                savedName
+                        )
+                )
+        );
+
+        assertEquals(
+                "test data",
+                Files.readString(
+                        imagesDirectory.resolve(
+                                savedName
+                        )
+                )
+        );
     }
 
     @Test
     void storeFile_InvalidPathSequence_ThrowsException() {
-        MockMultipartFile file = new MockMultipartFile(
-                "image", "../test.jpg", "image/jpeg", "data".getBytes()
-        );
+        MockMultipartFile file =
+                new MockMultipartFile(
+                        "image",
+                        "../test.jpg",
+                        "image/jpeg",
+                        "data".getBytes()
+                );
 
-        assertThrows(RuntimeException.class, () -> storageService.storeFile(file));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> storageService.storeFile(file)
+        );
     }
 
     @Test
-    void deleteFile_RemovesFileFromDisk() throws IOException {
+    void storeFile_FileWithoutExtension_ThrowsException() {
+        MockMultipartFile file =
+                new MockMultipartFile(
+                        "image",
+                        "image-without-extension",
+                        "image/jpeg",
+                        "data".getBytes()
+                );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> storageService.storeFile(file)
+        );
+    }
+
+    @Test
+    void deleteFile_RemovesFileFromDisk()
+            throws IOException {
         String fileName = "to-delete.jpg";
-        Path filePath = tempDir.resolve(fileName);
-        Files.write(filePath, "data".getBytes());
+
+        Path filePath = imagesDirectory.resolve(
+                fileName
+        );
+
+        Files.createDirectories(imagesDirectory);
+        Files.writeString(filePath, "data");
+
         assertTrue(Files.exists(filePath));
 
         storageService.deleteFile(fileName);
 
         assertFalse(Files.exists(filePath));
+    }
+
+    @Test
+    void deleteFile_NonExistingFile_DoesNotThrow() {
+        assertDoesNotThrow(
+                () -> storageService.deleteFile(
+                        "non-existing.jpg"
+                )
+        );
+    }
+
+    @Test
+    void deleteFile_PathTraversal_ThrowsException() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> storageService.deleteFile(
+                        "../outside.jpg"
+                )
+        );
     }
 }
