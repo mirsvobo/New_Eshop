@@ -23,7 +23,6 @@ public class CartItemDto {
 
     private String selectedLazure;
     private String selectedRoofColor;
-    private String selectedDesign;
 
     // Aktuální stav skladu v momentě vložení/kontroly
     private double stockQuantity;

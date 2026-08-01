@@ -167,10 +167,9 @@
                                      th:text="${item.product.name}"></div>
 
                                 <!-- Vybrané varianty zobrazené pro dílnu -->
-                                <div class="mt-1 flex flex-wrap gap-1.5" th:if="${item.selectedLazure != null or item.selectedRoofColor != null or item.selectedDesign != null}">
+                                <div class="mt-1 flex flex-wrap gap-1.5" th:if="${item.selectedLazure != null or item.selectedRoofColor != null}">
                                     <span th:if="${item.selectedLazure != null and !item.selectedLazure.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200 shadow-sm">Lazura: <span th:text="${item.selectedLazure}" class="text-slate-800"></span></span>
                                     <span th:if="${item.selectedRoofColor != null and !item.selectedRoofColor.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200 shadow-sm">Střecha: <span th:text="${item.selectedRoofColor}" class="text-slate-800"></span></span>
-                                    <span th:if="${item.selectedDesign != null and !item.selectedDesign.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200 shadow-sm">Design: <span th:text="${item.selectedDesign}" class="text-slate-800"></span></span>
                                 </div>
 
                                 <div th:if="${item.actualTaxRate != null && item.actualTaxRate.intValue() == 12}"

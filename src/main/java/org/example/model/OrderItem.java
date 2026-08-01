@@ -40,7 +40,4 @@ public class OrderItem {
 
     @Column(name = "selected_roof_color")
     private String selectedRoofColor;
-
-    @Column(name = "selected_design")
-    private String selectedDesign;
 }

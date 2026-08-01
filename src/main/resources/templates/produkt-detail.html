@@ -2,6 +2,9 @@
 <html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout(${product.name}, ~{::section})}">
 <body>
 <section class="py-8 sm:py-12 w-full max-w-6xl mx-auto px-4">
+    <div th:if="${error}"
+         class="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-bold text-red-700"
+         th:text="${error}"></div>
     <nav class="flex mb-8 text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-400 overflow-x-auto whitespace-nowrap">
         <a href="/" class="hover:text-amber-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-3 h-3"></i> Domů</a>
         <span class="mx-3">/</span>
@@ -69,23 +72,24 @@
                     <hr class="border-slate-200/60 mb-6 mt-4">
                     <form th:action="@{/kosik/pridat}" method="post">
                         <input type="hidden" name="productId" th:value="${product.id}">
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6" th:if="${not #strings.isEmpty(product.availableLazures) or not #strings.isEmpty(product.availableRoofColors) or not #strings.isEmpty(product.availableDesigns)}">
-                            <div th:if="${not #strings.isEmpty(product.availableLazures)}">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6"
+                             th:if="${not #lists.isEmpty(lazureLayers) or not #lists.isEmpty(roofColorLayers)}">
+                            <div th:if="${not #lists.isEmpty(lazureLayers)}">
                                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Lazura</label>
-                                <select name="selectedLazure" class="w-full border-2 border-slate-200 rounded-xl py-3 px-4 font-bold text-sm bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none transition-all">
-                                    <option th:each="opt : ${#strings.listSplit(product.availableLazures, ',')}" th:value="${#strings.trim(opt)}" th:text="${#strings.trim(opt)}"></option>
+                                <select name="selectedLazure" required
+                                        class="w-full border-2 border-slate-200 rounded-xl py-3 px-4 font-bold text-sm bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none transition-all">
+                                    <option th:each="layer : ${lazureLayers}"
+                                            th:value="${layer.optionName}"
+                                            th:text="${layer.optionName}"></option>
                                 </select>
                             </div>
-                            <div th:if="${not #strings.isEmpty(product.availableRoofColors)}">
+                            <div th:if="${not #lists.isEmpty(roofColorLayers)}">
                                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Barva střechy</label>
-                                <select name="selectedRoofColor" class="w-full border-2 border-slate-200 rounded-xl py-3 px-4 font-bold text-sm bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none transition-all">
-                                    <option th:each="opt : ${#strings.listSplit(product.availableRoofColors, ',')}" th:value="${#strings.trim(opt)}" th:text="${#strings.trim(opt)}"></option>
-                                </select>
-                            </div>
-                            <div th:if="${not #strings.isEmpty(product.availableDesigns)}">
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Design</label>
-                                <select name="selectedDesign" class="w-full border-2 border-slate-200 rounded-xl py-3 px-4 font-bold text-sm bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none transition-all">
-                                    <option th:each="opt : ${#strings.listSplit(product.availableDesigns, ',')}" th:value="${#strings.trim(opt)}" th:text="${#strings.trim(opt)}"></option>
+                                <select name="selectedRoofColor" required
+                                        class="w-full border-2 border-slate-200 rounded-xl py-3 px-4 font-bold text-sm bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none transition-all">
+                                    <option th:each="layer : ${roofColorLayers}"
+                                            th:value="${layer.optionName}"
+                                            th:text="${layer.optionName}"></option>
                                 </select>
                             </div>
                         </div>

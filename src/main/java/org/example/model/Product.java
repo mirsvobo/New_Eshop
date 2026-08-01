@@ -66,6 +66,11 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecipeItem> recipe = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    @OrderBy("type ASC, sortOrder ASC, optionName ASC")
+    private List<ProductImageLayer> imageLayers = new ArrayList<>();
+
     @ManyToOne
     @JoinColumn(name = "tax_rate_id")
     private TaxRate taxRate;
@@ -84,15 +89,6 @@ public class Product {
 
     @Column(name = "additional_dimensions", columnDefinition = "TEXT")
     private String additionalDimensions;
-
-    @Column(name = "available_lazures")
-    private String availableLazures;
-
-    @Column(name = "available_roof_colors")
-    private String availableRoofColors;
-
-    @Column(name = "available_designs")
-    private String availableDesigns;
 
     public BigDecimal getActiveBasePrice() {
         if (salePrice != null) {

@@ -4,15 +4,15 @@
     "maxFileSize": 10000000
   },
   "output": {
-    "filePath": "repomix-output.xml",
-    "style": "xml",
+    "filePath": "repomix-output.md",
+    "style": "markdown",
     "compress": false,
     "headerText": "ERP + e-shop systém FajnDřevo s.r.o. Stack: Java 21, Spring Boot 3.4.0 (Spring Data JPA, Spring Security, Thymeleaf, Ehcache/JCache), Maven, PostgreSQL. Balíčky: org.example.controller / service / repository / model / dto. Šablony jsou v src/main/resources/templates (Thymeleaf + Tailwind CDN). UI texty jsou v češtině.",
     "fileSummary": true,
     "directoryStructure": true,
     "files": true,
     "removeComments": false,
-    "removeEmptyLines": false,
+    "removeEmptyLines": true,
     "showLineNumbers": true,
     "topFilesLength": 20,
     "includeEmptyDirectories": false,

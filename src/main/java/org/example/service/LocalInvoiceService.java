@@ -149,7 +149,7 @@ public class LocalInvoiceService {
 
             for (OrderItem item : order.getItems()) {
                 Row row = sheet.createRow(rowIdx++);
-                row.createCell(0).setCellValue(item.getProduct().getName());
+                row.createCell(0).setCellValue(formatInvoiceItemName(item));
                 row.createCell(1).setCellValue(item.getQuantity() + " " + item.getProduct().getUnit());
 
                 // ZDE JE OPRAVA: Exportujeme actualTaxRate
@@ -180,6 +180,17 @@ public class LocalInvoiceService {
             workbook.write(out);
             return new ByteArrayInputStream(out.toByteArray());
         }
+    }
+
+    private String formatInvoiceItemName(OrderItem item) {
+        StringBuilder itemName = new StringBuilder(item.getProduct().getName());
+        if (item.getSelectedLazure() != null && !item.getSelectedLazure().isBlank()) {
+            itemName.append(" | Lazura: ").append(item.getSelectedLazure());
+        }
+        if (item.getSelectedRoofColor() != null && !item.getSelectedRoofColor().isBlank()) {
+            itemName.append(" | Střecha: ").append(item.getSelectedRoofColor());
+        }
+        return itemName.toString();
     }
 
     public ByteArrayInputStream exportOrdersToExcel(List<Order> orders) throws IOException {

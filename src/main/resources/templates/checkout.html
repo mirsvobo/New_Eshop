@@ -127,10 +127,9 @@
                     <div th:each="item : ${cartItems}" class="flex justify-between items-center text-sm border-b border-gray-200/50 pb-3 last:border-0 last:pb-0">
                         <div class="flex flex-col">
                             <span th:text="${item.quantity + 'x ' + item.productName}" class="text-gray-700 font-bold"></span>
-                            <div class="mt-1 flex flex-wrap gap-1" th:if="${item.selectedLazure != null or item.selectedRoofColor != null or item.selectedDesign != null}">
+                            <div class="mt-1 flex flex-wrap gap-1" th:if="${item.selectedLazure != null or item.selectedRoofColor != null}">
                                 <span th:if="${item.selectedLazure != null and !item.selectedLazure.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">Lazura: <span th:text="${item.selectedLazure}"></span></span>
                                 <span th:if="${item.selectedRoofColor != null and !item.selectedRoofColor.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">Střecha: <span th:text="${item.selectedRoofColor}"></span></span>
-                                <span th:if="${item.selectedDesign != null and !item.selectedDesign.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">Design: <span th:text="${item.selectedDesign}"></span></span>
                             </div>
                             <span th:if="${@cart.taxMode.name() == 'REDUCED'}" class="text-[9px] font-black text-amber-500 uppercase tracking-widest mt-1">DPH 12 % (Bydlení)</span>
                             <span th:unless="${@cart.taxMode.name() == 'REDUCED'}" class="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1" th:text="'DPH ' + ${#numbers.formatDecimal(item.taxRateValue, 1, 0)} + ' % (Standard)'"></span>

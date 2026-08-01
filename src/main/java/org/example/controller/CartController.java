@@ -1,10 +1,12 @@
 package org.example.controller;
 
 import org.example.dto.CartItemDto;
+import org.example.model.LayerType;
 import org.example.model.Product;
 import org.example.model.TaxMode;
 import org.example.repository.ProductRepository;
 import org.example.service.Cart;
+import org.example.service.ProductImageLayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 
@@ -22,6 +25,7 @@ public class CartController {
 
     private final Cart cart;
     private final ProductRepository productRepository;
+    private final ProductImageLayerService productImageLayerService;
 
     @GetMapping
     public String viewCart(Model model) {
@@ -38,9 +42,30 @@ public class CartController {
                             @RequestParam Integer quantity,
                             @RequestParam(required = false) String selectedLazure,
                             @RequestParam(required = false) String selectedRoofColor,
-                            @RequestParam(required = false) String selectedDesign) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("Produkt nenalezen."));
+                            RedirectAttributes redirectAttributes) {
+        Product product = productRepository.findById(productId).orElse(null);
+        if (product == null) {
+            redirectAttributes.addFlashAttribute("error", "Produkt nebyl nalezen.");
+            return "redirect:/produkty";
+        }
+
+        String validatedLazure;
+        String validatedRoofColor;
+        try {
+            validatedLazure = productImageLayerService.validateAndResolveSelection(
+                    productId,
+                    LayerType.LAZURE,
+                    selectedLazure
+            );
+            validatedRoofColor = productImageLayerService.validateAndResolveSelection(
+                    productId,
+                    LayerType.ROOF_COLOR,
+                    selectedRoofColor
+            );
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+            return "redirect:/produkty/" + productId;
+        }
 
         BigDecimal taxMultiplier = (product.getTaxRate() != null)
                 ? product.getTaxRate().getRate().divide(new BigDecimal("100")).add(BigDecimal.ONE)
@@ -57,9 +82,8 @@ public class CartController {
                 .originalPrice(originalPriceWithTax)
                 .taxRateValue(product.getTaxRate() != null ? product.getTaxRate().getRate() : BigDecimal.ZERO)
                 .stockQuantity(product.getStockQuantity())
-                .selectedLazure(selectedLazure)
-                .selectedRoofColor(selectedRoofColor)
-                .selectedDesign(selectedDesign)
+                .selectedLazure(validatedLazure)
+                .selectedRoofColor(validatedRoofColor)
                 .build());
 
         return "redirect:/kosik";

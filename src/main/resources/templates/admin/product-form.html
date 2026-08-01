@@ -2,7 +2,7 @@
 <html lang="cs" xmlns:th="http://www.thymeleaf.org" th:replace="~{main :: layout('Editace produktu', ~{::section})}">
 <body>
 <section class="py-8">
-    <div class="max-w-3xl mx-auto">
+    <div class="max-w-6xl mx-auto">
         <a href="/admin/produkty"
            class="inline-flex items-center text-sm font-black text-gray-400 hover:text-blue-600 uppercase tracking-widest mb-6 transition-colors">
             <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i> Zpět na seznam produktů
@@ -13,10 +13,11 @@
                     th:text="${product.id == null ? 'Nový produkt' : 'Upravit produkt'}">Produkt</h3>
                 <p class="text-sm text-gray-500 mt-1">Zadejte technické parametry a prodejní informace o položce.</p>
             </div>
+            <div th:if="${success}" class="mx-8 mt-6 rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm font-bold text-green-700" th:text="${success}"></div>
+            <div th:if="${error}" class="mx-8 mt-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-bold text-red-700" th:text="${error}"></div>
             <form th:action="@{/admin/produkty/save}" th:object="${product}" method="post" enctype="multipart/form-data"
                   class="p-8 space-y-8">
                 <input type="hidden" th:field="*{id}">
-                <input type="hidden" th:field="*{imageUrl}">
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div class="sm:col-span-2">
                         <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Název položky</label>
@@ -111,27 +112,6 @@
                     </div>
                 </div>
 
-                <div class="p-6 bg-slate-50/50 rounded-3xl border border-slate-100 space-y-4">
-                    <div class="flex items-center gap-2 mb-2">
-                        <i data-lucide="settings-2" class="w-4 h-4 text-slate-600"></i>
-                        <h4 class="text-xs font-black text-slate-600 uppercase tracking-widest">Konfigurace variant (volitelná)</h4>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                        <div>
-                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Dostupné lazury</label>
-                            <input type="text" th:field="*{availableLazures}" class="w-full bg-white border-0 text-gray-900 text-sm font-bold rounded-2xl focus:ring-4 focus:ring-blue-500/20 transition-all p-4" placeholder="Pinie, Dub...">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Barvy střechy</label>
-                            <input type="text" th:field="*{availableRoofColors}" class="w-full bg-white border-0 text-gray-900 text-sm font-bold rounded-2xl focus:ring-4 focus:ring-blue-500/20 transition-all p-4" placeholder="Červená...">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Designy</label>
-                            <input type="text" th:field="*{availableDesigns}" class="w-full bg-white border-0 text-gray-900 text-sm font-bold rounded-2xl focus:ring-4 focus:ring-blue-500/20 transition-all p-4" placeholder="Moderní, Klasik...">
-                        </div>
-                    </div>
-                </div>
-
                 <div class="p-6 bg-pink-50/50 rounded-3xl border border-pink-100 space-y-4">
                     <div class="flex items-center gap-2 mb-2">
                         <i data-lucide="tag" class="w-4 h-4 text-pink-600"></i>
@@ -189,6 +169,127 @@
                     </button>
                 </div>
             </form>
+        </div>
+
+        <div id="obrazove-varianty" class="mt-8 bg-white shadow-sm rounded-3xl border border-gray-100 overflow-hidden">
+            <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/50">
+                <h3 class="text-2xl font-black text-gray-900 uppercase tracking-tighter">Obrazové varianty produktu</h3>
+                <p class="text-sm text-gray-500 mt-1">Každá vrstva musí být průhledný WebP soubor o rozměru 800 × 800 px.</p>
+            </div>
+
+            <div th:if="${product.id == null}" class="p-8">
+                <div class="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-bold text-amber-800">
+                    Nejprve uložte nový produkt. Obrazové varianty bude možné přidat při jeho následné úpravě.
+                </div>
+            </div>
+
+            <div th:if="${product.id != null}" class="p-8 space-y-8">
+                <div th:if="${#lists.isEmpty(productLayers)}"
+                     class="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-5 py-8 text-center text-sm font-bold text-gray-400">
+                    Produkt zatím nemá žádné obrazové varianty.
+                </div>
+
+                <div class="space-y-4" th:unless="${#lists.isEmpty(productLayers)}">
+                    <form th:each="layer : ${productLayers}"
+                          th:action="@{/admin/produkty/{productId}/vrstvy/{layerId}/upravit(productId=${product.id},layerId=${layer.id})}"
+                          method="post"
+                          enctype="multipart/form-data"
+                          class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end rounded-3xl border border-gray-100 bg-gray-50/60 p-5">
+                        <div class="lg:col-span-2">
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Náhled vrstvy</label>
+                            <div class="h-24 w-24 overflow-hidden rounded-2xl border border-gray-200 bg-white"
+                                 style="background-image: linear-gradient(45deg, #e5e7eb 25%, transparent 25%), linear-gradient(-45deg, #e5e7eb 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e5e7eb 75%), linear-gradient(-45deg, transparent 75%, #e5e7eb 75%); background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0;">
+                                <img th:src="${layer.displayImageUrl}" th:alt="${'Vrstva ' + layer.optionName}" class="h-full w-full object-contain">
+                            </div>
+                        </div>
+                        <div class="lg:col-span-2">
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Typ</label>
+                            <select name="type" required class="w-full rounded-xl border-gray-200 bg-white p-3 text-sm font-bold">
+                                <option th:each="layerType : ${layerTypes}"
+                                        th:value="${layerType}"
+                                        th:selected="${layer.type == layerType}"
+                                        th:text="${layerType.name() == 'LAZURE' ? 'Lazura' : 'Barva střechy'}"></option>
+                            </select>
+                        </div>
+                        <div class="lg:col-span-3">
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Název varianty</label>
+                            <input type="text" name="optionName" required maxlength="100" th:value="${layer.optionName}"
+                                   class="w-full rounded-xl border-gray-200 bg-white p-3 text-sm font-bold">
+                        </div>
+                        <div class="lg:col-span-1">
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Pořadí</label>
+                            <input type="number" name="sortOrder" th:value="${layer.sortOrder}"
+                                   class="w-full rounded-xl border-gray-200 bg-white p-3 text-sm font-bold">
+                        </div>
+                        <div class="lg:col-span-2">
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Nový soubor</label>
+                            <input type="file" name="layerImageFile" accept="image/webp,.webp"
+                                   class="block w-full text-xs text-gray-500 file:mr-2 file:rounded-lg file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:font-black file:text-blue-700">
+                        </div>
+                        <div class="lg:col-span-2 flex items-center gap-3 pb-2">
+                            <input type="checkbox" name="active" value="true" th:checked="${layer.active}"
+                                   class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="text-xs font-black uppercase tracking-widest text-gray-600">Aktivní</span>
+                        </div>
+                        <div class="lg:col-span-12 flex flex-wrap justify-end gap-3 border-t border-gray-200 pt-4">
+                            <button type="submit"
+                                    class="rounded-xl bg-blue-600 px-5 py-3 text-xs font-black uppercase tracking-widest text-white hover:bg-blue-700">
+                                Uložit změny
+                            </button>
+                            <button type="submit"
+                                    th:formaction="@{/admin/produkty/{productId}/vrstvy/{layerId}/smazat(productId=${product.id},layerId=${layer.id})}"
+                                    formnovalidate
+                                    onclick="return confirm('Opravdu chcete tuto obrazovou variantu odstranit?');"
+                                    class="rounded-xl bg-red-50 px-5 py-3 text-xs font-black uppercase tracking-widest text-red-700 hover:bg-red-100">
+                                Odstranit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <form th:action="@{/admin/produkty/{productId}/vrstvy(productId=${product.id})}"
+                      method="post"
+                      enctype="multipart/form-data"
+                      class="rounded-3xl border border-blue-100 bg-blue-50/50 p-6">
+                    <h4 class="mb-5 text-sm font-black uppercase tracking-widest text-blue-800">Přidat obrazovou variantu</h4>
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Typ</label>
+                            <select name="type" required class="w-full rounded-xl border-blue-100 bg-white p-3 text-sm font-bold">
+                                <option th:each="layerType : ${layerTypes}"
+                                        th:value="${layerType}"
+                                        th:text="${layerType.name() == 'LAZURE' ? 'Lazura' : 'Barva střechy'}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Název varianty</label>
+                            <input type="text" name="optionName" required maxlength="100" placeholder="např. Kaštan"
+                                   class="w-full rounded-xl border-blue-100 bg-white p-3 text-sm font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Pořadí</label>
+                            <input type="number" name="sortOrder" value="0"
+                                   class="w-full rounded-xl border-blue-100 bg-white p-3 text-sm font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">WebP soubor</label>
+                            <input type="file" name="layerImageFile" required accept="image/webp,.webp"
+                                   class="block w-full text-xs text-gray-500 file:mr-2 file:rounded-lg file:border-0 file:bg-white file:px-3 file:py-2 file:font-black file:text-blue-700">
+                        </div>
+                        <div class="flex items-center gap-3 pt-6">
+                            <input type="checkbox" name="active" value="true" checked
+                                   class="h-5 w-5 rounded border-blue-200 text-blue-600 focus:ring-blue-500">
+                            <span class="text-xs font-black uppercase tracking-widest text-blue-800">Aktivní</span>
+                        </div>
+                    </div>
+                    <div class="mt-5 flex justify-end">
+                        <button type="submit"
+                                class="rounded-xl bg-blue-600 px-6 py-3 text-xs font-black uppercase tracking-widest text-white hover:bg-blue-700">
+                            Přidat variantu
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </section>

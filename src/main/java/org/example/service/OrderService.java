@@ -142,7 +142,6 @@ public class OrderService {
                     .actualTaxRate(itemTaxRate)
                     .selectedLazure(item.getSelectedLazure())
                     .selectedRoofColor(item.getSelectedRoofColor())
-                    .selectedDesign(item.getSelectedDesign())
                     .build();
 
             order.getItems().add(oi);

@@ -36,7 +36,6 @@ class CartTest {
         item.setQuantity(1);
         item.setSelectedLazure("Dub");
         item.setSelectedRoofColor("Červená");
-        item.setSelectedDesign("Modern");
         item.setImageUrl("/images/test-image.jpg");
 
         cart.addItem(item);
@@ -45,7 +44,6 @@ class CartTest {
         CartItemDto cartItem = cart.getItems().get(0);
         assertEquals("Dub", cartItem.getSelectedLazure(), "Vybraná lazura se musí uložit do košíku.");
         assertEquals("Červená", cartItem.getSelectedRoofColor(), "Vybraná barva střechy se musí uložit do košíku.");
-        assertEquals("Modern", cartItem.getSelectedDesign(), "Vybraný design se musí uložit do košíku.");
         assertEquals("/images/test-image.jpg", cartItem.getImageUrl(), "Obrázek se musí správně uložit do košíku.");
     }
 

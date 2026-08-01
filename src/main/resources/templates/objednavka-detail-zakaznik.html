@@ -69,10 +69,9 @@
                                  th:text="${item.quantity}"></div>
                             <div class="flex flex-col">
                                 <span class="text-sm font-black text-slate-800" th:text="${item.product.name}"></span>
-                                <div class="mt-1 flex flex-wrap gap-1.5" th:if="${item.selectedLazure != null or item.selectedRoofColor != null or item.selectedDesign != null}">
+                                <div class="mt-1 flex flex-wrap gap-1.5" th:if="${item.selectedLazure != null or item.selectedRoofColor != null}">
                                     <span th:if="${item.selectedLazure != null and !item.selectedLazure.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">Lazura: <span th:text="${item.selectedLazure}" class="text-slate-800"></span></span>
                                     <span th:if="${item.selectedRoofColor != null and !item.selectedRoofColor.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">Střecha: <span th:text="${item.selectedRoofColor}" class="text-slate-800"></span></span>
-                                    <span th:if="${item.selectedDesign != null and !item.selectedDesign.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">Design: <span th:text="${item.selectedDesign}" class="text-slate-800"></span></span>
                                 </div>
                                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1"
                                       th:text="'DPH ' + ${#numbers.formatDecimal(item.actualTaxRate, 1, 0)} + ' %'"></span>

@@ -219,7 +219,6 @@ class OrderServiceTest {
                 .taxRateValue(new BigDecimal("21.00"))
                 .selectedLazure("Ořech")
                 .selectedRoofColor("Černá")
-                .selectedDesign("Klasik")
                 .build();
 
         when(cart.getItems()).thenReturn(Arrays.asList(item));
@@ -233,7 +232,6 @@ class OrderServiceTest {
         assertFalse(result.getItems().isEmpty());
         assertEquals("Ořech", result.getItems().get(0).getSelectedLazure(), "Lazura se musí správně překopírovat do OrderItem");
         assertEquals("Černá", result.getItems().get(0).getSelectedRoofColor(), "Barva střechy se musí správně překopírovat do OrderItem");
-        assertEquals("Klasik", result.getItems().get(0).getSelectedDesign(), "Design se musí správně překopírovat do OrderItem");
     }
     @Test
     void processCheckout_WithInvalidCoupon_SavesOrderWithoutDiscount() {

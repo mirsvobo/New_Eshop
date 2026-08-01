@@ -24,6 +24,8 @@ import java.util.UUID;
 public class LocalFileStorageServiceImpl
         implements FileStorageService {
 
+    private static final String PRODUCT_LAYER_DIRECTORY = "product-layers";
+
     private final Path fileStorageLocation;
 
     public LocalFileStorageServiceImpl(
@@ -65,6 +67,20 @@ public class LocalFileStorageServiceImpl
 
     @Override
     public String storeFile(MultipartFile file) {
+        String extension = validateAndGetExtension(file, null);
+        return storeWithGeneratedName(file, extension, null);
+    }
+
+    @Override
+    public String storeProductLayer(MultipartFile file) {
+        String extension = validateAndGetExtension(file, "webp");
+        return storeWithGeneratedName(file, extension, PRODUCT_LAYER_DIRECTORY);
+    }
+
+    private String validateAndGetExtension(
+            MultipartFile file,
+            String requiredExtension
+    ) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException(
                     "Nelze uložit prázdný soubor."
@@ -100,18 +116,32 @@ public class LocalFileStorageServiceImpl
             );
         }
 
-        String targetFileName =
-                UUID.randomUUID()
-                        + "."
-                        + extension.toLowerCase(
-                        Locale.ROOT
-                );
+        String normalizedExtension = extension.toLowerCase(Locale.ROOT);
+        if (requiredExtension != null && !requiredExtension.equals(normalizedExtension)) {
+            throw new IllegalArgumentException(
+                    "Soubor musí mít příponu ." + requiredExtension + "."
+            );
+        }
+
+        return normalizedExtension;
+    }
+
+    private String storeWithGeneratedName(
+            MultipartFile file,
+            String extension,
+            String relativeDirectory
+    ) {
+        String generatedFileName = UUID.randomUUID() + "." + extension;
+        String storedFileName = relativeDirectory == null
+                ? generatedFileName
+                : relativeDirectory + "/" + generatedFileName;
 
         Path targetLocation = resolveSafePath(
-                targetFileName
+                storedFileName
         );
 
         try {
+            Files.createDirectories(targetLocation.getParent());
             Files.copy(
                     file.getInputStream(),
                     targetLocation,
@@ -120,15 +150,13 @@ public class LocalFileStorageServiceImpl
 
             log.info(
                     "Stored image locally: {}",
-                    targetFileName
+                    storedFileName
             );
 
-            return targetFileName;
+            return storedFileName;
         } catch (IOException exception) {
             throw new IllegalStateException(
-                    "Soubor "
-                            + originalFileName
-                            + " se nepodařilo uložit.",
+                    "Soubor se nepodařilo uložit.",
                     exception
             );
         }

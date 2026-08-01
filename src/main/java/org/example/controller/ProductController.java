@@ -1,8 +1,11 @@
 package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.model.LayerType;
 import org.example.model.Product;
+import org.example.model.ProductImageLayer;
 import org.example.repository.ProductRepository;
+import org.example.service.ProductImageLayerService;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +20,7 @@ import java.util.List;
 public class ProductController {
 
     private final ProductRepository productRepository;
+    private final ProductImageLayerService productImageLayerService;
 
     @GetMapping("/produkty")
     public String listProducts(@RequestParam(defaultValue = "newest") String sort, Model model) {
@@ -43,7 +47,16 @@ public class ProductController {
             return "redirect:/produkty";
         }
 
+        List<ProductImageLayer> activeLayers = productImageLayerService.getActiveLayersForProduct(id);
         model.addAttribute("product", product);
+        model.addAttribute(
+                "lazureLayers",
+                activeLayers.stream().filter(layer -> layer.getType() == LayerType.LAZURE).toList()
+        );
+        model.addAttribute(
+                "roofColorLayers",
+                activeLayers.stream().filter(layer -> layer.getType() == LayerType.ROOF_COLOR).toList()
+        );
         return "produkt-detail";
     }
 }

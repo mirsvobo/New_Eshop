@@ -5,6 +5,7 @@ import org.example.model.TaxMode;
 import org.example.model.TaxRate;
 import org.example.repository.ProductRepository;
 import org.example.service.Cart;
+import org.example.service.ProductImageLayerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ class ProductControllerTest {
 
     @MockitoBean
     private ProductRepository productRepository;
+
+    @MockitoBean
+    private ProductImageLayerService productImageLayerService;
 
     @MockitoBean(name = "cart")
     private Cart cart;
@@ -72,11 +76,13 @@ class ProductControllerTest {
                 .build();
 
         given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(productImageLayerService.getActiveLayersForProduct(1L)).willReturn(Collections.emptyList());
 
         mockMvc.perform(get("/produkty/1"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("produkt-detail"))
-                .andExpect(model().attribute("product", product));
+                .andExpect(model().attribute("product", product))
+                .andExpect(model().attributeExists("lazureLayers", "roofColorLayers"));
     }
 
     @Test

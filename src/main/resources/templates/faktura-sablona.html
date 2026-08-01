@@ -69,6 +69,13 @@
             font-size: 0.85rem;
         }
 
+        .item-options {
+            margin-top: 4px;
+            color: #64748b;
+            font-size: 0.72rem;
+            line-height: 1.4;
+        }
+
         .tax-summary {
             width: 45%;
             margin-left: auto;
@@ -121,7 +128,17 @@
         </thead>
         <tbody>
         <tr th:each="item : ${order.items}">
-            <td th:text="${item.product.name}"></td>
+            <td>
+                <strong th:text="${item.product.name}"></strong>
+                <div class="item-options" th:if="${item.selectedLazure != null or item.selectedRoofColor != null}">
+                    <div th:if="${item.selectedLazure != null and !item.selectedLazure.isEmpty()}">
+                        Lazura: <span th:text="${item.selectedLazure}"></span>
+                    </div>
+                    <div th:if="${item.selectedRoofColor != null and !item.selectedRoofColor.isEmpty()}">
+                        Střecha: <span th:text="${item.selectedRoofColor}"></span>
+                    </div>
+                </div>
+            </td>
             <td th:text="${item.quantity} + ' ' + ${item.product.unit}"></td>
             <td style="text-align: right"
                 th:text="${#numbers.formatDecimal(item.unitPrice, 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč'"></td>

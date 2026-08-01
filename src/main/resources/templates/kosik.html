@@ -35,10 +35,9 @@
                                     </div>
                                     <div class="flex flex-col">
                                         <a th:href="@{/produkty/{id}(id=${item.productId})}" class="text-sm font-bold text-gray-900 hover:text-amber-600 transition-colors" th:text="${item.productName}"></a>
-                                        <div class="mt-1.5 flex flex-wrap gap-1.5" th:if="${item.selectedLazure != null or item.selectedRoofColor != null or item.selectedDesign != null}">
+                                        <div class="mt-1.5 flex flex-wrap gap-1.5" th:if="${item.selectedLazure != null or item.selectedRoofColor != null}">
                                             <span th:if="${item.selectedLazure != null and !item.selectedLazure.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">Lazura: <span th:text="${item.selectedLazure}" class="text-slate-700"></span></span>
                                             <span th:if="${item.selectedRoofColor != null and !item.selectedRoofColor.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">Střecha: <span th:text="${item.selectedRoofColor}" class="text-slate-700"></span></span>
-                                            <span th:if="${item.selectedDesign != null and !item.selectedDesign.isEmpty()}" class="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">Design: <span th:text="${item.selectedDesign}" class="text-slate-700"></span></span>
                                         </div>
                                         <div th:if="${@cart.taxMode.name() == 'REDUCED'}" class="mt-2 flex flex-col">
                                             <span class="text-sm font-black text-amber-600" th:text="${#numbers.formatDecimal(item.basePrice * 1.12, 1, 'WHITESPACE', 0, 'COMMA')} + ' Kč / ks'"></span>

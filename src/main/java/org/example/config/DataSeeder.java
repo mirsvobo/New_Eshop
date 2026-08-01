@@ -130,8 +130,6 @@ public class DataSeeder implements CommandLineRunner {
         Map<String, Product> map = new HashMap<>();
 
         Product kompakt = createItem("Dřevník Kompakt", 16898, "ks", Product.ProductType.PRODUCT, vat, 5);
-        kompakt.setAvailableLazures("Pinie, Dub, Ořech, Palisandr, Bezbarvý lak");
-        kompakt.setAvailableRoofColors("Černá, Antracit, Červenohnědá");
         kompakt.setWidth(100.0);
         kompakt.setDepth(73.0);
         kompakt.setHeight(220.0);
@@ -140,8 +138,6 @@ public class DataSeeder implements CommandLineRunner {
         map.put("kompakt", productRepository.save(kompakt));
 
         Product klasik = createItem("Dřevník Klasik", 23171, "ks", Product.ProductType.PRODUCT, vat, 3);
-        klasik.setAvailableLazures("Pinie, Dub, Ořech, Palisandr, Bezbarvý lak");
-        klasik.setAvailableRoofColors("Černá, Antracit, Červenohnědá");
         klasik.setWidth(160.0);
         klasik.setDepth(73.0);
         klasik.setHeight(220.0);
@@ -150,8 +146,6 @@ public class DataSeeder implements CommandLineRunner {
         map.put("klasik", productRepository.save(klasik));
 
         Product elko = createItem("Dřevník L", 25696, "ks", Product.ProductType.PRODUCT, vat, 2);
-        elko.setAvailableLazures("Pinie, Dub, Ořech, Palisandr, Bezbarvý lak");
-        elko.setAvailableRoofColors("Černá, Antracit, Červenohnědá");
         elko.setWidth(160.0);
         elko.setDepth(109.0);
         elko.setHeight(220.0);
@@ -160,8 +154,6 @@ public class DataSeeder implements CommandLineRunner {
         map.put("elko", productRepository.save(elko));
 
         Product xxl = createItem("Dřevník XXL", 33224, "ks", Product.ProductType.PRODUCT, vat, 2);
-        xxl.setAvailableLazures("Pinie, Dub, Ořech, Palisandr, Bezbarvý lak");
-        xxl.setAvailableRoofColors("Černá, Antracit, Červenohnědá");
         xxl.setWidth(260.0);
         xxl.setDepth(109.0);
         xxl.setHeight(220.0);

@@ -1,11 +1,13 @@
 package org.example.controller;
 
+import org.example.model.LayerType;
 import org.example.model.Product;
 import org.example.model.User;
 import org.example.repository.ProductRepository;
 import org.example.repository.TaxRateRepository;
 import org.example.repository.UserRepository;
 import org.example.service.Cart;
+import org.example.service.ProductImageLayerService;
 import org.example.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.mock.web.MockMultipartFile;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -26,6 +29,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -46,6 +50,9 @@ class AdminProductControllerTest {
 
     @MockitoBean
     private TaxRateRepository taxRateRepository;
+
+    @MockitoBean
+    private ProductImageLayerService productImageLayerService;
 
     @MockitoBean(name = "cart")
     private Cart cart;
@@ -223,5 +230,74 @@ class AdminProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("admin/produkty"))
                 .andExpect(model().attributeExists("products"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin@test.cz", roles = "ADMIN")
+    void createImageLayer_DelegatesValidatedParametersToService() throws Exception {
+        MockMultipartFile imageFile = new MockMultipartFile(
+                "layerImageFile",
+                "kastan.webp",
+                "image/webp",
+                new byte[]{1, 2, 3}
+        );
+
+        mockMvc.perform(multipart("/admin/produkty/1/vrstvy")
+                        .file(imageFile)
+                        .param("type", "LAZURE")
+                        .param("optionName", "Kaštan")
+                        .param("sortOrder", "10")
+                        .param("active", "true")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/produkty/edit/1#obrazove-varianty"))
+                .andExpect(flash().attribute("success", "Obrazová varianta byla přidána."));
+
+        verify(productImageLayerService).createLayer(
+                1L,
+                LayerType.LAZURE,
+                "Kaštan",
+                10,
+                true,
+                imageFile
+        );
+    }
+
+    @Test
+    @WithMockUser(username = "admin@test.cz", roles = "ADMIN")
+    void deleteImageLayer_DelegatesProductAndLayerOwnershipToService() throws Exception {
+        mockMvc.perform(post("/admin/produkty/1/vrstvy/9/smazat").with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/produkty/edit/1#obrazove-varianty"))
+                .andExpect(flash().attribute("success", "Obrazová varianta byla odstraněna."));
+
+        verify(productImageLayerService).deleteLayer(1L, 9L);
+    }
+
+    @Test
+    @WithMockUser(username = "admin@test.cz", roles = "ADMIN")
+    void createImageLayer_WhenServiceRejectsUpload_ShowsCzechError() throws Exception {
+        MockMultipartFile imageFile = new MockMultipartFile(
+                "layerImageFile",
+                "vrstva.png",
+                "image/png",
+                new byte[]{1, 2, 3}
+        );
+        org.mockito.Mockito.doThrow(new IllegalArgumentException("Vrstva musí být ve formátu WebP s příponou .webp."))
+                .when(productImageLayerService)
+                .createLayer(1L, LayerType.LAZURE, "Dub", 0, true, imageFile);
+
+        mockMvc.perform(multipart("/admin/produkty/1/vrstvy")
+                        .file(imageFile)
+                        .param("type", "LAZURE")
+                        .param("optionName", "Dub")
+                        .param("sortOrder", "0")
+                        .param("active", "true")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(flash().attribute(
+                        "error",
+                        "Vrstva musí být ve formátu WebP s příponou .webp."
+                ));
     }
 }

@@ -86,23 +86,6 @@ class DataSeederTest {
     }
 
     @Test
-    void seedProducts_DatabaseIsPopulatedWithVariants() {
-        List<Product> products = productRepository.findAll();
-
-        boolean hasVariants = products.stream()
-                .anyMatch(product ->
-                        product.getAvailableLazures() != null
-                                && !product.getAvailableLazures().isEmpty()
-                );
-
-        assertTrue(
-                hasVariants,
-                "Seeder by měl vytvořit alespoň jeden produkt "
-                        + "s dostupnými variantami."
-        );
-    }
-
-    @Test
     void seedProducts_DatabaseIsPopulatedWithDimensions() {
         List<Product> products = productRepository.findAll();
 

@@ -93,6 +93,34 @@ class LocalFileStorageServiceImplTest {
     }
 
     @Test
+    void storeProductLayer_SavesWebpIntoDedicatedDirectory() {
+        MockMultipartFile file = new MockMultipartFile(
+                "layerImageFile",
+                "layer.webp",
+                "image/webp",
+                "webp data".getBytes()
+        );
+
+        String savedName = storageService.storeProductLayer(file);
+
+        assertTrue(savedName.startsWith("product-layers/"));
+        assertTrue(savedName.endsWith(".webp"));
+        assertTrue(Files.exists(imagesDirectory.resolve(savedName)));
+    }
+
+    @Test
+    void storeProductLayer_WithDifferentExtension_ThrowsException() {
+        MockMultipartFile file = new MockMultipartFile(
+                "layerImageFile",
+                "layer.png",
+                "image/png",
+                "data".getBytes()
+        );
+
+        assertThrows(IllegalArgumentException.class, () -> storageService.storeProductLayer(file));
+    }
+
+    @Test
     void storeFile_FileWithoutExtension_ThrowsException() {
         MockMultipartFile file =
                 new MockMultipartFile(

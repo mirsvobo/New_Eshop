@@ -1,11 +1,13 @@
 package org.example.controller;
 
+import org.example.model.LayerType;
 import org.example.model.Product;
 import org.example.model.TaxRate;
 import org.example.model.User;
 import org.example.repository.ProductRepository;
 import org.example.repository.TaxRateRepository;
 import org.example.repository.UserRepository;
+import org.example.service.ProductImageLayerService;
 import org.example.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -13,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,6 +35,19 @@ public class AdminProductController {
     private final ProductService productService;
     private final UserRepository userRepository;
     private final TaxRateRepository taxRateRepository;
+    private final ProductImageLayerService productImageLayerService;
+
+    @InitBinder("product")
+    public void configureProductBinding(WebDataBinder binder) {
+        binder.setDisallowedFields(
+                "imageUrl",
+                "imageLayers",
+                "recipe",
+                "taxRate",
+                "deleted",
+                "isDeleted"
+        );
+    }
 
     @GetMapping("")
     public String listProducts(
@@ -63,7 +79,7 @@ public class AdminProductController {
     @GetMapping("/novy")
     public String showAddProductForm(Model model) {
         model.addAttribute("product", new Product());
-        model.addAttribute("taxes", taxRateRepository.findAll());
+        addProductFormAttributes(model, null);
         return "admin/product-form";
     }
 
@@ -71,7 +87,7 @@ public class AdminProductController {
     public String showEditProductForm(@PathVariable Long id, Model model) {
         Product product = productRepository.findById(id).orElseThrow();
         model.addAttribute("product", product);
-        model.addAttribute("taxes", taxRateRepository.findAll());
+        addProductFormAttributes(model, id);
         return "admin/product-form";
     }
 
@@ -85,7 +101,8 @@ public class AdminProductController {
                               Model model) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("taxes", taxRateRepository.findAll());
+            restoreExistingImageForRendering(product);
+            addProductFormAttributes(model, product.getId());
             return "admin/product-form";
         }
 
@@ -165,5 +182,134 @@ public class AdminProductController {
             ra.addFlashAttribute("error", "Při odebírání položky došlo k systémové chybě.");
         }
         return "redirect:/admin/produkty/" + productId + "/kusovnik";
+    }
+
+    @PostMapping("/{productId}/vrstvy")
+    public String createImageLayer(
+            @PathVariable Long productId,
+            @RequestParam LayerType type,
+            @RequestParam String optionName,
+            @RequestParam(defaultValue = "0") Integer sortOrder,
+            @RequestParam(defaultValue = "false") boolean active,
+            @RequestParam("layerImageFile") MultipartFile layerImageFile,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            productImageLayerService.createLayer(
+                    productId,
+                    type,
+                    optionName,
+                    sortOrder,
+                    active,
+                    layerImageFile
+            );
+            redirectAttributes.addFlashAttribute("success", "Obrazová varianta byla přidána.");
+        } catch (DataIntegrityViolationException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    "Varianta se stejným názvem již pro zvolený typ existuje."
+            );
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+        } catch (RuntimeException exception) {
+            redirectAttributes.addFlashAttribute("error", "Obrazovou variantu se nepodařilo uložit.");
+        }
+        return redirectToProductEdit(productId);
+    }
+
+    @PostMapping("/{productId}/vrstvy/{layerId}/upravit")
+    public String updateImageLayer(
+            @PathVariable Long productId,
+            @PathVariable Long layerId,
+            @RequestParam LayerType type,
+            @RequestParam String optionName,
+            @RequestParam(defaultValue = "0") Integer sortOrder,
+            @RequestParam(defaultValue = "false") boolean active,
+            @RequestParam(value = "layerImageFile", required = false) MultipartFile layerImageFile,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            productImageLayerService.updateLayer(
+                    productId,
+                    layerId,
+                    type,
+                    optionName,
+                    sortOrder,
+                    active,
+                    layerImageFile
+            );
+            redirectAttributes.addFlashAttribute("success", "Obrazová varianta byla upravena.");
+        } catch (DataIntegrityViolationException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    "Varianta se stejným názvem již pro zvolený typ existuje."
+            );
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+        } catch (RuntimeException exception) {
+            redirectAttributes.addFlashAttribute("error", "Obrazovou variantu se nepodařilo upravit.");
+        }
+        return redirectToProductEdit(productId);
+    }
+
+    @PostMapping("/{productId}/vrstvy/{layerId}/aktivita")
+    public String setImageLayerActive(
+            @PathVariable Long productId,
+            @PathVariable Long layerId,
+            @RequestParam boolean active,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            productImageLayerService.setLayerActive(productId, layerId, active);
+            redirectAttributes.addFlashAttribute(
+                    "success",
+                    active ? "Obrazová varianta byla aktivována." : "Obrazová varianta byla skryta."
+            );
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+        } catch (RuntimeException exception) {
+            redirectAttributes.addFlashAttribute("error", "Stav obrazové varianty se nepodařilo změnit.");
+        }
+        return redirectToProductEdit(productId);
+    }
+
+    @PostMapping("/{productId}/vrstvy/{layerId}/smazat")
+    public String deleteImageLayer(
+            @PathVariable Long productId,
+            @PathVariable Long layerId,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            productImageLayerService.deleteLayer(productId, layerId);
+            redirectAttributes.addFlashAttribute("success", "Obrazová varianta byla odstraněna.");
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+        } catch (RuntimeException exception) {
+            redirectAttributes.addFlashAttribute("error", "Obrazovou variantu se nepodařilo odstranit.");
+        }
+        return redirectToProductEdit(productId);
+    }
+
+    private void addProductFormAttributes(Model model, Long productId) {
+        model.addAttribute("taxes", taxRateRepository.findAll());
+        model.addAttribute("layerTypes", LayerType.values());
+        model.addAttribute(
+                "productLayers",
+                productId == null
+                        ? List.of()
+                        : productImageLayerService.getLayersForProduct(productId)
+        );
+    }
+
+    private void restoreExistingImageForRendering(Product product) {
+        if (product.getId() == null) {
+            return;
+        }
+        productRepository.findById(product.getId())
+                .ifPresent(existingProduct -> product.setImageUrl(existingProduct.getImageUrl()));
+    }
+
+    private String redirectToProductEdit(Long productId) {
+        return "redirect:/admin/produkty/edit/" + productId + "#obrazove-varianty";
     }
 }
