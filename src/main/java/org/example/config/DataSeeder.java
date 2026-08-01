@@ -1,25 +1,22 @@
 package org.example.config;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.model.*;
 import org.example.repository.*;
+import org.example.service.ProductImageLayerService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class DataSeeder implements CommandLineRunner {
-
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final AttendanceRecordRepository attendanceRepository;
@@ -30,33 +27,29 @@ public class DataSeeder implements CommandLineRunner {
     private final RecipeItemRepository recipeItemRepository;
     private final AuditLogRepository auditLogRepository;
     private final InstallationPostRepository installationPostRepository;
+    private final ProductImageLayerRepository productImageLayerRepository;
+    private final ProductImageLayerService productImageLayerService;
     private final PasswordEncoder passwordEncoder;
-
     @Override
     @Transactional
     public void run(String... args) {
         log.info("Zahajuji deterministické seedování dat pro systém FajnDřevo s.r.o...");
-
         clearDatabase();
-
         Map<String, OrderStatus> statuses = seedOrderStatuses();
         Map<String, TaxRate> taxes = seedTaxRates();
         Map<String, User> employees = seedEmployees();
         Map<String, User> customers = seedCustomers();
-
         Map<String, Product> materials = seedMaterials(taxes.get("Základní"));
         Map<String, Product> products = seedFinishedProducts(taxes.get("Základní"));
-
+        seedDefaultProductVariants(products);
         seedRecipes(products, materials);
         seedInitialStockMovements(products, materials, employees.get("ceo"));
         seedAttendanceHistory(employees);
         seedOrders(customers, products, statuses);
         seedInstallationPosts();
         seedFinalAudit(employees.get("ceo"));
-
         log.info("Seedování dokončeno. Databáze obsahuje pevně definovanou sadu testovacích dat.");
     }
-
     private void clearDatabase() {
         log.debug("Čistím databázi...");
         auditLogRepository.deleteAll();
@@ -66,11 +59,11 @@ public class DataSeeder implements CommandLineRunner {
         recipeItemRepository.deleteAll();
         orderRepository.deleteAll();
         orderStatusRepository.deleteAll();
+        productImageLayerRepository.deleteAll();
         productRepository.deleteAll();
         userRepository.deleteAll();
         taxRateRepository.deleteAll();
     }
-
     private Map<String, OrderStatus> seedOrderStatuses() {
         Map<String, OrderStatus> map = new HashMap<>();
         map.put("NEW", orderStatusRepository.save(OrderStatus.builder().name("Nová").colorClass("bg-blue-100 text-blue-800").displayOrder(1).active(true).build()));
@@ -83,7 +76,6 @@ public class DataSeeder implements CommandLineRunner {
         map.put("CANCEL", orderStatusRepository.save(OrderStatus.builder().name("Zrušeno").colorClass("bg-red-100 text-red-800").displayOrder(8).active(true).build()));
         return map;
     }
-
     private Map<String, TaxRate> seedTaxRates() {
         Map<String, TaxRate> map = new HashMap<>();
         map.put("Základní", taxRateRepository.save(TaxRate.builder().name("Základní sazba").rate(new BigDecimal("21.0")).defaultRate(true).build()));
@@ -91,7 +83,6 @@ public class DataSeeder implements CommandLineRunner {
         map.put("Nula", taxRateRepository.save(TaxRate.builder().name("Osvobozeno").rate(BigDecimal.ZERO).build()));
         return map;
     }
-
     private Map<String, User> seedEmployees() {
         String pass = passwordEncoder.encode("heslo123");
         Map<String, User> map = new HashMap<>();
@@ -102,7 +93,6 @@ public class DataSeeder implements CommandLineRunner {
         map.put("admin", userRepository.save(User.builder().email("novotna@fajndrevo.cz").password(pass).firstName("Hana").lastName("Novotná").role(User.Role.ROLE_EMPLOYEE).pin("5555").active(true).build()));
         return map;
     }
-
     private Map<String, User> seedCustomers() {
         String pass = passwordEncoder.encode("heslo123");
         Map<String, User> map = new HashMap<>();
@@ -114,7 +104,6 @@ public class DataSeeder implements CommandLineRunner {
         map.put("c6", userRepository.save(User.builder().email("martin.svoboda@gmail.com").password(pass).firstName("Martin").lastName("Svoboda").role(User.Role.ROLE_CUSTOMER).active(true).build()));
         return map;
     }
-
     private Map<String, Product> seedMaterials(TaxRate vat) {
         Map<String, Product> map = new HashMap<>();
         map.put("ocel", productRepository.save(createItem("Ocelový jekl 40x40x2mm (1m)", 150, "m", Product.ProductType.MATERIAL, vat, 500)));
@@ -125,10 +114,8 @@ public class DataSeeder implements CommandLineRunner {
         map.put("patky", productRepository.save(createItem("Výškově nastavitelná patka žárový zinek", 180, "ks", Product.ProductType.MATERIAL, vat, 200)));
         return map;
     }
-
     private Map<String, Product> seedFinishedProducts(TaxRate vat) {
         Map<String, Product> map = new HashMap<>();
-
         Product kompakt = createItem("Dřevník Kompakt", 16898, "ks", Product.ProductType.PRODUCT, vat, 5);
         kompakt.setWidth(100.0);
         kompakt.setDepth(73.0);
@@ -136,7 +123,6 @@ public class DataSeeder implements CommandLineRunner {
         kompakt.setVolume(1.6);
         kompakt.setAdditionalDimensions("Kompaktní dřevník z kovové konstrukce, který se hodí i na ty nejmenší zahrady.");
         map.put("kompakt", productRepository.save(kompakt));
-
         Product klasik = createItem("Dřevník Klasik", 23171, "ks", Product.ProductType.PRODUCT, vat, 3);
         klasik.setWidth(160.0);
         klasik.setDepth(73.0);
@@ -144,7 +130,6 @@ public class DataSeeder implements CommandLineRunner {
         klasik.setVolume(2.5);
         klasik.setAdditionalDimensions("Robustní řešení pro střední zahrady. Spojuje kompaktnost Dřevníku Klasik s větší kapacitou.");
         map.put("klasik", productRepository.save(klasik));
-
         Product elko = createItem("Dřevník L", 25696, "ks", Product.ProductType.PRODUCT, vat, 2);
         elko.setWidth(160.0);
         elko.setDepth(109.0);
@@ -152,7 +137,6 @@ public class DataSeeder implements CommandLineRunner {
         elko.setVolume(2.9);
         elko.setAdditionalDimensions("Odolné řešení pro uskladnění až 2,90 m³ dříví. Dřevník L je vyráběn z kvalitní oceli.");
         map.put("elko", productRepository.save(elko));
-
         Product xxl = createItem("Dřevník XXL", 33224, "ks", Product.ProductType.PRODUCT, vat, 2);
         xxl.setWidth(260.0);
         xxl.setDepth(109.0);
@@ -160,10 +144,11 @@ public class DataSeeder implements CommandLineRunner {
         xxl.setVolume(6.2);
         xxl.setAdditionalDimensions("Prémiové řešení ochrany velkého množství dříví pro větší zahrady. Před vnějšími vlivy chrání stříška.");
         map.put("xxl", productRepository.save(xxl));
-
         return map;
     }
-
+    private void seedDefaultProductVariants(Map<String, Product> products) {
+        products.values().forEach(productImageLayerService::ensureDefaultVariants);
+    }
     private Product createItem(String name, double price, String unit, Product.ProductType type, TaxRate vat, int qty) {
         return Product.builder()
                 .name(name)
@@ -175,7 +160,6 @@ public class DataSeeder implements CommandLineRunner {
                 .active(true)
                 .build();
     }
-
     private void seedRecipes(Map<String, Product> p, Map<String, Product> m) {
         // Dřevník Kompakt
         saveRecipe(p.get("kompakt"), m.get("ocel"), 18);
@@ -184,7 +168,6 @@ public class DataSeeder implements CommandLineRunner {
         saveRecipe(p.get("kompakt"), m.get("lazura"), 1);
         saveRecipe(p.get("kompakt"), m.get("vruty"), 1);
         saveRecipe(p.get("kompakt"), m.get("patky"), 4);
-
         // Dřevník Klasik
         saveRecipe(p.get("klasik"), m.get("ocel"), 22);
         saveRecipe(p.get("klasik"), m.get("prkna"), 35);
@@ -192,7 +175,6 @@ public class DataSeeder implements CommandLineRunner {
         saveRecipe(p.get("klasik"), m.get("lazura"), 1);
         saveRecipe(p.get("klasik"), m.get("vruty"), 2);
         saveRecipe(p.get("klasik"), m.get("patky"), 4);
-
         // Dřevník L
         saveRecipe(p.get("elko"), m.get("ocel"), 26);
         saveRecipe(p.get("elko"), m.get("prkna"), 40);
@@ -200,7 +182,6 @@ public class DataSeeder implements CommandLineRunner {
         saveRecipe(p.get("elko"), m.get("lazura"), 2);
         saveRecipe(p.get("elko"), m.get("vruty"), 2);
         saveRecipe(p.get("elko"), m.get("patky"), 4);
-
         // Dřevník XXL
         saveRecipe(p.get("xxl"), m.get("ocel"), 34);
         saveRecipe(p.get("xxl"), m.get("prkna"), 60);
@@ -209,7 +190,6 @@ public class DataSeeder implements CommandLineRunner {
         saveRecipe(p.get("xxl"), m.get("vruty"), 3);
         saveRecipe(p.get("xxl"), m.get("patky"), 6);
     }
-
     private void saveRecipe(Product product, Product material, int quantity) {
         recipeItemRepository.save(RecipeItem.builder()
                 .product(product)
@@ -217,25 +197,21 @@ public class DataSeeder implements CommandLineRunner {
                 .quantity(quantity)
                 .build());
     }
-
     private void seedInitialStockMovements(Map<String, Product> products, Map<String, Product> materials, User admin) {
         products.values().forEach(p -> stockMovementRepository.save(StockMovement.builder().product(p).performedBy(admin).quantity(p.getStockQuantity()).type(StockMovement.MovementType.ADJUSTMENT_PLUS).note("Počáteční stav - hotové výrobky").build()));
         materials.values().forEach(m -> stockMovementRepository.save(StockMovement.builder().product(m).performedBy(admin).quantity(m.getStockQuantity()).type(StockMovement.MovementType.RECEIPT).note("Příjem materiálu - dodavatel Kovohutě a Pila a.s.").build()));
     }
-
     private void seedAttendanceHistory(Map<String, User> employees) {
         LocalDate today = LocalDate.now();
         List<User> workers = List.of(employees.get("t1"), employees.get("t2"), employees.get("logist"));
         int daysAdded = 0;
         int daysToSubtract = 1;
-
         while (daysAdded < 3) {
             LocalDate date = today.minusDays(daysToSubtract);
             if (date.getDayOfWeek().getValue() <= 5) {
                 for (User emp : workers) {
                     LocalDateTime in = date.atTime(LocalTime.of(7, 30));
                     LocalDateTime out = date.atTime(LocalTime.of(16, 0));
-
                     attendanceRepository.save(AttendanceRecord.builder().employee(emp).timestamp(in).type(AttendanceRecord.AttendanceType.CLOCK_IN).build());
                     attendanceRepository.save(AttendanceRecord.builder().employee(emp).timestamp(in.plusHours(4)).type(AttendanceRecord.AttendanceType.BREAK_START).build());
                     attendanceRepository.save(AttendanceRecord.builder().employee(emp).timestamp(in.plusHours(4).plusMinutes(30)).type(AttendanceRecord.AttendanceType.BREAK_END).build());
@@ -246,10 +222,8 @@ public class DataSeeder implements CommandLineRunner {
             daysToSubtract++;
         }
     }
-
     private void seedOrders(Map<String, User> customers, Map<String, Product> p, Map<String, OrderStatus> s) {
         LocalDateTime now = LocalDateTime.now();
-
         createOrder("ORD-2024-00001", customers.get("c1"), s.get("DONE"), now.minusDays(14),
                 Map.of(p.get("xxl"), 1, p.get("kompakt"), 1));
         createOrder("ORD-2024-00002", customers.get("c2"), s.get("SHIP"), now.minusDays(5),
@@ -263,7 +237,6 @@ public class DataSeeder implements CommandLineRunner {
         createOrder("ORD-2024-00006", customers.get("c3"), s.get("CANCEL"), now.minusDays(10),
                 Map.of(p.get("xxl"), 2));
     }
-
     private void createOrder(String orderNumber, User customer, OrderStatus status, LocalDateTime createdAt, Map<Product, Integer> items) {
         Order order = Order.builder()
                 .orderNumber(orderNumber)
@@ -279,15 +252,12 @@ public class DataSeeder implements CommandLineRunner {
                 .taxMode(TaxMode.STANDARD)
                 .affidavitSigned(false)
                 .build();
-
         BigDecimal total = order.getShippingCost();
-
         for (Map.Entry<Product, Integer> entry : items.entrySet()) {
             Product p = entry.getKey();
             int qty = entry.getValue();
             BigDecimal price = p.getPriceWithTax();
             BigDecimal taxRateValue = p.getTaxRate() != null ? p.getTaxRate().getRate() : BigDecimal.ZERO;
-
             OrderItem item = OrderItem.builder()
                     .order(order)
                     .product(p)
@@ -295,30 +265,24 @@ public class DataSeeder implements CommandLineRunner {
                     .unitPrice(price)
                     .actualTaxRate(taxRateValue)
                     .build();
-
             // Automatické navolení variant u testovacích objednávek pro ukázku
             if (p.getName().contains("Dřevník")) {
-                item.setSelectedLazure("Ořech");
-                item.setSelectedRoofColor("Antracit");
+                item.setSelectedLazure(LayerType.LAZURE.getDefaultOptionName());
+                item.setSelectedRoofColor(LayerType.ROOF_COLOR.getDefaultOptionName());
             }
-
             order.getItems().add(item);
             total = total.add(price.multiply(BigDecimal.valueOf(qty)));
         }
-
         order.setTotalAmount(total);
-
         OrderStatusHistory history = OrderStatusHistory.builder()
                 .order(order)
                 .status(status)
                 .note("Pevně definovaná testovací objednávka.")
                 .createdAt(createdAt)
                 .build();
-
         order.getStatusHistory().add(history);
         orderRepository.save(order);
     }
-
     private void seedInstallationPosts() {
         InstallationPost xxlPost = InstallationPost.builder()
                 .title("Montáž Dřevníku XXL v moderní zahradě")
@@ -328,14 +292,11 @@ public class DataSeeder implements CommandLineRunner {
                 .active(true)
                 .images(new ArrayList<>())
                 .build();
-
         xxlPost.addImage(InstallationImage.builder().imageUrl("realizace/6.webp").displayOrder(0).build());
         xxlPost.addImage(InstallationImage.builder().imageUrl("realizace/7.webp").displayOrder(1).build());
         xxlPost.addImage(InstallationImage.builder().imageUrl("realizace/8.webp").displayOrder(2).build());
         xxlPost.addImage(InstallationImage.builder().imageUrl("realizace/9.webp").displayOrder(3).build());
-
         installationPostRepository.save(xxlPost);
-
         InstallationPost klasikPost = InstallationPost.builder()
                 .title("Dřevník Klasik na připraveném podkladu")
                 .productName("Dřevník Klasik")
@@ -344,14 +305,11 @@ public class DataSeeder implements CommandLineRunner {
                 .active(true)
                 .images(new ArrayList<>())
                 .build();
-
         klasikPost.addImage(InstallationImage.builder().imageUrl("realizace/1.webp").displayOrder(0).build());
         klasikPost.addImage(InstallationImage.builder().imageUrl("realizace/2.webp").displayOrder(1).build());
         klasikPost.addImage(InstallationImage.builder().imageUrl("realizace/3.webp").displayOrder(2).build());
-
         installationPostRepository.save(klasikPost);
     }
-
     private void seedFinalAudit(User admin) {
         auditLogRepository.save(AuditLog.builder()
                 .user(admin)
